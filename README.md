@@ -1,5 +1,7 @@
 #Tiny Validator (for v4 JSON Schema)
 
+All you need is ```tv4.js```.
+
 Currently no support for `$ref`, but all other validation keywords supported.
 
 ## Usage
