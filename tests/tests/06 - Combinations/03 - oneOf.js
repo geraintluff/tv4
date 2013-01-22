@@ -7,7 +7,7 @@ tests.add("oneOf success", function () {
 			{"type": "string", minLength: 1}
 		]
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return valid;
 });
 
@@ -20,7 +20,7 @@ tests.add("oneOf failure (too many)", function () {
 			{"minLength": 1}
 		]
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return !valid;
 });
 
@@ -33,6 +33,6 @@ tests.add("oneOf failure (no matches)", function () {
 			{"type": "string", "minLength": 1}
 		]
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return !valid;
 });

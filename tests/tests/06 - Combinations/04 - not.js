@@ -3,7 +3,7 @@ tests.add("not success", function () {
 	var schema = {
 		"not": {"type": "string"}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return valid;
 });
 
@@ -12,6 +12,6 @@ tests.add("not failure", function () {
 	var schema = {
 		"not": {"type": "string"}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return !valid;
 });

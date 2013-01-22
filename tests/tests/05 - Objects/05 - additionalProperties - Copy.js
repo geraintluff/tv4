@@ -9,7 +9,7 @@ tests.add("additionalProperties schema success", function () {
 		},
 		additionalProperties: {"type": "string"}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return valid;
 });
 
@@ -24,7 +24,7 @@ tests.add("patternProperties schema failure", function () {
 		},
 		additionalProperties: {"type": "string"}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return !valid;
 });
 
@@ -39,7 +39,7 @@ tests.add("patternProperties boolean success", function () {
 		},
 		additionalProperties: true
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return valid;
 });
 
@@ -54,6 +54,6 @@ tests.add("patternProperties boolean failure", function () {
 		},
 		additionalProperties: false
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return !valid;
 });

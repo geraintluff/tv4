@@ -1,4 +1,10 @@
 function validateAll(data, schema) {
+	if (schema['$ref'] != undefined) {
+		schema = tv4.getSchema(schema['$ref']);
+		if (!schema) {
+			return null;
+		}
+	}
 	var error = false;
 	return validateBasic(data, schema)
 		|| validateNumeric(data, schema)

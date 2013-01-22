@@ -5,7 +5,7 @@ tests.add("string dependency success", function () {
 			key1: "key2"
 		}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return valid;
 });
 
@@ -16,7 +16,7 @@ tests.add("string dependency failure", function () {
 			key1: "key2"
 		}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return !valid;
 });
 
@@ -27,7 +27,7 @@ tests.add("array dependency success", function () {
 			key1: ["key2"]
 		}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return valid;
 });
 
@@ -38,7 +38,7 @@ tests.add("array dependency failure", function () {
 			key1: ["key2"]
 		}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return !valid;
 });
 
@@ -53,7 +53,7 @@ tests.add("schema dependency success", function () {
 			}
 		}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return valid;
 });
 
@@ -68,6 +68,6 @@ tests.add("schema dependency failure", function () {
 			}
 		}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return !valid;
 });

@@ -8,7 +8,7 @@ tests.add("patternProperties success", function () {
 			"^int": {minimum: 0}
 		}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return valid;
 });
 
@@ -22,7 +22,7 @@ tests.add("patternProperties failure 1", function () {
 			"^int": {"type": "integer"}
 		}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return !valid;
 });
 
@@ -36,6 +36,6 @@ tests.add("patternProperties failure 2", function () {
 			"^int": {"type": "integer"}
 		}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return !valid;
 });

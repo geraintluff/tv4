@@ -5,7 +5,7 @@ tests.add("plain items success", function () {
 			"type": "integer"
 		}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return valid;
 });
 
@@ -16,6 +16,6 @@ tests.add("plain items failure", function () {
 			"type": "integer"
 		}
 	};
-	var valid = validate(data, schema);
+	var valid = tv4.validate(data, schema);
 	return !valid;
 });
