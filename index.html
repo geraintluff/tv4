@@ -1,0 +1,173 @@
+<html>
+	<head>
+		<title>Tiny Validator for v4 JSON Schema</title>
+		<style>
+			body {
+				background-color: #F0F0E0;
+				font-family: sans-serif;
+			}
+			
+			 a {
+				color: #04D;
+				text-decoration: none;
+			 }
+
+			 a:hover {
+				color: #08F;
+				text-decoration: underline;
+			 }
+			
+			#main {
+				width: 700px;
+				margin-left: auto;
+				margin-right: auto;
+				border: 1px solid #888;
+				border-radius: 3px;
+				background-color: #FFF;
+			}
+			
+			h1 {
+				text-align: center;
+				font-size: 1.3em;
+				font-weight: bold;
+				border-bottom: 1px solid black;
+				margin: 0;
+				padding: 0.3em;
+				padding-left: 1em;
+				background-color: #F8F8F0;
+				border-top-left-radius: 3px;
+				border-top-right-radius: 3px;
+			}
+			
+			.content {
+				padding-left: 1em;
+				padding-right: 1em;
+			}
+			
+			.box {
+				font-size: 0.9em;
+				margin: 1em;
+				padding: 0.5em;
+				padding-left: 0.7em;
+				border: 1px solid black;
+				border-radius: 3px;
+				background-color: #F0F0E8;
+			}
+			
+			code, .code {
+				background-color: #F8F8F8;
+				border: 1px solid #DDD;
+				border-radius: 3px;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="tv4.js"></script>
+		<script>
+			function runDemo(elementId) {
+				var element = document.getElementById(elementId);
+				var text = "";
+				for (var i = 0; i < element.childNodes.length; i++) {
+					if (element.childNodes[i].nodeType == 3) {
+						text += element.childNodes[i].nodeValue;
+					}
+				}
+				eval(text);
+			}
+		</script>
+		<div id="main">
+			<h1>Tiny Validator for v4 JSON Schema</h1>
+			
+			<div class="content">
+				<div class="box">
+					Download <a href="tv4.js">full</a> (17kb) or <a href="tv4.min.js">minified</a> (8.3kb, 2.86kb gzipped)
+				</div>
+				<p>Tiny Validator is a JavaScript library for validation against v4 the <a href="http://json-schema.org/">JSON Schema</a> standard.
+				<p>It supports <code>$ref</code> with JSON Pointer fragment paths (e.g. <code>http://example.com/schema#/properties/myKey</code>).
+				<p>It uses relatively modern JavaScript features (such as <code>JSON.stringify</code> and <code>Array.isArray</code>) so older browsers will need a compatability shim - <a href="https://github.com/kriskowal/es5-shim">this</a> is a good one.
+				<p>For the source code, see the <a href="https://github.com/geraintluff/tv4">GitHub repository</a>.
+				
+				<h2>Usage:</h2>
+				<pre class="code">var valid = validate(data, schema);</pre>
+				
+				<p>If validation fails, there will be an object describing the error in <code>tv4.error</code>.  If there are any schemas missing (<code>$ref</code>s not resolved), then they will be present in <code>tv4.missing</code>.
+				
+				<p>Missing schemas are treated as empty.
+				
+				<h2>Demos:</h2>
+				<h3>Basic usage</h3>
+				<div class="content">
+					<a href="javascript:runDemo('demo1');">run demo</a>
+<pre class="code" id="demo1">
+var schema = {
+	"items": {
+		"type": "boolean"
+	}
+};
+var data1 = [true, false];
+var data2 = [true, 123];
+
+alert("data 1: " + tv4.validate(data1, schema)); // true
+alert("data 2: " + tv4.validate(data2, schema)); // false
+alert("data 2 error: " + JSON.stringify(tv4.error, null, 4));
+</pre>
+				</div>
+				
+				<h3>Use of <code>$ref</code></h3>
+				<div class="content">
+					<a href="javascript:runDemo('demo2');">run demo</a>
+<pre class="code" id="demo2">
+var schema = {
+	"type": "array",
+	"items": {"$ref": "#"}
+};
+var data1 = [[], [[]]];
+var data2 = [[], [true, []]];
+
+alert("data 1: " + tv4.validate(data1, schema)); // true
+alert("data 2: " + tv4.validate(data2, schema)); // false
+</pre>
+				</div>
+
+				<h3>Missing schema</h3>
+				<div class="content">
+					<a href="javascript:runDemo('demo3');">run demo</a>
+<pre class="code" id="demo3">
+var schema = {
+	"type": "array",
+	"items": {"$ref": "http://example.com/schema"}
+};
+var data = [1, 2, 3];
+
+alert("Valid: " + tv4.validate(data, schema)); // true
+alert("Missing schemas: " + JSON.stringify(tv4.missing));
+</pre>
+				</div>
+
+				<h3>Referencing remote schema</h3>
+				<div class="content">
+					<a href="javascript:runDemo('demo4');">run demo</a>
+<pre class="code" id="demo4">
+tv4.addSchema("http://example.com/schema", {
+	"definitions": {
+		"arrayItem": {"type": "boolean"}
+	}
+});
+var schema = {
+	"type": "array",
+	"items": {"$ref": "http://example.com/schema#/definitions/arrayItem"}
+};
+var data1 = [true, false, true];
+var data2 = [1, 2, 3];
+
+alert("data 1: " + tv4.validate(data1, schema)); // true
+alert("data 2: " + tv4.validate(data2, schema)); // false
+</pre>
+				</div>
+
+				<h2>Tests:</h2>
+				<p>There are some <a href="tests/?all">tests</a>, but they use PHP to run, so they won't work when hosted by GitHub.
+			</div>
+		</div>
+	</body>
+</html>
