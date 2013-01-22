@@ -88,7 +88,7 @@
 				<p>For the source code, see the <a href="https://github.com/geraintluff/tv4">GitHub repository</a>.
 				
 				<h2>Usage:</h2>
-				<pre class="code">var valid = validate(data, schema);</pre>
+				<pre class="code">var valid = tv4.validate(data, schema);</pre>
 				
 				<p>If validation fails, there will be an object describing the error in <code>tv4.error</code>.  If there are any schemas missing (<code>$ref</code>s not resolved), then they will be present in <code>tv4.missing</code>.
 				
