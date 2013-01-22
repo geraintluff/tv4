@@ -1,15 +1,20 @@
 /**
-Copyright (C) 2012 Geraint Luff
+Author: Geraint Luff
+Year: 2013
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+This code is released into the "public domain" by its author.  Anybody may use, alter and distribute the code without restriction.  The author makes no guarantees, and takes no liability of any kind for use of this code.
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+If you find a bug or make an improvement, it would be courteous to let the author know, but it is not compulsory.
 **/
 
 (function (global) {
 function validateAll(data, schema) {
+	if (schema['$ref'] != undefined) {
+		schema = tv4.getSchema(schema['$ref']);
+		if (!schema) {
+			return null;
+		}
+	}
 	var error = false;
 	return validateBasic(data, schema)
 		|| validateNumeric(data, schema)
@@ -422,6 +427,75 @@ function validateNot(data, schema) {
 	return null;
 }
 
+// parseURI() and resolveUrl() are from https://gist.github.com/1088850
+//   -  released as public domain by author ("Yaffle") - see comments on gist
+
+function parseURI(url) {
+	var m = String(url).replace(/^\s+|\s+$/g, '').match(/^([^:\/?#]+:)?(\/\/(?:[^:@]*(?::[^:@]*)?@)?(([^:\/?#]*)(?::(\d*))?))?([^?#]*)(\?[^#]*)?(#[\s\S]*)?/);
+	// authority = '//' + user + ':' + pass '@' + hostname + ':' port
+	return (m ? {
+		href     : m[0] || '',
+		protocol : m[1] || '',
+		authority: m[2] || '',
+		host     : m[3] || '',
+		hostname : m[4] || '',
+		port     : m[5] || '',
+		pathname : m[6] || '',
+		search   : m[7] || '',
+		hash     : m[8] || ''
+	} : null);
+}
+
+function resolveUrl(base, href) {// RFC 3986
+
+	function removeDotSegments(input) {
+		var output = [];
+		input.replace(/^(\.\.?(\/|$))+/, '')
+			.replace(/\/(\.(\/|$))+/g, '/')
+			.replace(/\/\.\.$/, '/../')
+			.replace(/\/?[^\/]*/g, function (p) {
+				if (p === '/..') {
+					output.pop();
+				} else {
+					output.push(p);
+				}
+		});
+		return output.join('').replace(/^\//, input.charAt(0) === '/' ? '/' : '');
+	}
+
+	href = parseURI(href || '');
+	base = parseURI(base || '');
+
+	return !href || !base ? null : (href.protocol || base.protocol) +
+		(href.protocol || href.authority ? href.authority : base.authority) +
+		removeDotSegments(href.protocol || href.authority || href.pathname.charAt(0) === '/' ? href.pathname : (href.pathname ? ((base.authority && !base.pathname ? '/' : '') + base.pathname.slice(0, base.pathname.lastIndexOf('/') + 1) + href.pathname) : base.pathname)) +
+		(href.protocol || href.authority || href.pathname ? href.search : (href.search || base.search)) +
+		href.hash;
+}
+
+function normSchema(schema, baseUri) {
+	if (baseUri == undefined) {
+		baseUri = schema.id;
+	} else if (schema.id != undefined) {
+		baseUri = resolveUrl(baseUri, schema.id);
+		schema.id = baseUri;
+	}
+	if (typeof schema == "object") {
+		if (Array.isArray(schema)) {
+			for (var i = 0; i < schema.length; i++) {
+				normSchema(schema[i], baseUri);
+			}
+		} else if (schema['$ref'] != undefined) {
+			schema['$ref'] = resolveUrl(baseUri, schema['$ref']);
+		} else {
+			for (var key in schema) {
+				if (key != "enum") {
+					normSchema(schema[key], baseUri);
+				}
+			}
+		}
+	}
+}
 function ValidationError(message, dataPath, schemaPath, subErrors) {
 	this.message = message;
 	this.dataPath = dataPath ? dataPath : "";
@@ -447,13 +521,64 @@ ValidationError.prototype = {
 	}
 };
 
-global.validate = function (data, schema) {
-	var error = validateAll(data, schema);
-	if (error == null) {
-		return true;
-	} else {
-		window.validate.error = error;
-		return false;
-	}
+var publicApi = {
+	schemas: {},
+	validate: function (data, schema) {
+		if (typeof schema == "string") {
+			schema = {"$ref": schema};
+		}
+		this.missing = [];
+		this.addSchema("", schema);
+		var error = validateAll(data, schema);
+		delete this.schemas[""];
+		this.error = error;
+		if (error == null) {
+			return true;
+		} else {
+			return false;
+		}
+	},
+	addSchema: function (url, schema) {
+		normSchema(schema, url);
+		this.schemas[url] = schema;
+	},
+	getSchema: function (url) {
+		if (this.schemas[url] != undefined) {
+			var schema = this.schemas[url];
+			return schema;
+		}
+		var baseUrl = url;
+		var fragment = "";
+		if (url.indexOf('#') != -1) {
+			fragment = url.substring(url.indexOf("#") + 1);
+			baseUrl = url.substring(0, url.indexOf("#"));
+		}
+		if (this.schemas[baseUrl] != undefined) {
+			var schema = this.schemas[baseUrl];
+			var pointerPath = decodeURIComponent(fragment);
+			var parts = pointerPath.split("/").slice(1);
+			for (var i = 0; i < parts.length; i++) {
+				var component = parts[i].replace("~1", "/").replace("~0", "~");
+				if (schema[component] == undefined) {
+					schema = undefined;
+					break;
+				}
+				schema = schema[component];
+			}
+			if (schema != undefined) {
+				return schema;
+			}
+		}
+		if (this.missing[baseUrl] == undefined) {
+			this.missing.push(baseUrl);
+			this.missing[baseUrl] = baseUrl;
+		}
+	},
+	missing: [],
+	error: null,
+	normSchema: normSchema,
+	resolveUrl: resolveUrl
 };
+
+global.tv4 = publicApi;
 })(this);
