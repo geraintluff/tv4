@@ -10,7 +10,7 @@ If you find a bug or make an improvement, it would be courteous to let the autho
 (function (global) {
 function validateAll(data, schema) {
 	if (schema['$ref'] != undefined) {
-		schema = tv4.getSchema(schema['$ref']);
+		schema = global.tv4.getSchema(schema['$ref']);
 		if (!schema) {
 			return null;
 		}
@@ -476,7 +476,7 @@ function resolveUrl(base, href) {// RFC 3986
 function normSchema(schema, baseUri) {
 	if (baseUri == undefined) {
 		baseUri = schema.id;
-	} else if (typeof schema.id == "string") {
+	} else if (schema.id != undefined) {
 		baseUri = resolveUrl(baseUri, schema.id);
 		schema.id = baseUri;
 	}
@@ -485,7 +485,7 @@ function normSchema(schema, baseUri) {
 			for (var i = 0; i < schema.length; i++) {
 				normSchema(schema[i], baseUri);
 			}
-		} else if (typeof schema['$ref'] == "string") {
+		} else if (schema['$ref'] != undefined) {
 			schema['$ref'] = resolveUrl(baseUri, schema['$ref']);
 		} else {
 			for (var key in schema) {
@@ -581,4 +581,5 @@ var publicApi = {
 };
 
 global.tv4 = publicApi;
-})(this);
+})((typeof module !== 'undefined' && module.exports) ? exports : this);
+
