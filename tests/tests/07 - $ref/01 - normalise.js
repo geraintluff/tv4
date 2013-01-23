@@ -46,3 +46,16 @@ tests.add("normalise - do not touch contents of \"enum\"", function () {
 	this.assert(schema.items['enum'][0]['$ref'] == "#");
 	return true;
 });
+
+tests.add("Only normalise id and $ref if they are strings", function () {
+	var schema = {
+		"properties": {
+			"id": {"type": "integer"},
+			"$ref": {"type": "integer"}
+		}
+	};
+	var data = {"id": "test", "$ref": "test"};
+	tv4.normSchema(schema);
+	var valid = tv4.validate(data, schema);
+	return !valid;
+});
