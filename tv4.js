@@ -476,7 +476,7 @@ function resolveUrl(base, href) {// RFC 3986
 function normSchema(schema, baseUri) {
 	if (baseUri == undefined) {
 		baseUri = schema.id;
-	} else if (schema.id != undefined) {
+	} else if (typeof schema.id == "string") {
 		baseUri = resolveUrl(baseUri, schema.id);
 		schema.id = baseUri;
 	}
@@ -485,7 +485,7 @@ function normSchema(schema, baseUri) {
 			for (var i = 0; i < schema.length; i++) {
 				normSchema(schema[i], baseUri);
 			}
-		} else if (schema['$ref'] != undefined) {
+		} else if (typeof schema['$ref'] == "string") {
 			schema['$ref'] = resolveUrl(baseUri, schema['$ref']);
 		} else {
 			for (var key in schema) {
