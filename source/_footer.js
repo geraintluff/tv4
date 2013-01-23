@@ -1,1 +1,1 @@
-})(this);
+})((typeof module !== 'undefined' && module.exports) ? exports : this);

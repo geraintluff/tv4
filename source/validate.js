@@ -1,6 +1,6 @@
 function validateAll(data, schema) {
 	if (schema['$ref'] != undefined) {
-		schema = tv4.getSchema(schema['$ref']);
+		schema = global.tv4.getSchema(schema['$ref']);
 		if (!schema) {
 			return null;
 		}
