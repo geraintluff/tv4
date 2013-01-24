@@ -31,3 +31,7 @@ If schemas are referenced (```$ref```) but not known, then validation will retur
 ## Tests
 
 There are tests available, but they require PHP, so you can't see them on GitHub.
+
+## Minifying
+
+```tv4.min.js``` is produced using the [Google Closure Compiler](http://closure-compiler.appspot.com/home).
