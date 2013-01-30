@@ -1,5 +1,5 @@
 tests.add("inline addressing for fragments", function () {
-  var schema = {
+	var schema = {
 		"type": "array",
 		"items": {"$ref": "#test"},
 		"testSchema": {
@@ -13,8 +13,10 @@ tests.add("inline addressing for fragments", function () {
 });
 
 tests.add("don't trust non sub-paths", function () {
+	var examplePathBase = "http://example.com/" + Math.random();
+	var examplePath = examplePathBase +"/schema";
 	var schema = {
-		"id": "http://example.com/schema",
+		"id": examplePath,
 		"type": "array",
 		"items": {"$ref": "other-schema"},
 		"testSchema": {
@@ -22,11 +24,11 @@ tests.add("don't trust non sub-paths", function () {
 			"type": "boolean"
 		}
 	};
-	tv4.addSchema("http://example.com/schema", schema);
+	tv4.addSchema(examplePath, schema);
 	var data = [0, false];
-	var valid = tv4.validate(data, "http://example.com/schema");
+	var valid = tv4.validate(data, examplePath);
 	this.assert(tv4.missing.length == 1, "should have missing schema");
-	this.assert(tv4.missing[0] == "http://example.com/other-schema", "incorrect schema missing: " + tv4.missing[0]);
+	this.assert(tv4.missing[0] == examplePathBase + "/other-schema", "incorrect schema missing: " + tv4.missing[0]);
 	this.assert(valid, "should pass, as remote schema not found");
 	return true;
 });
