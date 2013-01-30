@@ -23,6 +23,29 @@ ValidationError.prototype = {
 	}
 };
 
+function searchForTrustedSchemas(map, schema, url) {
+	if (typeof schema.id == "string") {
+		if (schema.id.substring(0, url.length) == url) {
+			var remainder = schema.id.substring(url.length);
+			if ((url.length > 0 && url.charAt(url.length - 1) == "/")
+				|| remainder.charAt(0) == "#"
+				|| remainder.charAt(0) == "?") {
+				if (map[schema.id] == undefined) {
+					map[schema.id] = schema;
+				}
+			}
+		}
+	}
+	if (typeof schema == "object") {
+		for (var key in schema) {
+			if (key != "enum" && typeof schema[key] == "object") {
+				searchForTrustedSchemas(map, schema[key], url);
+			}
+		}
+	}
+	return map;
+}
+
 var publicApi = {
 	schemas: {},
 	validate: function (data, schema) {
@@ -30,9 +53,11 @@ var publicApi = {
 			schema = {"$ref": schema};
 		}
 		this.missing = [];
-		this.addSchema("", schema);
+		var added = this.addSchema("", schema);
 		var error = validateAll(data, schema);
-		delete this.schemas[""];
+		for (var key in added) {
+			delete this.schemas[key];
+		}
 		this.error = error;
 		if (error == null) {
 			return true;
@@ -41,8 +66,14 @@ var publicApi = {
 		}
 	},
 	addSchema: function (url, schema) {
+		var map = {};
+		map[url] = schema;
 		normSchema(schema, url);
-		this.schemas[url] = schema;
+		searchForTrustedSchemas(map, schema, url);
+		for (var key in map) {
+			this.schemas[key] = map[key];
+		}
+		return map;
 	},
 	getSchema: function (url) {
 		if (this.schemas[url] != undefined) {
@@ -58,6 +89,11 @@ var publicApi = {
 		if (this.schemas[baseUrl] != undefined) {
 			var schema = this.schemas[baseUrl];
 			var pointerPath = decodeURIComponent(fragment);
+			if (pointerPath == "") {
+				return schema;
+			} else if (pointerPath.charAt(0) != "/") {
+				return undefined;
+			}
 			var parts = pointerPath.split("/").slice(1);
 			for (var i = 0; i < parts.length; i++) {
 				var component = parts[i].replace("~1", "/").replace("~0", "~");
