@@ -11,6 +11,7 @@ if (tv4.asyncValidate == undefined) {
 		}
 	}
 	v4.asyncValidate = function (data, schema, callback) {
+		var $ = jQuery;
 		var result = tv4.validate(data, schema);
 		if (tv4.missing.length == 0) {
 			callback(result, tv4.error);
