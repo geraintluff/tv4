@@ -94,6 +94,15 @@
 				
 				<p>Missing schemas are treated as empty.
 				
+				<h2>Asynchronous usage:</h2>
+				<p>Asynchronous usage (fetching schemas using AJAX) requires an additional file.  Currently, the only version available relies on jQuery, but it is short and should be easily modifiable for other libraries: <a href="tv4.async-jquery.js">tv4.async-jquery.js</a></p>
+				
+				<p>Asynchronous mode is signified by providing a callback as a third parameter:</p>
+				
+				<pre class="code">tv4.validate(data, schema, function (isValid, validationError) { ... });</pre>
+				
+				<p>The value of <code>validationError</code> is taken from <code>tv4.error</code>.
+
 				<h2>Demos:</h2>
 				<h3>Basic usage</h3>
 				<div class="content">
