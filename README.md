@@ -28,6 +28,18 @@ tv4.addSchema(url, schema);
 
 If schemas are referenced (```$ref```) but not known, then validation will return ```true``` and the missing schema(s) will be listed in ```tv4.missing```.
 
+## Asynchronous validation
+
+Support for asynchronous validation (where missing schemas are fetched) can be added by including an extra JavaScript file.  Currently, the only version requires jQuery (`tv4.async-jquery.js`), but the code is very short and should be fairly easy to modify for other libraries (such as MooTools).
+
+Usage:
+
+```javascript
+tv4.validate(data, schema, function (isValid, validationError) { ... });
+```
+
+`validationFailure` is simply taken from `tv4.error`. 
+
 ## Tests
 
 There are tests available, but they require PHP, so you can't see them on GitHub.
