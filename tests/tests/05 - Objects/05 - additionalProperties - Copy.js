@@ -9,8 +9,8 @@ tests.add("additionalProperties schema success", function () {
 		},
 		additionalProperties: {"type": "string"}
 	};
-	var valid = tv4.validate(data, schema);
-	return valid;
+	var result = tv4.validate(data, schema);
+	return result.valid;
 });
 
 tests.add("patternProperties schema failure", function () {
@@ -24,8 +24,8 @@ tests.add("patternProperties schema failure", function () {
 		},
 		additionalProperties: {"type": "string"}
 	};
-	var valid = tv4.validate(data, schema);
-	return !valid;
+	var result = tv4.validate(data, schema);
+	return !result.valid;
 });
 
 tests.add("patternProperties boolean success", function () {
@@ -39,8 +39,8 @@ tests.add("patternProperties boolean success", function () {
 		},
 		additionalProperties: true
 	};
-	var valid = tv4.validate(data, schema);
-	return valid;
+	var result = tv4.validate(data, schema);
+	return result.valid;
 });
 
 tests.add("patternProperties boolean failure", function () {
@@ -54,6 +54,6 @@ tests.add("patternProperties boolean failure", function () {
 		},
 		additionalProperties: false
 	};
-	var valid = tv4.validate(data, schema);
-	return !valid;
+	var result = tv4.validate(data, schema);
+	return !result.valid;
 });

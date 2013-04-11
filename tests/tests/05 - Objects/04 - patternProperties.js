@@ -8,8 +8,8 @@ tests.add("patternProperties success", function () {
 			"^int": {minimum: 0}
 		}
 	};
-	var valid = tv4.validate(data, schema);
-	return valid;
+	var result = tv4.validate(data, schema);
+	return result.valid;
 });
 
 tests.add("patternProperties failure 1", function () {
@@ -22,8 +22,8 @@ tests.add("patternProperties failure 1", function () {
 			"^int": {"type": "integer"}
 		}
 	};
-	var valid = tv4.validate(data, schema);
-	return !valid;
+	var result = tv4.validate(data, schema);
+	return !result.valid;
 });
 
 tests.add("patternProperties failure 2", function () {
@@ -36,6 +36,6 @@ tests.add("patternProperties failure 2", function () {
 			"^int": {"type": "integer"}
 		}
 	};
-	var valid = tv4.validate(data, schema);
-	return !valid;
+	var result = tv4.validate(data, schema);
+	return !result.valid;
 });

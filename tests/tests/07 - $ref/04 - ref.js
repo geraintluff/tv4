@@ -7,10 +7,10 @@ tests.add("addSchema(), $ref", function () {
 	
 	var otherSchema = {
 		"items": {"$ref": url}
-	}
-	var valid = tv4.validate([0,1,2,3], otherSchema);
-	this.assert(valid, "should be valid");
-	this.assert(tv4.missing.length == 0, "should have no missing schemas");
+	};
+	var result = tv4.validate([0,1,2,3], otherSchema);
+	this.assert(result.valid, "should be valid");
+	this.assert(result.missing.length == 0, "should have no missing schemas");
 	return true;
 });
 
@@ -19,11 +19,16 @@ tests.add("internal $ref", function () {
 		"type": "array",
 		"items": {"$ref": "#"}
 	};
-	
-	this.assert(tv4.validate([[],[[]]], schema), "List of lists should be valid");
-	this.assert(!tv4.validate([0,1,2,3], schema), "List of ints should not");
-	this.assert(!tv4.validate([[true], []], schema), "List of list with boolean should not");
 
-	this.assert(tv4.missing.length == 0, "should have no missing schemas");
+    var result = tv4.validate([[],[[]]], schema);
+	this.assert(result.valid, "List of lists should be valid");
+
+    result = tv4.validate([0,1,2,3], schema);
+    this.assert(!result.valid, "List of ints should not");
+
+    result = tv4.validate([[true], []], schema);
+	this.assert(!result.valid, "List of list with boolean should not");
+	this.assert(result.missing.length == 0, "should have no missing schemas");
+
 	return true;
 });

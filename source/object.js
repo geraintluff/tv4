@@ -1,11 +1,11 @@
-function validateObject(data, schema) {
+function validateObject(data, schema, getSchema) {
 	if (typeof data != "object" || data == null || Array.isArray(data)) {
 		return null;
 	}
 	return validateObjectMinMaxProperties(data, schema)
 		|| validateObjectRequiredProperties(data, schema)
-		|| validateObjectProperties(data, schema)
-		|| validateObjectDependencies(data, schema)
+		|| validateObjectProperties(data, schema, getSchema)
+		|| validateObjectDependencies(data, schema, getSchema)
 		|| null;
 }
 
@@ -36,13 +36,13 @@ function validateObjectRequiredProperties(data, schema) {
 	return null;
 }
 
-function validateObjectProperties(data, schema) {
+function validateObjectProperties(data, schema, getSchema) {
 	var error;
 	for (var key in data) {
 		var foundMatch = false;
 		if (schema.properties != undefined && schema.properties[key] != undefined) {
 			foundMatch = true;
-			if (error = validateAll(data[key], schema.properties[key])) {
+			if (error = validateAll(data[key], schema.properties[key], getSchema)) {
 				return error.prefixWith(key, key).prefixWith(null, "properties");
 			}
 		}
@@ -51,7 +51,7 @@ function validateObjectProperties(data, schema) {
 				var regexp = new RegExp(patternKey);
 				if (regexp.test(key)) {
 					foundMatch = true;
-					if (error = validateAll(data[key], schema.patternProperties[patternKey])) {
+					if (error = validateAll(data[key], schema.patternProperties[patternKey], getSchema)) {
 						return error.prefixWith(key, patternKey).prefixWith(null, "patternProperties");
 					}
 				}
@@ -63,7 +63,7 @@ function validateObjectProperties(data, schema) {
 					return new ValidationError("Additional properties not allowed").prefixWith(key, "additionalProperties");
 				}
 			} else {
-				if (error = validateAll(data[key], schema.additionalProperties)) {
+				if (error = validateAll(data[key], schema.additionalProperties, getSchema)) {
 					return error.prefixWith(key, "additionalProperties");
 				}
 			}
@@ -72,7 +72,7 @@ function validateObjectProperties(data, schema) {
 	return null;
 }
 
-function validateObjectDependencies(data, schema) {
+function validateObjectDependencies(data, schema, getSchema) {
 	var error;
 	if (schema.dependencies != undefined) {
 		for (var depKey in schema.dependencies) {
@@ -90,7 +90,7 @@ function validateObjectDependencies(data, schema) {
 						}
 					}
 				} else {
-					if (error = validateAll(data, dep)) {
+					if (error = validateAll(data, dep, getSchema)) {
 						return error.prefixWith(null, depKey).prefixWith(null, "dependencies");
 					}
 				}

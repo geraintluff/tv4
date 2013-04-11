@@ -7,8 +7,8 @@ tests.add("additional items schema success", function () {
 		],
 		"additionalItems": {"type": "string"}
 	};
-	var valid = tv4.validate(data, schema);
-	return valid;
+	var result = tv4.validate(data, schema);
+	return result.valid;
 });
 
 tests.add("additional items schema failure", function () {
@@ -20,8 +20,8 @@ tests.add("additional items schema failure", function () {
 		],
 		"additionalItems": {"type": "string"}
 	};
-	var valid = tv4.validate(data, schema);
-	return !valid;
+	var result = tv4.validate(data, schema);
+	return !result.valid;
 });
 
 tests.add("additional items boolean success", function () {
@@ -33,8 +33,8 @@ tests.add("additional items boolean success", function () {
 		],
 		"additionalItems": true
 	};
-	var valid = tv4.validate(data, schema);
-	return valid;
+	var result = tv4.validate(data, schema);
+	return result.valid;
 });
 
 tests.add("additional items boolean failure", function () {
@@ -46,6 +46,6 @@ tests.add("additional items boolean failure", function () {
 		],
 		"additionalItems": false
 	};
-	var valid = tv4.validate(data, schema);
-	return !valid;
+	var result = tv4.validate(data, schema);
+	return !result.valid;
 });

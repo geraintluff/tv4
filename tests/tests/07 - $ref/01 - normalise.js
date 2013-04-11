@@ -56,6 +56,6 @@ tests.add("Only normalise id and $ref if they are strings", function () {
 	};
 	var data = {"id": "test", "$ref": "test"};
 	tv4.normSchema(schema);
-	var valid = tv4.validate(data, schema);
-	return !valid;
+	var result = tv4.validate(data, schema);
+	return !result.valid;
 });

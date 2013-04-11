@@ -8,8 +8,8 @@ tests.add("inline addressing for fragments", function () {
 		}
 	};
 	var data = [0, false];
-	var valid = tv4.validate(data, schema);
-	return !valid;
+	var result = tv4.validate(data, schema);
+	return !result.valid;
 });
 
 tests.add("don't trust non sub-paths", function () {
@@ -26,9 +26,9 @@ tests.add("don't trust non sub-paths", function () {
 	};
 	tv4.addSchema(examplePath, schema);
 	var data = [0, false];
-	var valid = tv4.validate(data, examplePath);
-	this.assert(tv4.missing.length == 1, "should have missing schema");
-	this.assert(tv4.missing[0] == examplePathBase + "/other-schema", "incorrect schema missing: " + tv4.missing[0]);
-	this.assert(valid, "should pass, as remote schema not found");
+	var result = tv4.validate(data, examplePath);
+	this.assert(result.missing.length == 1, "should have missing schema");
+	this.assert(result.missing[0] == examplePathBase + "/other-schema", "incorrect schema missing: " + result.missing[0]);
+	this.assert(result.valid, "should pass, as remote schema not found");
 	return true;
 });

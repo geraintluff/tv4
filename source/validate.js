@@ -1,17 +1,16 @@
-function validateAll(data, schema) {
+function validateAll(data, schema, getSchema) {
 	if (schema['$ref'] != undefined) {
-		schema = global.tv4.getSchema(schema['$ref']);
+		schema = getSchema(schema['$ref']);
 		if (!schema) {
 			return null;
 		}
 	}
-	var error = false;
 	return validateBasic(data, schema)
 		|| validateNumeric(data, schema)
 		|| validateString(data, schema)
-		|| validateArray(data, schema)
-		|| validateObject(data, schema)
-		|| validateCombinations(data, schema)
+		|| validateArray(data, schema, getSchema)
+		|| validateObject(data, schema, getSchema)
+		|| validateCombinations(data, schema, getSchema)
 		|| null;
 }
 

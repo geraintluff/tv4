@@ -1,10 +1,10 @@
-function validateArray(data, schema) {
+function validateArray(data, schema, getSchema) {
 	if (!Array.isArray(data)) {
 		return null;
 	}
 	return validateArrayLength(data, schema)
 		|| validateArrayUniqueItems(data, schema)
-		|| validateArrayItems(data, schema)
+		|| validateArrayItems(data, schema, getSchema)
 		|| null;
 }
 
@@ -35,7 +35,7 @@ function validateArrayUniqueItems(data, schema) {
 	return null;
 }
 
-function validateArrayItems(data, schema) {
+function validateArrayItems(data, schema, getSchema) {
 	if (schema.items == undefined) {
 		return null;
 	}
@@ -43,7 +43,7 @@ function validateArrayItems(data, schema) {
 	if (Array.isArray(schema.items)) {
 		for (var i = 0; i < data.length; i++) {
 			if (i < schema.items.length) {
-				if (error = validateAll(data[i], schema.items[i])) {
+				if (error = validateAll(data[i], schema.items[i], getSchema)) {
 					return error.prefixWith(null, "" + i).prefixWith("" + i, "items");
 				}
 			} else if (schema.additionalItems != undefined) {
@@ -51,14 +51,14 @@ function validateArrayItems(data, schema) {
 					if (!schema.additionalItems) {
 						return (new ValidationError("Additional items not allowed")).prefixWith("" + i, "additionalItems");
 					}
-				} else if (error = validateAll(data[i], schema.additionalItems)) {
+				} else if (error = validateAll(data[i], schema.additionalItems, getSchema)) {
 					return error.prefixWith("" + i, "additionalItems");
 				}
 			}
 		}
 	} else {
 		for (var i = 0; i < data.length; i++) {
-			if (error = validateAll(data[i], schema.items)) {
+			if (error = validateAll(data[i], schema.items, getSchema)) {
 				return error.prefixWith("" + i, "items");
 			}
 		}

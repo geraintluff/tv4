@@ -6,8 +6,8 @@ tests.add("properties success", function () {
 			stringKey: {"type": "string"}
 		}
 	};
-	var valid = tv4.validate(data, schema);
-	return valid;
+	var result = tv4.validate(data, schema);
+	return result.valid;
 });
 
 tests.add("properties failure", function () {
@@ -18,6 +18,6 @@ tests.add("properties failure", function () {
 			stringKey: {"type": "string"}
 		}
 	};
-	var valid = tv4.validate(data, schema);
-	return !valid;
+	var result = tv4.validate(data, schema);
+	return !result.valid;
 });

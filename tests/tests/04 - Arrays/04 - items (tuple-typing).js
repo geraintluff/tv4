@@ -6,8 +6,8 @@ tests.add("plain items success", function () {
 			{"type": "boolean"}
 		]
 	};
-	var valid = tv4.validate(data, schema);
-	return valid;
+	var result = tv4.validate(data, schema);
+	return result.valid;
 });
 
 tests.add("plain items failure", function () {
@@ -18,6 +18,6 @@ tests.add("plain items failure", function () {
 			{"type": "boolean"}
 		]
 	};
-	var valid = tv4.validate(data, schema);
-	return !valid;
+	var result = tv4.validate(data, schema);
+	return !result.valid;
 });

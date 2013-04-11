@@ -6,8 +6,8 @@ tests.add("allOf success", function () {
 			{"minimum": 5}
 		]
 	};
-	var valid = tv4.validate(data, schema);
-	return valid;
+	var result = tv4.validate(data, schema);
+	return result.valid;
 });
 
 tests.add("allOf failure", function () {
@@ -18,6 +18,6 @@ tests.add("allOf failure", function () {
 			{"minimum": 5}
 		]
 	};
-	var valid = tv4.validate(data, schema);
-	return !valid;
+	var result = tv4.validate(data, schema);
+	return !result.valid;
 });

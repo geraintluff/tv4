@@ -7,8 +7,8 @@ tests.add("anyOf success", function () {
 			{"minLength": 1}
 		]
 	};
-	var valid = tv4.validate(data, schema);
-	return valid;
+	var result = tv4.validate(data, schema);
+	return result.valid;
 });
 
 tests.add("anyOf failure", function () {
@@ -19,6 +19,6 @@ tests.add("anyOf failure", function () {
 			{"type": "string"}
 		]
 	};
-	var valid = tv4.validate(data, schema);
-	return !valid;
+	var result = tv4.validate(data, schema);
+	return !result.valid;
 });
