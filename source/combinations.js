@@ -18,6 +18,7 @@ ValidatorContext.prototype.validateAllOf = function validateAllOf(data, schema) 
 			return error.prefixWith(null, "" + i).prefixWith(null, "allOf");
 		}
 	}
+	return null;
 }
 
 ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema) {
