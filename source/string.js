@@ -1,10 +1,10 @@
-function validateString(data, schema) {
-	return validateStringLength(data, schema)
-		|| validateStringPattern(data, schema)
+ValidatorContext.prototype.validateString = function validateString(data, schema) {
+	return this.validateStringLength(data, schema)
+		|| this.validateStringPattern(data, schema)
 		|| null;
 }
 
-function validateStringLength(data, schema) {
+ValidatorContext.prototype.validateStringLength = function validateStringLength(data, schema) {
 	if (typeof data != "string") {
 		return null;
 	}
@@ -21,7 +21,7 @@ function validateStringLength(data, schema) {
 	return null;
 }
 
-function validateStringPattern(data, schema) {
+ValidatorContext.prototype.validateStringPattern = function validateStringPattern(data, schema) {
 	if (typeof data != "string" || schema.pattern == undefined) {
 		return null;
 	}

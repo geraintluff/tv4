@@ -1,10 +1,10 @@
-function validateNumeric(data, schema) {
-	return validateMultipleOf(data, schema)
-		|| validateMinMax(data, schema)
+ValidatorContext.prototype.validateNumeric = function validateNumeric(data, schema) {
+	return this.validateMultipleOf(data, schema)
+		|| this.validateMinMax(data, schema)
 		|| null;
 }
 
-function validateMultipleOf(data, schema) {
+ValidatorContext.prototype.validateMultipleOf = function validateMultipleOf(data, schema) {
 	var multipleOf = schema.multipleOf || schema.divisibleBy;
 	if (multipleOf == undefined) {
 		return null;
@@ -17,7 +17,7 @@ function validateMultipleOf(data, schema) {
 	return null;
 }
 
-function validateMinMax(data, schema) {
+ValidatorContext.prototype.validateMinMax = function validateMinMax(data, schema) {
 	if (typeof data != "number") {
 		return null;
 	}

@@ -46,71 +46,31 @@ function searchForTrustedSchemas(map, schema, url) {
 	return map;
 }
 
+var globalContext = new ValidatorContext();
+
 var publicApi = {
-	schemas: {},
 	validate: function (data, schema) {
+		var context = new ValidatorContext(globalContext);
 		if (typeof schema == "string") {
 			schema = {"$ref": schema};
 		}
-		this.missing = [];
-		var added = this.addSchema("", schema);
-		var error = validateAll(data, schema);
-		for (var key in added) {
-			delete this.schemas[key];
-		}
+		var added = context.addSchema("", schema);
+		var error = context.validateAll(data, schema);
 		this.error = error;
-		if (error == null) {
-			return true;
-		} else {
-			return false;
-		}
+		this.missing = context.missing;
+		this.valid = (error == null);
+		return this.valid;
+	},
+	validateResult: function () {
+		var result = {};
+		this.validate.apply(result, arguments);
+		return result;
 	},
 	addSchema: function (url, schema) {
-		var map = {};
-		map[url] = schema;
-		normSchema(schema, url);
-		searchForTrustedSchemas(map, schema, url);
-		for (var key in map) {
-			this.schemas[key] = map[key];
-		}
-		return map;
+		return globalContext.addSchema(url, schema);
 	},
 	getSchema: function (url) {
-		if (this.schemas[url] != undefined) {
-			var schema = this.schemas[url];
-			return schema;
-		}
-		var baseUrl = url;
-		var fragment = "";
-		if (url.indexOf('#') != -1) {
-			fragment = url.substring(url.indexOf("#") + 1);
-			baseUrl = url.substring(0, url.indexOf("#"));
-		}
-		if (this.schemas[baseUrl] != undefined) {
-			var schema = this.schemas[baseUrl];
-			var pointerPath = decodeURIComponent(fragment);
-			if (pointerPath == "") {
-				return schema;
-			} else if (pointerPath.charAt(0) != "/") {
-				return undefined;
-			}
-			var parts = pointerPath.split("/").slice(1);
-			for (var i = 0; i < parts.length; i++) {
-				var component = parts[i].replace("~1", "/").replace("~0", "~");
-				if (schema[component] == undefined) {
-					schema = undefined;
-					break;
-				}
-				schema = schema[component];
-			}
-			if (schema != undefined) {
-				return schema;
-			}
-		}
-		if (this.missing[baseUrl] == undefined) {
-			this.missing.push(baseUrl);
-			this.missing[baseUrl] = baseUrl;
-		}
+		return globalContext.getSchema(url);
 	},
 	missing: [],
 	error: null,

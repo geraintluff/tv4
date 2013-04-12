@@ -1,15 +1,15 @@
-function validateBasic(data, schema) {
+ValidatorContext.prototype.validateBasic = function validateBasic(data, schema) {
 	var error;
-	if (error = validateType(data, schema)) {
+	if (error = this.validateType(data, schema)) {
 		return error.prefixWith(null, "type");
 	}
-	if (error = validateEnum(data, schema)) {
+	if (error = this.validateEnum(data, schema)) {
 		return error.prefixWith(null, "type");
 	}
 	return null;
 }
 
-function validateType(data, schema) {
+ValidatorContext.prototype.validateType = function validateType(data, schema) {
 	if (schema.type == undefined) {
 		return null;
 	}
@@ -33,7 +33,7 @@ function validateType(data, schema) {
 	return new ValidationError("invalid data type: " + dataType);
 }
 
-function validateEnum(data, schema) {
+ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
 	if (schema["enum"] == undefined) {
 		return null;
 	}

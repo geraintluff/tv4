@@ -1,15 +1,15 @@
-function validateObject(data, schema) {
+ValidatorContext.prototype.validateObject = function validateObject(data, schema) {
 	if (typeof data != "object" || data == null || Array.isArray(data)) {
 		return null;
 	}
-	return validateObjectMinMaxProperties(data, schema)
-		|| validateObjectRequiredProperties(data, schema)
-		|| validateObjectProperties(data, schema)
-		|| validateObjectDependencies(data, schema)
+	return this.validateObjectMinMaxProperties(data, schema)
+		|| this.validateObjectRequiredProperties(data, schema)
+		|| this.validateObjectProperties(data, schema)
+		|| this.validateObjectDependencies(data, schema)
 		|| null;
 }
 
-function validateObjectMinMaxProperties(data, schema) {
+ValidatorContext.prototype.validateObjectMinMaxProperties = function validateObjectMinMaxProperties(data, schema) {
 	var keys = Object.keys(data);
 	if (schema.minProperties != undefined) {
 		if (keys.length < schema.minProperties) {
@@ -24,7 +24,7 @@ function validateObjectMinMaxProperties(data, schema) {
 	return null;
 }
 
-function validateObjectRequiredProperties(data, schema) {
+ValidatorContext.prototype.validateObjectRequiredProperties = function validateObjectRequiredProperties(data, schema) {
 	if (schema.required != undefined) {
 		for (var i = 0; i < schema.required.length; i++) {
 			var key = schema.required[i];
@@ -36,13 +36,13 @@ function validateObjectRequiredProperties(data, schema) {
 	return null;
 }
 
-function validateObjectProperties(data, schema) {
+ValidatorContext.prototype.validateObjectProperties = function validateObjectProperties(data, schema) {
 	var error;
 	for (var key in data) {
 		var foundMatch = false;
 		if (schema.properties != undefined && schema.properties[key] != undefined) {
 			foundMatch = true;
-			if (error = validateAll(data[key], schema.properties[key])) {
+			if (error = this.validateAll(data[key], schema.properties[key])) {
 				return error.prefixWith(key, key).prefixWith(null, "properties");
 			}
 		}
@@ -51,7 +51,7 @@ function validateObjectProperties(data, schema) {
 				var regexp = new RegExp(patternKey);
 				if (regexp.test(key)) {
 					foundMatch = true;
-					if (error = validateAll(data[key], schema.patternProperties[patternKey])) {
+					if (error = this.validateAll(data[key], schema.patternProperties[patternKey])) {
 						return error.prefixWith(key, patternKey).prefixWith(null, "patternProperties");
 					}
 				}
@@ -63,7 +63,7 @@ function validateObjectProperties(data, schema) {
 					return new ValidationError("Additional properties not allowed").prefixWith(key, "additionalProperties");
 				}
 			} else {
-				if (error = validateAll(data[key], schema.additionalProperties)) {
+				if (error = this.validateAll(data[key], schema.additionalProperties)) {
 					return error.prefixWith(key, "additionalProperties");
 				}
 			}
@@ -72,7 +72,7 @@ function validateObjectProperties(data, schema) {
 	return null;
 }
 
-function validateObjectDependencies(data, schema) {
+ValidatorContext.prototype.validateObjectDependencies = function validateObjectDependencies(data, schema) {
 	var error;
 	if (schema.dependencies != undefined) {
 		for (var depKey in schema.dependencies) {
@@ -90,7 +90,7 @@ function validateObjectDependencies(data, schema) {
 						}
 					}
 				} else {
-					if (error = validateAll(data, dep)) {
+					if (error = this.validateAll(data, dep)) {
 						return error.prefixWith(null, depKey).prefixWith(null, "dependencies");
 					}
 				}
