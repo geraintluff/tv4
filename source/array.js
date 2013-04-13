@@ -1,14 +1,14 @@
-function validateArray(data, schema) {
+ValidatorContext.prototype.validateArray = function validateArray(data, schema) {
 	if (!Array.isArray(data)) {
 		return null;
 	}
-	return validateArrayLength(data, schema)
-		|| validateArrayUniqueItems(data, schema)
-		|| validateArrayItems(data, schema)
+	return this.validateArrayLength(data, schema)
+		|| this.validateArrayUniqueItems(data, schema)
+		|| this.validateArrayItems(data, schema)
 		|| null;
 }
 
-function validateArrayLength(data, schema) {
+ValidatorContext.prototype.validateArrayLength = function validateArrayLength(data, schema) {
 	if (schema.minItems != undefined) {
 		if (data.length < schema.minItems) {
 			return (new ValidationError("Array is too short (" + data.length + "), minimum " + schema.minItems)).prefixWith(null, "minItems");
@@ -22,7 +22,7 @@ function validateArrayLength(data, schema) {
 	return null;
 }
 
-function validateArrayUniqueItems(data, schema) {
+ValidatorContext.prototype.validateArrayUniqueItems = function validateArrayUniqueItems(data, schema) {
 	if (schema.uniqueItems) {
 		for (var i = 0; i < data.length; i++) {
 			for (var j = i + 1; j < data.length; j++) {
@@ -35,7 +35,7 @@ function validateArrayUniqueItems(data, schema) {
 	return null;
 }
 
-function validateArrayItems(data, schema) {
+ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data, schema) {
 	if (schema.items == undefined) {
 		return null;
 	}
@@ -43,7 +43,7 @@ function validateArrayItems(data, schema) {
 	if (Array.isArray(schema.items)) {
 		for (var i = 0; i < data.length; i++) {
 			if (i < schema.items.length) {
-				if (error = validateAll(data[i], schema.items[i])) {
+				if (error = this.validateAll(data[i], schema.items[i])) {
 					return error.prefixWith(null, "" + i).prefixWith("" + i, "items");
 				}
 			} else if (schema.additionalItems != undefined) {
@@ -51,14 +51,14 @@ function validateArrayItems(data, schema) {
 					if (!schema.additionalItems) {
 						return (new ValidationError("Additional items not allowed")).prefixWith("" + i, "additionalItems");
 					}
-				} else if (error = validateAll(data[i], schema.additionalItems)) {
+				} else if (error = this.validateAll(data[i], schema.additionalItems)) {
 					return error.prefixWith("" + i, "additionalItems");
 				}
 			}
 		}
 	} else {
 		for (var i = 0; i < data.length; i++) {
-			if (error = validateAll(data[i], schema.items)) {
+			if (error = this.validateAll(data[i], schema.items)) {
 				return error.prefixWith("" + i, "items");
 			}
 		}
