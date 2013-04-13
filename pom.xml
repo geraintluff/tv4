@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.pykl</groupId>
+    <artifactId>tv4</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Tiny Validator for JSON Schema v4</name>
+    <description>
+        Author: Geraint Luff and others
+        Year: 2013
+        This code is released into the "public domain" by its author(s).  Anybody may use, alter
+        and distribute the code without restriction.  The author makes no guarantees, and takes
+        no liability of any kind for use of this code.
+
+        If you find a bug or make an improvement, it would be courteous to let the author know,
+        but it is not compulsory.
+    </description>
+    <inceptionYear>2013</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>Proprietary License</name>
+            <url>LICENSE.txt</url>
+        </license>
+        <license>
+            <name>End User License Agreement</name>
+            <url>EULA.txt</url>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>Pykl Studios</name>
+        <url>http://pykl.com/</url>
+    </organization>
+
+    <properties>
+        <spring-version>3.1.1.RELEASE</spring-version>
+        <slf4j-version>1.6.4</slf4j-version>
+        <log4j-version>1.2.16</log4j-version>
+        <aws-version>1.2.2</aws-version>
+        <ringojs-version>0.9.0-alpha-5</ringojs-version>
+        <elasticsearch-version>0.19.2</elasticsearch-version>
+        <hazelcast-version>2.0.3</hazelcast-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <scm>
+        <url>http://github.com/pykl/tv4</url>
+        <connection>scm:git:git://github.com/pykl/tv4.git</connection>
+        <developerConnection>scm:git:git@github.com:pykl/tv4.git</developerConnection>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>pykl-repo</id>
+            <name>pykl-repo-snapshots</name>
+            <url>s3://repo.pykl.org/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>pykl-repo</id>
+            <name>pykl-repo-releases</name>
+            <url>s3://repo.pykl.org/releases</url>
+        </repository>
+    </distributionManagement>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.springframework.build.aws</groupId>
+                <artifactId>org.springframework.build.aws.maven</artifactId>
+                <version>3.0.0.RELEASE</version>
+            </extension>
+        </extensions>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.2.1</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.10.b1</version>
+                <configuration>
+                    <includes>
+                        <include>**/*.js</include>
+                        <include>**/*.java</include>
+                        <include>LICENSE.txt</include>
+                    </includes>
+                    <strictCheck>true</strictCheck>
+                    <header>http://repo.pykl.com/license.txt</header>
+                    <properties>
+                        <year>${project.inceptionYear}</year>
+                    </properties>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <phase>test</phase>
+                        <configuration>
+                            <target unless="maven.test.skip">
+                                <java classname="org.ringojs.tools.launcher.Main" fork="true" failonerror="yes">
+                                    <jvmarg value="-Dringo.home=lib" />
+                                    <jvmarg value="-Dringo.classpath=" />
+                                    <jvmarg value="-Dringo.verbose=true" />
+                                    <arg value="${basedir}/src/test/js/integration.js" />
+                                    <classpath refid="maven.test.classpath" />
+                                </java>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
+        <resources>
+            <resource>
+                <targetPath>${project.build.outputDirectory}/${project.artifactId}</targetPath>
+                <directory>${project.basedir}</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>lib/**</include>
+                    <include>package.json</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <testResources>
+            <testResource>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/test/resources</directory>
+            </testResource>
+        </testResources>
+
+    </build>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.ringojs</groupId>
+            <artifactId>ringojs</artifactId>
+            <version>${ringojs-version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+</project>
+
