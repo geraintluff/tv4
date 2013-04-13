@@ -1,0 +1,14 @@
+{
+    "name": "${project.groupId}:${project.artifactId}",
+    "version": "${project.version}",
+    "description": "Small enhancements and mavenization of Geraint Luff's tv4 library (https://github.com/geraintluff/tv4/blob/master/LICENSE.txt)",
+    "keywords": ["json-schema", "schema", "validator"],
+    "maintainers": [
+        {
+            "name": "Jim Cook",
+            "email": "jcook@pykl.com",
+            "web": "http://pykl.com/"
+        }
+    ],
+    "main": "./lib/main.js"
+}
