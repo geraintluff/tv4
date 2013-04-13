@@ -30,7 +30,7 @@ ValidatorContext.prototype.validateType = function validateType(data, schema) {
 			return null;
 		}
 	}
-	return new ValidationError("invalid data type: " + dataType);
+	return new ValidationError(ErrorCodes.INVALID_TYPE, "invalid data type: " + dataType);
 }
 
 ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
@@ -43,5 +43,5 @@ ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
 			return null;
 		}
 	}
-	return new ValidationError("No enum match for: " + JSON.stringify(data));
+	return new ValidationError(ErrorCodes.ENUM_MISMATCH, "No enum match for: " + JSON.stringify(data));
 }

@@ -1,4 +1,38 @@
-function ValidationError(message, dataPath, schemaPath, subErrors) {
+var ErrorCodes = {
+	INVALID_TYPE: 0,
+	ENUM_MISMATCH: 1,
+	ANY_OF_MISSING: 10,
+	ONE_OF_MISSING: 11,
+	ONE_OF_MULTIPLE: 12,
+	NOT_PASSED: 13,
+	// Numeric errors
+	NUMBER_MULTIPLE_OF: 100,
+	NUMBER_MINIMUM: 101,
+	NUMBER_MINIMUM_EXCLUSIVE: 102,
+	NUMBER_MAXIMUM: 103,
+	NUMBER_MAXIMUM_EXCLUSIVE: 104,
+	// String errors
+	STRING_LENGTH_SHORT: 200,
+	STRING_LENGTH_LONG: 201,
+	STRING_PATTERN: 202,
+	// Object errors
+	OBJECT_PROPERTIES_MINIMUM: 300,
+	OBJECT_PROPERTIES_MAXIMUM: 301,
+	OBJECT_REQUIRED: 302,
+	OBJECT_ADDITIONAL_PROPERTIES: 303,
+	OBJECT_DEPENDENCY_KEY: 304,
+	// Array errors
+	ARRAY_LENGTH_SHORT: 400,
+	ARRAY_LENGTH_LONG: 401,
+	ARRAY_UNIQUE: 402,
+	ARRAY_ADDITIONAL_ITEMS: 403
+};
+
+function ValidationError(code, message, dataPath, schemaPath, subErrors) {
+	if (code == undefined) {
+		throw new Error ("No code supplied for error: "+ message);
+	}
+	this.code = code;
 	this.message = message;
 	this.dataPath = dataPath ? dataPath : "";
 	this.schemaPath = schemaPath ? schemaPath : "";
@@ -75,7 +109,8 @@ var publicApi = {
 	missing: [],
 	error: null,
 	normSchema: normSchema,
-	resolveUrl: resolveUrl
+	resolveUrl: resolveUrl,
+	errorCodes: ErrorCodes
 };
 
 global.tv4 = publicApi;

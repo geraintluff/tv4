@@ -10,12 +10,12 @@ ValidatorContext.prototype.validateStringLength = function validateStringLength(
 	}
 	if (schema.minLength != undefined) {
 		if (data.length < schema.minLength) {
-			return (new ValidationError("String is too short (" + data.length + " chars), minimum " + schema.minLength)).prefixWith(null, "minLength");
+			return (ErrorCodes.STRING_LENGTH_SHORT, new ValidationError("String is too short (" + data.length + " chars), minimum " + schema.minLength)).prefixWith(null, "minLength");
 		}
 	}
 	if (schema.maxLength != undefined) {
 		if (data.length > schema.maxLength) {
-			return (new ValidationError("String is too long (" + data.length + " chars), maximum " + schema.maxLength)).prefixWith(null, "maxLength");
+			return (ErrorCodes.STRING_LENGTH_LONG, new ValidationError("String is too long (" + data.length + " chars), maximum " + schema.maxLength)).prefixWith(null, "maxLength");
 		}
 	}
 	return null;
@@ -27,7 +27,7 @@ ValidatorContext.prototype.validateStringPattern = function validateStringPatter
 	}
 	var regexp = new RegExp(schema.pattern);
 	if (!regexp.test(data)) {
-		return new ValidationError("String does not match pattern").prefixWith(null, "pattern");
+		return new ValidationError(ErrorCodes.STRING_PATTERN, "String does not match pattern").prefixWith(null, "pattern");
 	}
 	return null;
 }

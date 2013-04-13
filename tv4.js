@@ -148,7 +148,7 @@ ValidatorContext.prototype.validateType = function validateType(data, schema) {
 			return null;
 		}
 	}
-	return new ValidationError("invalid data type: " + dataType);
+	return new ValidationError(ErrorCodes.INVALID_TYPE, "invalid data type: " + dataType);
 }
 
 ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
@@ -161,7 +161,7 @@ ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
 			return null;
 		}
 	}
-	return new ValidationError("No enum match for: " + JSON.stringify(data));
+	return new ValidationError(ErrorCodes.ENUM_MISMATCH, "No enum match for: " + JSON.stringify(data));
 }
 ValidatorContext.prototype.validateNumeric = function validateNumeric(data, schema) {
 	return this.validateMultipleOf(data, schema)
@@ -176,7 +176,7 @@ ValidatorContext.prototype.validateMultipleOf = function validateMultipleOf(data
 	}
 	if (typeof data == "number") {
 		if (data%multipleOf != 0) {
-			return new ValidationError("Value " + data + " is not a multiple of " + multipleOf);
+			return new ValidationError(ErrorCodes.NUMBER_MULTIPLE_OF, "Value " + data + " is not a multiple of " + multipleOf);
 		}
 	}
 	return null;
@@ -188,18 +188,18 @@ ValidatorContext.prototype.validateMinMax = function validateMinMax(data, schema
 	}
 	if (schema.minimum != undefined) {
 		if (data < schema.minimum) {
-			return new ValidationError("Value " + data + " is less than minimum " + schema.minimum).prefixWith(null, "minimum");
+			return new ValidationError(ErrorCodes.NUMBER_MINIMUM, "Value " + data + " is less than minimum " + schema.minimum).prefixWith(null, "minimum");
 		}
 		if (schema.exclusiveMinimum && data == schema.minimum) {
-			return new ValidationError("Value "+ data + " is equal to exclusive minimum " + schema.minimum).prefixWith(null, "exclusiveMinimum");
+			return new ValidationError(ErrorCodes.NUMBER_MINIMUM_EXCLUSIVE, "Value "+ data + " is equal to exclusive minimum " + schema.minimum).prefixWith(null, "exclusiveMinimum");
 		}
 	}
 	if (schema.maximum != undefined) {
 		if (data > schema.maximum) {
-			return new ValidationError("Value " + data + " is greater than maximum " + schema.maximum).prefixWith(null, "maximum");
+			return new ValidationError(ErrorCodes.NUMBER_MAXIMUM, "Value " + data + " is greater than maximum " + schema.maximum).prefixWith(null, "maximum");
 		}
 		if (schema.exclusiveMaximum && data == schema.maximum) {
-			return new ValidationError("Value "+ data + " is equal to exclusive maximum " + schema.maximum).prefixWith(null, "exclusiveMaximum");
+			return new ValidationError(ErrorCodes.NUMBER_MAXIMUM_EXCLUSIVE, "Value "+ data + " is equal to exclusive maximum " + schema.maximum).prefixWith(null, "exclusiveMaximum");
 		}
 	}
 	return null;
@@ -216,12 +216,12 @@ ValidatorContext.prototype.validateStringLength = function validateStringLength(
 	}
 	if (schema.minLength != undefined) {
 		if (data.length < schema.minLength) {
-			return (new ValidationError("String is too short (" + data.length + " chars), minimum " + schema.minLength)).prefixWith(null, "minLength");
+			return (ErrorCodes.STRING_LENGTH_SHORT, new ValidationError("String is too short (" + data.length + " chars), minimum " + schema.minLength)).prefixWith(null, "minLength");
 		}
 	}
 	if (schema.maxLength != undefined) {
 		if (data.length > schema.maxLength) {
-			return (new ValidationError("String is too long (" + data.length + " chars), maximum " + schema.maxLength)).prefixWith(null, "maxLength");
+			return (ErrorCodes.STRING_LENGTH_LONG, new ValidationError("String is too long (" + data.length + " chars), maximum " + schema.maxLength)).prefixWith(null, "maxLength");
 		}
 	}
 	return null;
@@ -233,7 +233,7 @@ ValidatorContext.prototype.validateStringPattern = function validateStringPatter
 	}
 	var regexp = new RegExp(schema.pattern);
 	if (!regexp.test(data)) {
-		return new ValidationError("String does not match pattern").prefixWith(null, "pattern");
+		return new ValidationError(ErrorCodes.STRING_PATTERN, "String does not match pattern").prefixWith(null, "pattern");
 	}
 	return null;
 }
@@ -250,12 +250,12 @@ ValidatorContext.prototype.validateArray = function validateArray(data, schema) 
 ValidatorContext.prototype.validateArrayLength = function validateArrayLength(data, schema) {
 	if (schema.minItems != undefined) {
 		if (data.length < schema.minItems) {
-			return (new ValidationError("Array is too short (" + data.length + "), minimum " + schema.minItems)).prefixWith(null, "minItems");
+			return (new ValidationError(ErrorCodes.ARRAY_LENGTH_SHORT, "Array is too short (" + data.length + "), minimum " + schema.minItems)).prefixWith(null, "minItems");
 		}
 	}
 	if (schema.maxItems != undefined) {
 		if (data.length > schema.maxItems) {
-			return (new ValidationError("Array is too long (" + data.length + " chars), maximum " + schema.maxItems)).prefixWith(null, "maxItems");
+			return (new ValidationError(ErrorCodes.ARRAY_LENGTH_LONG, "Array is too long (" + data.length + " chars), maximum " + schema.maxItems)).prefixWith(null, "maxItems");
 		}
 	}
 	return null;
@@ -266,7 +266,7 @@ ValidatorContext.prototype.validateArrayUniqueItems = function validateArrayUniq
 		for (var i = 0; i < data.length; i++) {
 			for (var j = i + 1; j < data.length; j++) {
 				if (recursiveCompare(data[i], data[j])) {
-					return (new ValidationError("Array items are not unique (indices " + i + " and " + j + ")")).prefixWith(null, "uniqueItems");
+					return (new ValidationError(ErrorCodes.ARRAY_UNIQUE, "Array items are not unique (indices " + i + " and " + j + ")")).prefixWith(null, "uniqueItems");
 				}
 			}
 		}
@@ -288,7 +288,7 @@ ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data
 			} else if (schema.additionalItems != undefined) {
 				if (typeof schema.additionalItems == "boolean") {
 					if (!schema.additionalItems) {
-						return (new ValidationError("Additional items not allowed")).prefixWith("" + i, "additionalItems");
+						return (new ValidationError(ErrorCodes.ARRAY_ADDITIONAL_ITEMS, "Additional items not allowed")).prefixWith("" + i, "additionalItems");
 					}
 				} else if (error = this.validateAll(data[i], schema.additionalItems)) {
 					return error.prefixWith("" + i, "additionalItems");
@@ -319,12 +319,12 @@ ValidatorContext.prototype.validateObjectMinMaxProperties = function validateObj
 	var keys = Object.keys(data);
 	if (schema.minProperties != undefined) {
 		if (keys.length < schema.minProperties) {
-			return new ValidationError("Too few properties defined (" + keys.length + "), minimum " + schema.minProperties).prefixWith(null, "minProperties");
+			return new ValidationError(ErrorCodes.OBJECT_PROPERTIES_MINIMUM, "Too few properties defined (" + keys.length + "), minimum " + schema.minProperties).prefixWith(null, "minProperties");
 		}
 	}
 	if (schema.maxProperties != undefined) {
 		if (keys.length > schema.maxProperties) {
-			return new ValidationError("Too many properties defined (" + keys.length + "), maximum " + schema.maxProperties).prefixWith(null, "maxProperties");
+			return new ValidationError(ErrorCodes.OBJECT_PROPERTIES_MAXIMUM, "Too many properties defined (" + keys.length + "), maximum " + schema.maxProperties).prefixWith(null, "maxProperties");
 		}
 	}
 	return null;
@@ -335,7 +335,7 @@ ValidatorContext.prototype.validateObjectRequiredProperties = function validateO
 		for (var i = 0; i < schema.required.length; i++) {
 			var key = schema.required[i];
 			if (data[key] === undefined) {
-				return new ValidationError("Missing required property: " + key).prefixWith(null, "" + i).prefixWith(null, "required")
+				return new ValidationError(ErrorCodes.OBJECT_REQUIRED, "Missing required property: " + key).prefixWith(null, "" + i).prefixWith(null, "required")
 			}
 		}
 	}
@@ -366,7 +366,7 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 		if (!foundMatch && schema.additionalProperties != undefined) {
 			if (typeof schema.additionalProperties == "boolean") {
 				if (!schema.additionalProperties) {
-					return new ValidationError("Additional properties not allowed").prefixWith(key, "additionalProperties");
+					return new ValidationError(ErrorCodes.OBJECT_ADDITIONAL_PROPERTIES, "Additional properties not allowed").prefixWith(key, "additionalProperties");
 				}
 			} else {
 				if (error = this.validateAll(data[key], schema.additionalProperties)) {
@@ -386,13 +386,13 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 				var dep = schema.dependencies[depKey];
 				if (typeof dep == "string") {
 					if (data[dep] === undefined) {
-						return new ValidationError("Dependency failed - key must exist: " + dep).prefixWith(null, depKey).prefixWith(null, "dependencies");
+						return new ValidationError(ErrorCodes.OBJECT_DEPENDENCY_KEY, "Dependency failed - key must exist: " + dep).prefixWith(null, depKey).prefixWith(null, "dependencies");
 					}
 				} else if (Array.isArray(dep)) {
 					for (var i = 0; i < dep.length; i++) {
 						var requiredKey = dep[i];
 						if (data[requiredKey] === undefined) {
-							return new ValidationError("Dependency failed - key must exist: " + requiredKey).prefixWith(null, "" + i).prefixWith(null, depKey).prefixWith(null, "dependencies");
+							return new ValidationError(ErrorCodes.OBJECT_DEPENDENCY_KEY, "Dependency failed - key must exist: " + requiredKey).prefixWith(null, "" + i).prefixWith(null, depKey).prefixWith(null, "dependencies");
 						}
 					}
 				} else {
@@ -442,7 +442,7 @@ ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema) 
 		}
 		errors.push(error.prefixWith(null, "" + i).prefixWith(null, "anyOf"));
 	}
-	return new ValidationError("Data does not match any schemas from \"anyOf\"", "", "/anyOf", errors);
+	return new ValidationError(ErrorCodes.ANY_OF_MISSING, "Data does not match any schemas from \"anyOf\"", "", "/anyOf", errors);
 }
 
 ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) {
@@ -458,14 +458,14 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) 
 			if (validIndex == null) {
 				validIndex = i;
 			} else {
-				return new ValidationError("Data is valid against more than one schema from \"oneOf\": indices " + validIndex + " and " + i, "", "/oneOf");
+				return new ValidationError(ErrorCodes.ONE_OF_MULTIPLE, "Data is valid against more than one schema from \"oneOf\": indices " + validIndex + " and " + i, "", "/oneOf");
 			}
 		} else {
 			errors.push(error.prefixWith(null, "" + i).prefixWith(null, "oneOf"));
 		}
 	}
 	if (validIndex == null) {
-		return new ValidationError("Data does not match any schemas from \"oneOf\"", "", "/oneOf", errors);
+		return new ValidationError(ErrorCodes.ONE_OF_MISSING, "Data does not match any schemas from \"oneOf\"", "", "/oneOf", errors);
 	}
 	return null;
 }
@@ -476,7 +476,7 @@ ValidatorContext.prototype.validateNot = function validateNot(data, schema) {
 	}
 	var error = this.validateAll(data, schema.not);
 	if (error == null) {
-		return new ValidationError("Data matches schema from \"not\"", "", "/not")
+		return new ValidationError(ErrorCodes.NOT_PASSED, "Data matches schema from \"not\"", "", "/not")
 	}
 	return null;
 }
@@ -551,7 +551,41 @@ function normSchema(schema, baseUri) {
 	}
 }
 
-function ValidationError(message, dataPath, schemaPath, subErrors) {
+var ErrorCodes = {
+	INVALID_TYPE: 0,
+	ENUM_MISMATCH: 1,
+	ANY_OF_MISSING: 10,
+	ONE_OF_MISSING: 11,
+	ONE_OF_MULTIPLE: 12,
+	NOT_PASSED: 13,
+	// Numeric errors
+	NUMBER_MULTIPLE_OF: 100,
+	NUMBER_MINIMUM: 101,
+	NUMBER_MINIMUM_EXCLUSIVE: 102,
+	NUMBER_MAXIMUM: 103,
+	NUMBER_MAXIMUM_EXCLUSIVE: 104,
+	// String errors
+	STRING_LENGTH_SHORT: 200,
+	STRING_LENGTH_LONG: 201,
+	STRING_PATTERN: 202,
+	// Object errors
+	OBJECT_PROPERTIES_MINIMUM: 300,
+	OBJECT_PROPERTIES_MAXIMUM: 301,
+	OBJECT_REQUIRED: 302,
+	OBJECT_ADDITIONAL_PROPERTIES: 303,
+	OBJECT_DEPENDENCY_KEY: 304,
+	// Array errors
+	ARRAY_LENGTH_SHORT: 400,
+	ARRAY_LENGTH_LONG: 401,
+	ARRAY_UNIQUE: 402,
+	ARRAY_ADDITIONAL_ITEMS: 403
+};
+
+function ValidationError(code, message, dataPath, schemaPath, subErrors) {
+	if (code == undefined) {
+		throw new Error ("No code supplied for error: "+ message);
+	}
+	this.code = code;
 	this.message = message;
 	this.dataPath = dataPath ? dataPath : "";
 	this.schemaPath = schemaPath ? schemaPath : "";
@@ -628,7 +662,8 @@ var publicApi = {
 	missing: [],
 	error: null,
 	normSchema: normSchema,
-	resolveUrl: resolveUrl
+	resolveUrl: resolveUrl,
+	errorCodes: ErrorCodes
 };
 
 global.tv4 = publicApi;

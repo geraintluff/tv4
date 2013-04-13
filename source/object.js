@@ -13,12 +13,12 @@ ValidatorContext.prototype.validateObjectMinMaxProperties = function validateObj
 	var keys = Object.keys(data);
 	if (schema.minProperties != undefined) {
 		if (keys.length < schema.minProperties) {
-			return new ValidationError("Too few properties defined (" + keys.length + "), minimum " + schema.minProperties).prefixWith(null, "minProperties");
+			return new ValidationError(ErrorCodes.OBJECT_PROPERTIES_MINIMUM, "Too few properties defined (" + keys.length + "), minimum " + schema.minProperties).prefixWith(null, "minProperties");
 		}
 	}
 	if (schema.maxProperties != undefined) {
 		if (keys.length > schema.maxProperties) {
-			return new ValidationError("Too many properties defined (" + keys.length + "), maximum " + schema.maxProperties).prefixWith(null, "maxProperties");
+			return new ValidationError(ErrorCodes.OBJECT_PROPERTIES_MAXIMUM, "Too many properties defined (" + keys.length + "), maximum " + schema.maxProperties).prefixWith(null, "maxProperties");
 		}
 	}
 	return null;
@@ -29,7 +29,7 @@ ValidatorContext.prototype.validateObjectRequiredProperties = function validateO
 		for (var i = 0; i < schema.required.length; i++) {
 			var key = schema.required[i];
 			if (data[key] === undefined) {
-				return new ValidationError("Missing required property: " + key).prefixWith(null, "" + i).prefixWith(null, "required")
+				return new ValidationError(ErrorCodes.OBJECT_REQUIRED, "Missing required property: " + key).prefixWith(null, "" + i).prefixWith(null, "required")
 			}
 		}
 	}
@@ -60,7 +60,7 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 		if (!foundMatch && schema.additionalProperties != undefined) {
 			if (typeof schema.additionalProperties == "boolean") {
 				if (!schema.additionalProperties) {
-					return new ValidationError("Additional properties not allowed").prefixWith(key, "additionalProperties");
+					return new ValidationError(ErrorCodes.OBJECT_ADDITIONAL_PROPERTIES, "Additional properties not allowed").prefixWith(key, "additionalProperties");
 				}
 			} else {
 				if (error = this.validateAll(data[key], schema.additionalProperties)) {
@@ -80,13 +80,13 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 				var dep = schema.dependencies[depKey];
 				if (typeof dep == "string") {
 					if (data[dep] === undefined) {
-						return new ValidationError("Dependency failed - key must exist: " + dep).prefixWith(null, depKey).prefixWith(null, "dependencies");
+						return new ValidationError(ErrorCodes.OBJECT_DEPENDENCY_KEY, "Dependency failed - key must exist: " + dep).prefixWith(null, depKey).prefixWith(null, "dependencies");
 					}
 				} else if (Array.isArray(dep)) {
 					for (var i = 0; i < dep.length; i++) {
 						var requiredKey = dep[i];
 						if (data[requiredKey] === undefined) {
-							return new ValidationError("Dependency failed - key must exist: " + requiredKey).prefixWith(null, "" + i).prefixWith(null, depKey).prefixWith(null, "dependencies");
+							return new ValidationError(ErrorCodes.OBJECT_DEPENDENCY_KEY, "Dependency failed - key must exist: " + requiredKey).prefixWith(null, "" + i).prefixWith(null, depKey).prefixWith(null, "dependencies");
 						}
 					}
 				} else {
