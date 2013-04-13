@@ -1,6 +1,6 @@
 #Tiny Validator (for v4 JSON Schema)
 
-All you need is ```tv4.js``` (17kb) or ```tv4.min.js``` (8.3kb, 2.9kb gzipped).
+All you need is ```tv4.js``` (19.7KB) or ```tv4.min.js``` (11.8KB, 3.51KB gzipped).
 
 There is support for `$ref` with JSON Pointer fragment paths (```other-schema.json#/properties/myKey```).
 
@@ -15,11 +15,14 @@ If validation returns ```false```, then an explanation of why validation failed 
 The error object will look something like:
 ```json
 {
+    "code": 0,
     "message": "Invalid type: string",
     "dataPath": "/intKey",
     "schemaKey": "/properties/intKey/type"
 }
 ```
+
+The `"code"` property will refer to one of the values in `tv4.errorCodes` - in this case, `tv4.errorCodes.INVALID_TYPE`.
 
 To enable external schema to be referenced, you use:
 ```javascript

@@ -34,7 +34,7 @@ ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema) 
 		}
 		errors.push(error.prefixWith(null, "" + i).prefixWith(null, "anyOf"));
 	}
-	return new ValidationError("Data does not match any schemas from \"anyOf\"", "", "/anyOf", errors);
+	return new ValidationError(ErrorCodes.ANY_OF_MISSING, "Data does not match any schemas from \"anyOf\"", "", "/anyOf", errors);
 }
 
 ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) {
@@ -50,14 +50,14 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) 
 			if (validIndex == null) {
 				validIndex = i;
 			} else {
-				return new ValidationError("Data is valid against more than one schema from \"oneOf\": indices " + validIndex + " and " + i, "", "/oneOf");
+				return new ValidationError(ErrorCodes.ONE_OF_MULTIPLE, "Data is valid against more than one schema from \"oneOf\": indices " + validIndex + " and " + i, "", "/oneOf");
 			}
 		} else {
 			errors.push(error.prefixWith(null, "" + i).prefixWith(null, "oneOf"));
 		}
 	}
 	if (validIndex == null) {
-		return new ValidationError("Data does not match any schemas from \"oneOf\"", "", "/oneOf", errors);
+		return new ValidationError(ErrorCodes.ONE_OF_MISSING, "Data does not match any schemas from \"oneOf\"", "", "/oneOf", errors);
 	}
 	return null;
 }
@@ -68,7 +68,7 @@ ValidatorContext.prototype.validateNot = function validateNot(data, schema) {
 	}
 	var error = this.validateAll(data, schema.not);
 	if (error == null) {
-		return new ValidationError("Data matches schema from \"not\"", "", "/not")
+		return new ValidationError(ErrorCodes.NOT_PASSED, "Data matches schema from \"not\"", "", "/not")
 	}
 	return null;
 }
