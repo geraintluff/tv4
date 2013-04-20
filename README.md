@@ -71,3 +71,5 @@ There are tests available, but they require PHP, so you can't see them on GitHub
 ## License
 
 The code is available as "public domain", meaning that it is completely free to use, without any restrictions at all.  Read the full license [here](http://geraintluff.github.com/tv4/LICENSE.txt).
+
+It's also available under an (MIT license](http://jsonary.com/LICENSE.txt).
