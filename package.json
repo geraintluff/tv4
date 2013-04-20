@@ -1,0 +1,25 @@
+{
+	"name": "tv4",
+	"version": "1.0.0",
+	"author": "Geraint Luff",
+	"description": "A public domain JSON Schema validator for JavaScript",
+	"keywords": [
+		"json-schema",
+		"schema",
+		"validator",
+		"tv4"
+	],
+	"maintainers": [
+		{
+			"name": "Geraint Luff",
+			"email": "luffgd@gmail.com",
+			"web": "https://github.com/geraintluff/"
+		}
+	],
+	"main": "tv4.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/geraintluff/tv4.git"
+	},
+	"license": "Public domain"
+}
