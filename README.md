@@ -1,10 +1,10 @@
 #Tiny Validator (for v4 JSON Schema)
 
-All you need is ```tv4.js``` (19.7KB) or ```tv4.min.js``` (11.8KB, 3.51KB gzipped).
+All you need is ```tv4.js``` (24KB) or ```tv4.min.js``` (12.9KB, 3.8KB gzipped).
 
 There is support for `$ref` with JSON Pointer fragment paths (```other-schema.json#/properties/myKey```).
 
-## Usage
+## Usage 1:
 
 ```javascript
 var valid = tv4.validate(data, schema);
@@ -31,7 +31,7 @@ tv4.addSchema(url, schema);
 
 If schemas are referenced (```$ref```) but not known, then validation will return ```true``` and the missing schema(s) will be listed in ```tv4.missing```.
 
-## Multi-threaded validation
+## Usage 2: Multi-threaded validation
 
 Storing the error and missing schemas does not work well in multi-threaded environments, so there is an alternative syntax:
 
@@ -44,6 +44,26 @@ The result will look something like:
 {
     "valid": false,
     "error": {...},
+    "missing": [...]
+}
+```
+
+## Usage 3: Multiple errors
+
+Normally, `tv4` stops when it encounters the first validation error.  However, you can collect an array of validation errors using 
+
+```javascript
+var result = tv4.validateMultiple(data, schema);
+```
+
+The result will look something like:
+```json
+{
+    "valid": false,
+    "errors": [
+        {...},
+        ...
+    ],
     "missing": [...]
 }
 ```

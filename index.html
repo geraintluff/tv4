@@ -39,6 +39,10 @@
 				border-top-right-radius: 3px;
 			}
 			
+			h2 {
+				border-bottom: 1px solid #BBB;
+			}
+			
 			.content {
 				padding-left: 1em;
 				padding-right: 1em;
@@ -80,7 +84,7 @@
 			
 			<div class="content">
 				<div class="box">
-					Download <a href="tv4.js">full</a> (17kb) or <a href="tv4.min.js">minified</a> (8.3kb, 2.86kb gzipped)
+					Download <a href="tv4.js">full</a> (24kb) or <a href="tv4.min.js">minified</a> (12.9kb, 3.8kb gzipped)
 				</div>
 				<p>Tiny Validator is a JavaScript library for validation against v4 the <a href="http://json-schema.org/">JSON Schema</a> standard.
 				<p>It supports <code>$ref</code> with JSON Pointer fragment paths (e.g. <code>http://example.com/schema#/properties/myKey</code>).
@@ -88,11 +92,23 @@
 				<p>For the source code, see the <a href="https://github.com/geraintluff/tv4">GitHub repository</a>.
 				
 				<h2>Usage:</h2>
+				<p>There are three methods for validating data:
+
 				<pre class="code">var valid = tv4.validate(data, schema);</pre>
+				<p>The first form returns the validation state as the value from the function, making an object describing the error available as <code>tv4.error</code>. <I>(Note this is not suitable for multi-threaded environments.)</I>
+
+				<pre class="code">var resultObj = tv4.validateResult(data, schema);</pre>
+				<p>The second form returns an object containing the validation state (<code>resultObj.valid</code>), and any error (<code>resultObj.error</code>).
+
+				<pre class="code">var resultObj = tv4.validateMultiple(data, schema);</pre>
+				<p>The third form is similar to the second, except instead of stopping when the first validation error is encountered, it collects an array of errors, returning it in <code>resultObj.errors</code>.
 				
-				<p>If validation fails, there will be an object describing the error in <code>tv4.error</code>.  If there are any schemas missing (<code>$ref</code>s not resolved), then they will be present in <code>tv4.missing</code>.
-				
-				<p>Missing schemas are treated as empty.
+				<h3>Missing schemas</h3>
+				<p>If there are any schemas missing (<code>$ref</code>s not resolved), then they will be present in <code>tv4.missing</code> (or <code>resultObj.missing</code>).  For the purposes of validation, missing schemas are treated as empty.
+
+				<h3>Errors and error codes</h3>
+				<p>The validation error objects include an error code, corresponding to a key in <code>tv4.errorCodes</code> (e.g. <code>tv4.errorCodes.ENUM_MISMATCH = 1</code>).
+				<p>The error objects also include a human-readable message in <code>error.message</code>, and a JSON Pointer path to the relevant part of the data/schema (<code>error.dataPath</code> and <code>error.schemaPath</code>).
 				
 				<h2>Demos:</h2>
 				<h3>Basic usage</h3>
