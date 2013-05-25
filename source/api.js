@@ -100,6 +100,19 @@ var publicApi = {
 		this.validate.apply(result, arguments);
 		return result;
 	},
+	validateMultiple: function (data, schema) {
+		var context = new ValidatorContext(globalContext, true);
+		if (typeof schema == "string") {
+			schema = {"$ref": schema};
+		}
+		context.addSchema("", schema);
+		context.validateAll(data, schema);
+		var result = {};
+		result.errors = context.errors;
+		result.missing = context.missing;
+		result.valid = (result.errors.length == 0);
+		return result;
+	},
 	addSchema: function (url, schema) {
 		return globalContext.addSchema(url, schema);
 	},

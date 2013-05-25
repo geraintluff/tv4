@@ -43,23 +43,23 @@ ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data
 	if (Array.isArray(schema.items)) {
 		for (var i = 0; i < data.length; i++) {
 			if (i < schema.items.length) {
-				if (error = this.validateAll(data[i], schema.items[i])) {
-					return error.prefixWith(null, "" + i).prefixWith("" + i, "items");
+				if (error = this.validateAll(data[i], schema.items[i], [i], ["items", i])) {
+					return error;
 				}
 			} else if (schema.additionalItems != undefined) {
 				if (typeof schema.additionalItems == "boolean") {
 					if (!schema.additionalItems) {
 						return (new ValidationError(ErrorCodes.ARRAY_ADDITIONAL_ITEMS, "Additional items not allowed")).prefixWith("" + i, "additionalItems");
 					}
-				} else if (error = this.validateAll(data[i], schema.additionalItems)) {
-					return error.prefixWith("" + i, "additionalItems");
+				} else if (error = this.validateAll(data[i], schema.additionalItems, [i], ["additionalItems"])) {
+					return error;
 				}
 			}
 		}
 	} else {
 		for (var i = 0; i < data.length; i++) {
-			if (error = this.validateAll(data[i], schema.items)) {
-				return error.prefixWith("" + i, "items");
+			if (error = this.validateAll(data[i], schema.items, [i], ["items"])) {
+				return error;
 			}
 		}
 	}

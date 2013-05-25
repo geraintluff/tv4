@@ -1,7 +1,25 @@
-var ValidatorContext = function (parent) {
+var ValidatorContext = function (parent, collectMultiple) {
 	this.missing = [];
 	this.schemas = parent ? Object.create(parent.schemas) : {};
+	this.collectMultiple = collectMultiple;
+	this.errors = [];
+	this.handleError = collectMultiple ? this.collectError : this.returnError;
 };
+ValidatorContext.prototype.returnError = function (error) {
+	return error;
+};
+ValidatorContext.prototype.collectError = function (error) {
+	if (error) {
+		this.errors.push(error);
+	}
+	return null;
+}
+ValidatorContext.prototype.prefixErrors = function (startIndex, dataPath, schemaPath) {
+	for (var i = startIndex; i < this.errors.length; i++) {
+		this.errors[i] = this.errors[i].prefixWith(dataPath, schemaPath);
+	}
+	return this;
+}
 
 ValidatorContext.prototype.getSchema = function (url) {
 	if (this.schemas[url] != undefined) {
@@ -51,21 +69,34 @@ ValidatorContext.prototype.addSchema = function (url, schema) {
 	return map;
 };
 	
-ValidatorContext.prototype.validateAll = function validateAll(data, schema) {
+ValidatorContext.prototype.validateAll = function validateAll(data, schema, dataPathParts, schemaPathParts) {
 	if (schema['$ref'] != undefined) {
 		schema = this.getSchema(schema['$ref']);
 		if (!schema) {
 			return null;
 		}
 	}
-	var error = false;
-	return this.validateBasic(data, schema)
+	
+	var errorCount = this.errors.length;
+	var error = this.validateBasic(data, schema)
 		|| this.validateNumeric(data, schema)
 		|| this.validateString(data, schema)
 		|| this.validateArray(data, schema)
 		|| this.validateObject(data, schema)
 		|| this.validateCombinations(data, schema)
-		|| null;
+		|| null
+	if (error || errorCount != this.errors.length) {
+		while ((dataPathParts && dataPathParts.length) || (schemaPathParts && schemaPathParts.length)) {
+			var dataPart = (dataPathParts && dataPathParts.length) ? "" + dataPathParts.pop() : null;
+			var schemaPart = (schemaPathParts && schemaPathParts.length) ? "" + schemaPathParts.pop() : null;
+			if (error) {
+				error = error.prefixWith(dataPart, schemaPart);
+			}
+			this.prefixErrors(errorCount, dataPart, schemaPart);
+		}
+	}
+		
+	return this.handleError(error);
 }
 
 function recursiveCompare(A, B) {

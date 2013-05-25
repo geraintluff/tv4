@@ -42,8 +42,8 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 		var foundMatch = false;
 		if (schema.properties != undefined && schema.properties[key] != undefined) {
 			foundMatch = true;
-			if (error = this.validateAll(data[key], schema.properties[key])) {
-				return error.prefixWith(key, key).prefixWith(null, "properties");
+			if (error = this.validateAll(data[key], schema.properties[key], [key], ["properties", key])) {
+				return error;
 			}
 		}
 		if (schema.patternProperties != undefined) {
@@ -51,8 +51,8 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 				var regexp = new RegExp(patternKey);
 				if (regexp.test(key)) {
 					foundMatch = true;
-					if (error = this.validateAll(data[key], schema.patternProperties[patternKey])) {
-						return error.prefixWith(key, patternKey).prefixWith(null, "patternProperties");
+					if (error = this.validateAll(data[key], schema.patternProperties[patternKey], [key], ["patternProperties", patternKey])) {
+						return error;
 					}
 				}
 			}
@@ -63,8 +63,8 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 					return new ValidationError(ErrorCodes.OBJECT_ADDITIONAL_PROPERTIES, "Additional properties not allowed").prefixWith(key, "additionalProperties");
 				}
 			} else {
-				if (error = this.validateAll(data[key], schema.additionalProperties)) {
-					return error.prefixWith(key, "additionalProperties");
+				if (error = this.validateAll(data[key], schema.additionalProperties, [key], ["additionalProperties"])) {
+					return error;
 				}
 			}
 		}
@@ -90,8 +90,8 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 						}
 					}
 				} else {
-					if (error = this.validateAll(data, dep)) {
-						return error.prefixWith(null, depKey).prefixWith(null, "dependencies");
+					if (error = this.validateAll(data, dep, [], ["dependencies", depKey])) {
+						return error;
 					}
 				}
 			}
