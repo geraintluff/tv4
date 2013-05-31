@@ -53,7 +53,6 @@ tests.add("validateMultiple returns array of errors", function () {
 		}
 	};
 	var result = tv4.validateMultiple(data, schema);
-	console.log(result.errors);
 
 	this.assert(result.valid == true, "data should be valid");
 	this.assert(result.errors.length == 0, "should have no errors");
