@@ -74,6 +74,8 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) 
 		errors = errors.concat(this.errors.slice(startErrorCount));
 		this.errors = this.errors.slice(0, startErrorCount);
 		return new ValidationError(ErrorCodes.ONE_OF_MISSING, "Data does not match any schemas from \"oneOf\"", "", "/oneOf", errors);
+	} else {
+		this.errors = this.errors.slice(0, startErrorCount);
 	}
 	return null;
 }
