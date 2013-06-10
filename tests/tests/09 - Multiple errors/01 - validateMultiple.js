@@ -70,3 +70,15 @@ tests.add("validateMultiple correctly fails multiple oneOf", function () {
 	this.assert(result.errors.length == 1, "only one error");
 	return true;
 });
+
+tests.add("validateMultiple handles multiple missing properties", function () {
+	var data = {};
+	var schema = {
+		required: ["one", "two"]
+	};
+	var result = tv4.validateMultiple(data, schema);
+	
+	this.assert(result.valid == false, "should not validate");
+	this.assert(result.errors.length == 2, "exactly two errors, not " + result.errors.length);
+	return true;
+});

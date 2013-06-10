@@ -281,12 +281,18 @@ ValidatorContext.prototype.validateArray = function validateArray(data, schema) 
 ValidatorContext.prototype.validateArrayLength = function validateArrayLength(data, schema) {
 	if (schema.minItems != undefined) {
 		if (data.length < schema.minItems) {
-			return (new ValidationError(ErrorCodes.ARRAY_LENGTH_SHORT, "Array is too short (" + data.length + "), minimum " + schema.minItems)).prefixWith(null, "minItems");
+			var error = (new ValidationError(ErrorCodes.ARRAY_LENGTH_SHORT, "Array is too short (" + data.length + "), minimum " + schema.minItems)).prefixWith(null, "minItems");
+			if (this.handleError(error)) {
+				return error;
+			}
 		}
 	}
 	if (schema.maxItems != undefined) {
 		if (data.length > schema.maxItems) {
-			return (new ValidationError(ErrorCodes.ARRAY_LENGTH_LONG, "Array is too long (" + data.length + " chars), maximum " + schema.maxItems)).prefixWith(null, "maxItems");
+			var error = (new ValidationError(ErrorCodes.ARRAY_LENGTH_LONG, "Array is too long (" + data.length + " chars), maximum " + schema.maxItems)).prefixWith(null, "maxItems");
+			if (this.handleError(error)) {
+				return error;
+			}
 		}
 	}
 	return null;
@@ -297,7 +303,10 @@ ValidatorContext.prototype.validateArrayUniqueItems = function validateArrayUniq
 		for (var i = 0; i < data.length; i++) {
 			for (var j = i + 1; j < data.length; j++) {
 				if (recursiveCompare(data[i], data[j])) {
-					return (new ValidationError(ErrorCodes.ARRAY_UNIQUE, "Array items are not unique (indices " + i + " and " + j + ")")).prefixWith(null, "uniqueItems");
+					var error = (new ValidationError(ErrorCodes.ARRAY_UNIQUE, "Array items are not unique (indices " + i + " and " + j + ")")).prefixWith(null, "uniqueItems");
+					if (this.handleError(error)) {
+						return error;
+					}
 				}
 			}
 		}
@@ -319,7 +328,10 @@ ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data
 			} else if (schema.additionalItems != undefined) {
 				if (typeof schema.additionalItems == "boolean") {
 					if (!schema.additionalItems) {
-						return (new ValidationError(ErrorCodes.ARRAY_ADDITIONAL_ITEMS, "Additional items not allowed")).prefixWith("" + i, "additionalItems");
+						error = (new ValidationError(ErrorCodes.ARRAY_ADDITIONAL_ITEMS, "Additional items not allowed")).prefixWith("" + i, "additionalItems");
+						if (this.handleError(error)) {
+							return error;
+						}
 					}
 				} else if (error = this.validateAll(data[i], schema.additionalItems, [i], ["additionalItems"])) {
 					return error;
@@ -350,12 +362,18 @@ ValidatorContext.prototype.validateObjectMinMaxProperties = function validateObj
 	var keys = Object.keys(data);
 	if (schema.minProperties != undefined) {
 		if (keys.length < schema.minProperties) {
-			return new ValidationError(ErrorCodes.OBJECT_PROPERTIES_MINIMUM, "Too few properties defined (" + keys.length + "), minimum " + schema.minProperties).prefixWith(null, "minProperties");
+			var error = new ValidationError(ErrorCodes.OBJECT_PROPERTIES_MINIMUM, "Too few properties defined (" + keys.length + "), minimum " + schema.minProperties).prefixWith(null, "minProperties");
+			if (this.handleError(error)) {
+				return error;
+			}
 		}
 	}
 	if (schema.maxProperties != undefined) {
 		if (keys.length > schema.maxProperties) {
-			return new ValidationError(ErrorCodes.OBJECT_PROPERTIES_MAXIMUM, "Too many properties defined (" + keys.length + "), maximum " + schema.maxProperties).prefixWith(null, "maxProperties");
+			var error = new ValidationError(ErrorCodes.OBJECT_PROPERTIES_MAXIMUM, "Too many properties defined (" + keys.length + "), maximum " + schema.maxProperties).prefixWith(null, "maxProperties");
+			if (this.handleError(error)) {
+				return error;
+			}
 		}
 	}
 	return null;
@@ -366,7 +384,10 @@ ValidatorContext.prototype.validateObjectRequiredProperties = function validateO
 		for (var i = 0; i < schema.required.length; i++) {
 			var key = schema.required[i];
 			if (data[key] === undefined) {
-				return new ValidationError(ErrorCodes.OBJECT_REQUIRED, "Missing required property: " + key).prefixWith(null, "" + i).prefixWith(null, "required")
+				var error = new ValidationError(ErrorCodes.OBJECT_REQUIRED, "Missing required property: " + key).prefixWith(null, "" + i).prefixWith(null, "required");
+				if (this.handleError(error)) {
+					return error;
+				}
 			}
 		}
 	}
@@ -397,7 +418,10 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 		if (!foundMatch && schema.additionalProperties != undefined) {
 			if (typeof schema.additionalProperties == "boolean") {
 				if (!schema.additionalProperties) {
-					return new ValidationError(ErrorCodes.OBJECT_ADDITIONAL_PROPERTIES, "Additional properties not allowed").prefixWith(key, "additionalProperties");
+					error = new ValidationError(ErrorCodes.OBJECT_ADDITIONAL_PROPERTIES, "Additional properties not allowed").prefixWith(key, "additionalProperties");
+					if (this.handleError(error)) {
+						return error;
+					}
 				}
 			} else {
 				if (error = this.validateAll(data[key], schema.additionalProperties, [key], ["additionalProperties"])) {
@@ -417,13 +441,19 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 				var dep = schema.dependencies[depKey];
 				if (typeof dep == "string") {
 					if (data[dep] === undefined) {
-						return new ValidationError(ErrorCodes.OBJECT_DEPENDENCY_KEY, "Dependency failed - key must exist: " + dep).prefixWith(null, depKey).prefixWith(null, "dependencies");
+						error = new ValidationError(ErrorCodes.OBJECT_DEPENDENCY_KEY, "Dependency failed - key must exist: " + dep).prefixWith(null, depKey).prefixWith(null, "dependencies");
+						if (this.handleError(error)) {
+							return error;
+						}
 					}
 				} else if (Array.isArray(dep)) {
 					for (var i = 0; i < dep.length; i++) {
 						var requiredKey = dep[i];
 						if (data[requiredKey] === undefined) {
-							return new ValidationError(ErrorCodes.OBJECT_DEPENDENCY_KEY, "Dependency failed - key must exist: " + requiredKey).prefixWith(null, "" + i).prefixWith(null, depKey).prefixWith(null, "dependencies");
+							error = new ValidationError(ErrorCodes.OBJECT_DEPENDENCY_KEY, "Dependency failed - key must exist: " + requiredKey).prefixWith(null, "" + i).prefixWith(null, depKey).prefixWith(null, "dependencies");
+							if (this.handleError(error)) {
+								return error;
+							}
 						}
 					}
 				} else {
@@ -513,6 +543,8 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) 
 		errors = errors.concat(this.errors.slice(startErrorCount));
 		this.errors = this.errors.slice(0, startErrorCount);
 		return new ValidationError(ErrorCodes.ONE_OF_MISSING, "Data does not match any schemas from \"oneOf\"", "", "/oneOf", errors);
+	} else {
+		this.errors = this.errors.slice(0, startErrorCount);
 	}
 	return null;
 }

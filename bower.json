@@ -1,0 +1,17 @@
+{
+  "name": "tv4",
+  "version": "1.0.3",
+  "main": "tv4.js",
+  "ignore": [
+    "**/.*",
+    "*.php",
+    "*.html",
+    "*.min.js",
+    "*.txt",
+    "*.md",
+    "package.json",
+    "node_modules",
+    "tests",
+    "source"
+  ]
+}
