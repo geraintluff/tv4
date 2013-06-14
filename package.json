@@ -23,12 +23,22 @@
 	},
 	"license:": [
 		{
-			"type" : "Public Domain",
-			"url" : "http://geraintluff.github.io/tv4/LICENSE.txt"
+			"type": "Public Domain",
+			"url": "http://geraintluff.github.io/tv4/LICENSE.txt"
 		},
 		{
-			"type" : "MIT",
-			"url" : "http://jsonary.com/LICENSE.txt"
+			"type": "MIT",
+			"url": "http://jsonary.com/LICENSE.txt"
 		}
-	]
+	],
+	"devDependencies": {
+		"grunt": "~0.4.1",
+		"grunt-contrib-clean": "~0.4.1",
+		"grunt-contrib-concat": "~0.3.0",
+		"grunt-contrib-jshint": "~0.6.0",
+		"chai": "~1.6.1",
+		"mocha": "~1.11.0",
+		"grunt-mocha": "~0.3.4",
+		"grunt-mocha-test": "~0.4.0"
+	}
 }
