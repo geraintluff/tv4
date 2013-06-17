@@ -1,0 +1,22 @@
+{
+	"curly": true,
+	"eqeqeq": true,
+	"immed": true,
+	"latedef": true,
+	"newcap": true,
+	"noarg": true,
+	"sub": true,
+	"undef": true,
+	"unused": true,
+	"boss": true,
+	"eqnull": true,
+	"node": true,
+	"smarttabs": true,
+	"browser": true,
+	"globals": {
+		"describe": true,
+		"it": true,
+		"tv4": true,
+		"assert": true
+	}
+}
