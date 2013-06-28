@@ -5,13 +5,23 @@ module.exports = function (grunt) {
 	var util = require('util');
 
 	grunt.loadNpmTasks('grunt-contrib-clean');
+	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
+	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-mocha-test');
 	grunt.loadNpmTasks('grunt-mocha');
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
+		copy: {
+			test_deps: {
+				expand: true,
+				flatten: true,
+				src: ['node_modules/mocha/mocha.js', 'node_modules/mocha/mocha.css', 'node_modules/chai/chai.js'],
+				dest: 'test/deps'
+			}
+		},
 		clean: {
 			tests: ['tmp', 'test/all_concat.js']
 		},
@@ -20,16 +30,53 @@ module.exports = function (grunt) {
 			options: {
 				jshintrc: '.jshintrc'
 			},
-			all: ['test/tests/**/*.js','test/all_*.js']
+			tests: ['test/tests/**/*.js', 'test/all_*.js']
+
+			//TODO this should be enabled
+			// output: ['tv4.js']
 		},
 		concat: {
-			options: {
-				separator: '\n\n',
-				banner: grunt.file.read('test/header.js')
+			source: {
+				options: {
+					separator: '\n',
+					banner: '/**\n' + grunt.file.read('LICENSE.txt') + '**/\n\n'
+				},
+				expand: true,
+				cwd: 'source',
+				rename: function (dest, src) {
+					return dest;
+				},
+				src: ['_header.js',
+					'validate.js',
+					'basic.js',
+					'numeric.js',
+					'string.js',
+					'array.js',
+					'object.js',
+					'combinations.js',
+					'resolve-uri.js',
+					'normalise-schema.js',
+					'api.js',
+					'_footer.js'],
+				dest: 'tv4.js'
 			},
-			all_concat: {
+			tests: {
+				options: {
+					separator: '\n\n',
+					banner: grunt.file.read('test/header.js')
+				},
 				//bundle all-in-one
 				src: ['test/tests/**/*.js'], dest: 'test/all_concat.js'
+			}
+		},
+		uglify: {
+			tv4: {
+				options: {
+					report: 'min'
+				},
+				files: {
+					'tv4.min.js': ['tv4.js']
+				}
 			}
 		},
 		mochaTest: {
@@ -37,16 +84,16 @@ module.exports = function (grunt) {
 			any: {
 				src: ['test/all_concat.js'],
 				options: {
-					reporter: 'Spec'
+					reporter: 'Dot'
 				}
 			}
 		},
 		mocha: {
 			//browser-side
 			any: {
-				src: ['test/*.html'],
+				src: ['test/index*.html'],
 				options: {
-					reporter: 'Spec',
+					reporter: 'Dot',
 					log: true,
 					run: true
 				}
@@ -56,6 +103,6 @@ module.exports = function (grunt) {
 
 	// main cli commands
 	grunt.registerTask('default', ['test']);
-	grunt.registerTask('build', ['clean', 'concat', 'jshint']);
+	grunt.registerTask('build', ['clean', 'concat', 'jshint', 'uglify', 'copy']);
 	grunt.registerTask('test', ['build', 'mocha', 'mochaTest']);
 };

@@ -764,4 +764,3 @@ var publicApi = {
 global.tv4 = publicApi;
 
 })((typeof module !== 'undefined' && module.exports) ? exports : this);
-

@@ -1,0 +1,17 @@
+.npmignore
+.gitignore
+.gitmodules
+.travis.yml
+.jshintrc
+bower.json
+Gruntfile.js
+
+/source
+/.idea
+/node_modules
+/tests
+/test
+/*.tgz
+/*.php
+/*.min.js
+/*.html
