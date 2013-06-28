@@ -85,7 +85,7 @@ module.exports = function (grunt) {
 			any: {
 				src: ['test/all_concat.js'],
 				options: {
-					reporter: 'dot'
+					reporter: 'spec'
 				}
 			}
 		},
@@ -105,5 +105,5 @@ module.exports = function (grunt) {
 	// main cli commands
 	grunt.registerTask('default', ['test']);
 	grunt.registerTask('build', ['clean', 'concat', 'jshint', 'uglify', 'copy']);
-	grunt.registerTask('test', ['build', 'mochaTest', 'mocha']);
+	grunt.registerTask('test', ['build', 'mocha', 'mochaTest']);
 };
