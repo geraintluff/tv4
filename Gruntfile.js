@@ -104,5 +104,5 @@ module.exports = function (grunt) {
 	// main cli commands
 	grunt.registerTask('default', ['test']);
 	grunt.registerTask('build', ['clean', 'concat', 'jshint', 'uglify', 'copy']);
-	grunt.registerTask('test', ['build', 'mocha', 'mochaTest']);
+	grunt.registerTask('test', ['build', 'mochaTest', 'mocha']);
 };
