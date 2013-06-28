@@ -85,7 +85,7 @@ module.exports = function (grunt) {
 			any: {
 				src: ['test/all_concat.js'],
 				options: {
-					reporter: 'Spec'
+					reporter: 'dot'
 				}
 			}
 		},
