@@ -47,6 +47,7 @@ module.exports = function (grunt) {
 					return dest;
 				},
 				src: ['_header.js',
+					'_polyfill.js',
 					'validate.js',
 					'basic.js',
 					'numeric.js',
@@ -84,7 +85,7 @@ module.exports = function (grunt) {
 			any: {
 				src: ['test/all_concat.js'],
 				options: {
-					reporter: 'Dot'
+					reporter: 'Spec'
 				}
 			}
 		},
