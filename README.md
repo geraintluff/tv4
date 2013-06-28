@@ -86,7 +86,7 @@ There are tests available, but they require PHP, so you can't see them on GitHub
 
 ## Minifying
 
-```tv4.min.js``` is produced using the [Google Closure Compiler](http://closure-compiler.appspot.com/home).
+```tv4.min.js``` was produced using the [Google Closure Compiler](http://closure-compiler.appspot.com/home), but that might change as it doesn't work with [grunt](https://github.com/gruntjs/grunt).
 
 ## License
 
