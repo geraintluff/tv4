@@ -769,10 +769,11 @@ function searchForTrustedSchemas(map, schema, url) {
 	return map;
 }
 
-function createApi(globalContext) {
+function createApi() {
+	var globalContext = new ValidatorContext();
 	return {
-		duplicateApi: function () {
-			return createApi(new ValidatorContext(globalContext));
+		freshApi: function () {
+			return createApi();
 		},
 		validate: function (data, schema) {
 			var context = new ValidatorContext(globalContext);
@@ -818,6 +819,6 @@ function createApi(globalContext) {
 	};
 };
 
-global.tv4 = createApi(new ValidatorContext());
+global.tv4 = createApi();
 
 })((typeof module !== 'undefined' && module.exports) ? exports : this);
