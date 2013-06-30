@@ -18,7 +18,7 @@ module.exports = function (grunt) {
 			test_deps: {
 				expand: true,
 				flatten: true,
-				src: ['node_modules/mocha/mocha.js', 'node_modules/mocha/mocha.css', 'node_modules/chai/chai.js'],
+				src: ['node_modules/mocha/mocha.js', 'node_modules/mocha/mocha.css', 'node_modules/proclaim/proclaim.js'],
 				dest: 'test/deps'
 			}
 		},
@@ -85,7 +85,7 @@ module.exports = function (grunt) {
 			any: {
 				src: ['test/all_concat.js'],
 				options: {
-					reporter: 'spec'
+					reporter: 'mocha-unfunk-reporter'
 				}
 			}
 		},
@@ -102,6 +102,7 @@ module.exports = function (grunt) {
 		}
 	});
 
+	require('mocha-unfunk-reporter').option('style', 'ansi');
 	// main cli commands
 	grunt.registerTask('default', ['test']);
 	grunt.registerTask('build', ['clean', 'concat', 'jshint', 'uglify', 'copy']);
