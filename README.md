@@ -82,14 +82,13 @@ tv4.validate(data, schema, function (isValid, validationError) { ... });
 
 `validationFailure` is simply taken from `tv4.error`.
 
-## Cyclical javascript objects
+## Cyclical JavaScript objects
 
-While they don't occur in proper JSON, javascript does support self-referencing objects. Any of the above calls support an optional final argument, checkRecursive. If true, tv4 will handle self-referencing objects properly - this slows down validation slightly, but that's better than a hanging script.
+While they don't occur in proper JSON, JavaScript does support self-referencing objects. Any of the above calls support an optional final argument, checkRecursive. If true, tv4 will handle self-referencing objects properly - this slows down validation slightly, but that's better than a hanging script.
 
 ```javascript
 var a = {};
-var b = {};
-b.a = a;
+var b = { a: a };
 a.b = b;
 var aSchema = { properties: { b: { $ref: 'bSchema' }}};
 var bSchema = { properties: { a: { $ref: 'aSchema' }}};

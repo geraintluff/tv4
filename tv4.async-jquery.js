@@ -5,9 +5,9 @@ if (typeof (tv4.asyncValidate) === 'undefined') {
 	tv4.syncValidate = tv4.validate;
 	tv4.validate = function (data, schema, callback, checkRecursive) {
 		if (typeof (callback) === 'undefined') {
-			return this.syncValidate(data, schema);
+			return this.syncValidate(data, schema, checkRecursive);
 		} else {
-			return this.asyncValidate(data, schema, callback);
+			return this.asyncValidate(data, schema, callback, checkRecursive);
 		}
 	};
 	tv4.asyncValidate = function (data, schema, callback, checkRecursive) {
