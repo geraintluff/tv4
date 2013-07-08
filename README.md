@@ -52,7 +52,7 @@ The result will look something like:
 
 ## Usage 3: Multiple errors
 
-Normally, `tv4` stops when it encounters the first validation error.  However, you can collect an array of validation errors using 
+Normally, `tv4` stops when it encounters the first validation error.  However, you can collect an array of validation errors using
 
 ```javascript
 var result = tv4.validateMultiple(data, schema);
@@ -80,14 +80,33 @@ Usage:
 tv4.validate(data, schema, function (isValid, validationError) { ... });
 ```
 
-`validationFailure` is simply taken from `tv4.error`. 
+`validationFailure` is simply taken from `tv4.error`.
+
+## Cyclical javascript objects
+
+While they don't occur in proper JSON, javascript does support self-referencing objects. Any of the above calls support an optional final argument, checkRecursive. If true, tv4 will handle self-referencing objects properly - this slows down validation slightly, but that's better than a hanging script.
+
+```javascript
+var a = {};
+var b = {};
+b.a = a;
+a.b = b;
+var aSchema = { properties: { b: { $ref: 'bSchema' }}};
+var bSchema = { properties: { a: { $ref: 'aSchema' }}};
+tv4.addSchema('aSchema', aSchema);
+tv4.addSchema('bSchema', bSchema);
+tv4.validate(a, aSchema, true); // If the final checkRecursive argument were missing, this would throw a "too much recursion" error.
+tv4.validate(a, schema, asynchronousFunction, true); // Works with asynchronous validation.
+tv4.validateResult(data, schema, true); // Also multi-threaded and multiple error validation.
+tv4.validateMultiple(data, schema, true);
+```
 
 ## Build and test
 
 You can rebuild and run the node and browser tests using node.js and [grunt](http://http://gruntjs.com/):
 
 Make sure you have the global grunt cli command:
-````	
+````
 $ npm install grunt-cli -g
 ````
 
