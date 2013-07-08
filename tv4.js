@@ -8,61 +8,14 @@ If you find a bug or make an improvement, it would be courteous to let the autho
 **/
 
 (function (global) {
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FObject%2Fkeys
-if (!Object.keys) {
-	Object.keys = (function () {
-		var hasOwnProperty = Object.prototype.hasOwnProperty,
-			hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
-			dontEnums = [
-				'toString',
-				'toLocaleString',
-				'valueOf',
-				'hasOwnProperty',
-				'isPrototypeOf',
-				'propertyIsEnumerable',
-				'constructor'
-			],
-			dontEnumsLength = dontEnums.length;
-
-		return function (obj) {
-			if (typeof obj !== 'object' && typeof obj !== 'function' || obj === null) throw new TypeError('Object.keys called on non-object');
-
-			var result = [];
-
-			for (var prop in obj) {
-				if (hasOwnProperty.call(obj, prop)) result.push(prop);
-			}
-
-			if (hasDontEnumBug) {
-				for (var i=0; i < dontEnumsLength; i++) {
-					if (hasOwnProperty.call(obj, dontEnums[i])) result.push(dontEnums[i]);
-				}
-			}
-			return result;
-		};
-	})();
-}
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
-if (!Object.create) {
-	Object.create = (function(){
-		function F(){}
-
-		return function(o){
-			if (arguments.length != 1) {
-				throw new Error('Object.create implementation only accepts one parameter.');
-			}
-			F.prototype = o
-			return new F()
-		}
-	})()
-}
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FArray%2FisArray
-if(!Array.isArray) {
-	Array.isArray = function (vArg) {
-		return Object.prototype.toString.call(vArg) === "[object Array]";
-	};
-}
-var ValidatorContext = function (parent, collectMultiple) {
+var ValidatorContext = function (parent, collectMultiple, checkRecursive) {
+  if (checkRecursive) {
+    this.checkRecursive = true;
+    this.scanned = [];
+    this.scannedFrozen = [];
+    this.scannedFrozenSchemas = [];
+    this.key = 'tv4_validation_id';
+  }
 	this.missing = [];
 	this.schemas = parent ? Object.create(parent.schemas) : {};
 	this.collectMultiple = collectMultiple;
@@ -132,15 +85,38 @@ ValidatorContext.prototype.addSchema = function (url, schema) {
 	}
 	return map;
 };
-	
+
 ValidatorContext.prototype.validateAll = function validateAll(data, schema, dataPathParts, schemaPathParts) {
+  var topLevel;
 	if (schema['$ref'] != undefined) {
 		schema = this.getSchema(schema['$ref']);
 		if (!schema) {
 			return null;
 		}
 	}
-	
+	if (this.checkRecursive && (typeof data) == 'object') {
+    topLevel = !this.scanned.length;
+    if (data[this.key] && data[this.key].indexOf(schema) != -1) { return null; }
+    var frozenIndex;
+    if (Object.isFrozen(data)) {
+      frozenIndex = this.scannedFrozen.indexOf(data);
+      if (frozenIndex != -1 && this.scannedFrozenSchemas[frozenIndex].indexOf(schema) != -1) { return null; }
+    }
+    this.scanned.push(data);
+    if (Object.isFrozen(data)) {
+      if (frozenIndex == -1) {
+        frozenIndex = this.scannedFrozen.length;
+        this.scannedFrozen.push(data);
+        this.scannedFrozenSchemas.push([]);
+      }
+      this.scannedFrozenSchemas[frozenIndex].push(schema);
+    } else {
+      if (!data[this.key]) {
+        Object.defineProperty(data, this.key, { value: [] });
+      }
+      data[this.key].push(schema);
+    }
+  }
 	var errorCount = this.errors.length;
 	var error = this.validateBasic(data, schema)
 		|| this.validateNumeric(data, schema)
@@ -148,7 +124,15 @@ ValidatorContext.prototype.validateAll = function validateAll(data, schema, data
 		|| this.validateArray(data, schema)
 		|| this.validateObject(data, schema)
 		|| this.validateCombinations(data, schema)
-		|| null
+		|| null;
+  if (topLevel) {
+    while (this.scanned.length) {
+      var item = this.scanned.pop();
+      delete item[this.key];
+    }
+    this.scannedFrozen = [];
+    this.scannedFrozenSchemas = [];
+  }
 	if (error || errorCount != this.errors.length) {
 		while ((dataPathParts && dataPathParts.length) || (schemaPathParts && schemaPathParts.length)) {
 			var dataPart = (dataPathParts && dataPathParts.length) ? "" + dataPathParts.pop() : null;
@@ -159,7 +143,7 @@ ValidatorContext.prototype.validateAll = function validateAll(data, schema, data
 			this.prefixErrors(errorCount, dataPart, schemaPart);
 		}
 	}
-		
+
 	return this.handleError(error);
 }
 
@@ -226,7 +210,7 @@ ValidatorContext.prototype.validateType = function validateType(data, schema) {
 	if (typeof allowedTypes != "object") {
 		allowedTypes = [allowedTypes];
 	}
-	
+
 	for (var i = 0; i < allowedTypes.length; i++) {
 		var type = allowedTypes[i];
 		if (type == dataType || (type == "integer" && dataType == "number" && (data%1 == 0))) {
@@ -578,10 +562,10 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) 
 	var startErrorCount = this.errors.length;
 	for (var i = 0; i < schema.oneOf.length; i++) {
 		var subSchema = schema.oneOf[i];
-		
+
 		var errorCount = this.errors.length;
 		var error = this.validateAll(data, subSchema, [], ["oneOf", i]);
-		
+
 		if (error == null && errorCount == this.errors.length) {
 			if (validIndex == null) {
 				validIndex = i;
@@ -769,56 +753,53 @@ function searchForTrustedSchemas(map, schema, url) {
 	return map;
 }
 
-function createApi() {
-	var globalContext = new ValidatorContext();
-	return {
-		freshApi: function () {
-			return createApi();
-		},
-		validate: function (data, schema) {
-			var context = new ValidatorContext(globalContext);
-			if (typeof schema == "string") {
-				schema = {"$ref": schema};
-			}
-			var added = context.addSchema("", schema);
-			var error = context.validateAll(data, schema);
-			this.error = error;
-			this.missing = context.missing;
-			this.valid = (error == null);
-			return this.valid;
-		},
-		validateResult: function () {
-			var result = {};
-			this.validate.apply(result, arguments);
-			return result;
-		},
-		validateMultiple: function (data, schema) {
-			var context = new ValidatorContext(globalContext, true);
-			if (typeof schema == "string") {
-				schema = {"$ref": schema};
-			}
-			context.addSchema("", schema);
-			context.validateAll(data, schema);
-			var result = {};
-			result.errors = context.errors;
-			result.missing = context.missing;
-			result.valid = (result.errors.length == 0);
-			return result;
-		},
-		addSchema: function (url, schema) {
-			return globalContext.addSchema(url, schema);
-		},
-		getSchema: function (url) {
-			return globalContext.getSchema(url);
-		},
-		missing: [],
-		error: null,
-		normSchema: normSchema,
-		resolveUrl: resolveUrl,
-		errorCodes: ErrorCodes
-	};
+var globalContext = new ValidatorContext();
+
+var publicApi = {
+	validate: function (data, schema, checkRecursive) {
+		var context = new ValidatorContext(globalContext, false, checkRecursive);
+		if (typeof schema == "string") {
+			schema = {"$ref": schema};
+		}
+		var added = context.addSchema("", schema);
+		var error = context.validateAll(data, schema);
+		this.error = error;
+		this.missing = context.missing;
+		this.valid = (error == null);
+		return this.valid;
+	},
+	validateResult: function () {
+		var result = {};
+		this.validate.apply(result, arguments);
+		return result;
+	},
+	validateMultiple: function (data, schema, checkRecursive) {
+		var context = new ValidatorContext(globalContext, true, checkRecursive);
+		if (typeof schema == "string") {
+			schema = {"$ref": schema};
+		}
+		context.addSchema("", schema);
+    context.validateAll(data, schema);
+		var result = {};
+		result.errors = context.errors;
+		result.missing = context.missing;
+		result.valid = (result.errors.length == 0);
+		return result;
+	},
+	addSchema: function (url, schema) {
+		return globalContext.addSchema(url, schema);
+	},
+	getSchema: function (url) {
+		return globalContext.getSchema(url);
+	},
+	missing: [],
+	error: null,
+	normSchema: normSchema,
+	resolveUrl: resolveUrl,
+	errorCodes: ErrorCodes
 };
 
-global.tv4 = createApi();
+global.tv4 = publicApi;
 
 })((typeof module !== 'undefined' && module.exports) ? exports : this);
+
