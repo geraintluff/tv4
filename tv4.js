@@ -8,16 +8,6 @@ If you find a bug or make an improvement, it would be courteous to let the autho
 **/
 
 (function (global) {
-<<<<<<< HEAD
-var ValidatorContext = function (parent, collectMultiple, checkRecursive) {
-  if (checkRecursive) {
-    this.checkRecursive = true;
-    this.scanned = [];
-    this.scannedFrozen = [];
-    this.scannedFrozenSchemas = [];
-    this.key = 'tv4_validation_id';
-  }
-=======
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FObject%2Fkeys
 if (!Object.keys) {
 	Object.keys = (function () {
@@ -73,7 +63,6 @@ if(!Array.isArray) {
 	};
 }
 var ValidatorContext = function (parent, collectMultiple, checkRecursive) {
->>>>>>> recursive_support
 	this.missing = [];
 	this.schemas = parent ? Object.create(parent.schemas) : {};
 	this.collectMultiple = collectMultiple;
