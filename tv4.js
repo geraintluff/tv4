@@ -148,31 +148,6 @@ ValidatorContext.prototype.validateAll = function validateAll(data, schema, data
 			return null;
 		}
 	}
-<<<<<<< HEAD
-	if (this.checkRecursive && (typeof data) == 'object') {
-    topLevel = !this.scanned.length;
-    if (data[this.key] && data[this.key].indexOf(schema) != -1) { return null; }
-    var frozenIndex;
-    if (Object.isFrozen(data)) {
-      frozenIndex = this.scannedFrozen.indexOf(data);
-      if (frozenIndex != -1 && this.scannedFrozenSchemas[frozenIndex].indexOf(schema) != -1) { return null; }
-    }
-    this.scanned.push(data);
-    if (Object.isFrozen(data)) {
-      if (frozenIndex == -1) {
-        frozenIndex = this.scannedFrozen.length;
-        this.scannedFrozen.push(data);
-        this.scannedFrozenSchemas.push([]);
-      }
-      this.scannedFrozenSchemas[frozenIndex].push(schema);
-    } else {
-      if (!data[this.key]) {
-        Object.defineProperty(data, this.key, { value: [] });
-      }
-      data[this.key].push(schema);
-    }
-  }
-=======
 
 	if (this.checkRecursive && (typeof data) == 'object') {
 		topLevel = !this.scanned.length;
@@ -198,7 +173,6 @@ ValidatorContext.prototype.validateAll = function validateAll(data, schema, data
 		}
 	}
 
->>>>>>> recursive_support
 	var errorCount = this.errors.length;
 	var error = this.validateBasic(data, schema)
 		|| this.validateNumeric(data, schema)
@@ -206,18 +180,7 @@ ValidatorContext.prototype.validateAll = function validateAll(data, schema, data
 		|| this.validateArray(data, schema)
 		|| this.validateObject(data, schema)
 		|| this.validateCombinations(data, schema)
-<<<<<<< HEAD
 		|| null;
-  if (topLevel) {
-    while (this.scanned.length) {
-      var item = this.scanned.pop();
-      delete item[this.key];
-    }
-    this.scannedFrozen = [];
-    this.scannedFrozenSchemas = [];
-  }
-=======
-		|| null
 
 	if (topLevel) {
 		while (this.scanned.length) {
@@ -228,7 +191,6 @@ ValidatorContext.prototype.validateAll = function validateAll(data, schema, data
 		this.scannedFrozenSchemas = [];
 	}
 
->>>>>>> recursive_support
 	if (error || errorCount != this.errors.length) {
 		while ((dataPathParts && dataPathParts.length) || (schemaPathParts && schemaPathParts.length)) {
 			var dataPart = (dataPathParts && dataPathParts.length) ? "" + dataPathParts.pop() : null;
@@ -856,7 +818,7 @@ function createApi() {
 			return createApi();
 		},
 		validate: function (data, schema, checkRecursive) {
-			var context = new ValidatorContext(globalContext, checkRecursive);
+			var context = new ValidatorContext(globalContext, false, checkRecursive);
 			if (typeof schema == "string") {
 				schema = {"$ref": schema};
 			}
