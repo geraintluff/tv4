@@ -8,6 +8,60 @@ If you find a bug or make an improvement, it would be courteous to let the autho
 **/
 
 (function (global) {
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FObject%2Fkeys
+if (!Object.keys) {
+	Object.keys = (function () {
+		var hasOwnProperty = Object.prototype.hasOwnProperty,
+			hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
+			dontEnums = [
+				'toString',
+				'toLocaleString',
+				'valueOf',
+				'hasOwnProperty',
+				'isPrototypeOf',
+				'propertyIsEnumerable',
+				'constructor'
+			],
+			dontEnumsLength = dontEnums.length;
+
+		return function (obj) {
+			if (typeof obj !== 'object' && typeof obj !== 'function' || obj === null) throw new TypeError('Object.keys called on non-object');
+
+			var result = [];
+
+			for (var prop in obj) {
+				if (hasOwnProperty.call(obj, prop)) result.push(prop);
+			}
+
+			if (hasDontEnumBug) {
+				for (var i=0; i < dontEnumsLength; i++) {
+					if (hasOwnProperty.call(obj, dontEnums[i])) result.push(dontEnums[i]);
+				}
+			}
+			return result;
+		};
+	})();
+}
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
+if (!Object.create) {
+	Object.create = (function(){
+		function F(){}
+
+		return function(o){
+			if (arguments.length != 1) {
+				throw new Error('Object.create implementation only accepts one parameter.');
+			}
+			F.prototype = o
+			return new F()
+		}
+	})()
+}
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FArray%2FisArray
+if(!Array.isArray) {
+	Array.isArray = function (vArg) {
+		return Object.prototype.toString.call(vArg) === "[object Array]";
+	};
+}
 var ValidatorContext = function (parent, collectMultiple) {
 	this.missing = [];
 	this.schemas = parent ? Object.create(parent.schemas) : {};
@@ -715,53 +769,56 @@ function searchForTrustedSchemas(map, schema, url) {
 	return map;
 }
 
-var globalContext = new ValidatorContext();
-
-var publicApi = {
-	validate: function (data, schema) {
-		var context = new ValidatorContext(globalContext);
-		if (typeof schema == "string") {
-			schema = {"$ref": schema};
-		}
-		var added = context.addSchema("", schema);
-		var error = context.validateAll(data, schema);
-		this.error = error;
-		this.missing = context.missing;
-		this.valid = (error == null);
-		return this.valid;
-	},
-	validateResult: function () {
-		var result = {};
-		this.validate.apply(result, arguments);
-		return result;
-	},
-	validateMultiple: function (data, schema) {
-		var context = new ValidatorContext(globalContext, true);
-		if (typeof schema == "string") {
-			schema = {"$ref": schema};
-		}
-		context.addSchema("", schema);
-		context.validateAll(data, schema);
-		var result = {};
-		result.errors = context.errors;
-		result.missing = context.missing;
-		result.valid = (result.errors.length == 0);
-		return result;
-	},
-	addSchema: function (url, schema) {
-		return globalContext.addSchema(url, schema);
-	},
-	getSchema: function (url) {
-		return globalContext.getSchema(url);
-	},
-	missing: [],
-	error: null,
-	normSchema: normSchema,
-	resolveUrl: resolveUrl,
-	errorCodes: ErrorCodes
+function createApi() {
+	var globalContext = new ValidatorContext();
+	return {
+		freshApi: function () {
+			return createApi();
+		},
+		validate: function (data, schema) {
+			var context = new ValidatorContext(globalContext);
+			if (typeof schema == "string") {
+				schema = {"$ref": schema};
+			}
+			var added = context.addSchema("", schema);
+			var error = context.validateAll(data, schema);
+			this.error = error;
+			this.missing = context.missing;
+			this.valid = (error == null);
+			return this.valid;
+		},
+		validateResult: function () {
+			var result = {};
+			this.validate.apply(result, arguments);
+			return result;
+		},
+		validateMultiple: function (data, schema) {
+			var context = new ValidatorContext(globalContext, true);
+			if (typeof schema == "string") {
+				schema = {"$ref": schema};
+			}
+			context.addSchema("", schema);
+			context.validateAll(data, schema);
+			var result = {};
+			result.errors = context.errors;
+			result.missing = context.missing;
+			result.valid = (result.errors.length == 0);
+			return result;
+		},
+		addSchema: function (url, schema) {
+			return globalContext.addSchema(url, schema);
+		},
+		getSchema: function (url) {
+			return globalContext.getSchema(url);
+		},
+		missing: [],
+		error: null,
+		normSchema: normSchema,
+		resolveUrl: resolveUrl,
+		errorCodes: ErrorCodes
+	};
 };
 
-global.tv4 = publicApi;
+global.tv4 = createApi();
 
 })((typeof module !== 'undefined' && module.exports) ? exports : this);
-

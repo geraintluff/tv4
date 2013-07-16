@@ -86,10 +86,16 @@
 				<div class="box">
 					Download <a href="tv4.js">full</a> (24kb) or <a href="tv4.min.js">minified</a> (12.9kb, 3.8kb gzipped)
 				</div>
+
+                <p><a href="http://travis-ci.org/geraintluff/tv4" target="_blank"><img src="https://secure.travis-ci.org/geraintluff/tv4.png?branch=master" alt="Build Status" style="max-width:100%;"></a> <a href="https://gemnasium.com/geraintluff/tv4" target="_blank"><img src="https://gemnasium.com/geraintluff/tv4.png" alt="Dependency Status" style="max-width:100%;"></a> <a href="http://badge.fury.io/js/tv4" target="_blank"><img src="https://badge.fury.io/js/tv4.png" alt="NPM version" style="max-width:100%;"></a></p>
+
 				<p>Tiny Validator is a JavaScript library for validation against v4 the <a href="http://json-schema.org/">JSON Schema</a> standard.
 				<p>It supports <code>$ref</code> with JSON Pointer fragment paths (e.g. <code>http://example.com/schema#/properties/myKey</code>).
 				<p>It uses relatively modern JavaScript features (such as <code>JSON.stringify</code> and <code>Array.isArray</code>) so older browsers will need a compatability shim - <a href="https://github.com/kriskowal/es5-shim">this</a> is a good one.
 				<p>For the source code, see the <a href="https://github.com/geraintluff/tv4">GitHub repository</a>.
+
+				<h3>Try it out!</h3>
+				<p>Give it a whirl on <a href="try/">the demo page</a>.
 				
 				<h2>Usage:</h2>
 				<p>There are three methods for validating data:
@@ -190,8 +196,8 @@ alert("data 2: " + tv4.validate(data2, schema)); // false
 				
 				<p>The value of <code>validationError</code> is taken from <code>tv4.error</code>.
 
-				<h2>Tests:</h2>
-				<p>There are some <a href="tests/?all">tests</a>, but they use PHP to run, so they won't work when hosted by GitHub.
+				<h2>Build and test:</h2>
+				<p>See the readme on <a href="https://github.com/geraintluff/tv4">GitHub</a> for information on how to rebuild and run node.js and browser tests using grunt, or look at the <a href="http://travis-ci.org/geraintluff/tv4">travis build status</a>.
 			</div>
 		</div>
 	</body>

@@ -1,34 +1,54 @@
 {
-	"name": "tv4",
-	"version": "1.0.3",
-	"author": "Geraint Luff",
-	"description": "A public domain JSON Schema validator for JavaScript",
-	"keywords": [
-		"json-schema",
-		"schema",
-		"validator",
-		"tv4"
-	],
-	"maintainers": [
-		{
-			"name": "Geraint Luff",
-			"email": "luffgd@gmail.com",
-			"web": "https://github.com/geraintluff/"
-		}
-	],
-	"main": "tv4.js",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/geraintluff/tv4.git"
-	},
-	"license:": [
-		{
-			"type" : "Public Domain",
-			"url" : "http://geraintluff.github.io/tv4/LICENSE.txt"
-		},
-		{
-			"type" : "MIT",
-			"url" : "http://jsonary.com/LICENSE.txt"
-		}
-	]
+  "name": "tv4",
+  "version": "1.0.3",
+  "author": "Geraint Luff",
+  "description": "A public domain JSON Schema validator for JavaScript",
+  "keywords": [
+    "json-schema",
+    "schema",
+    "validator",
+    "tv4"
+  ],
+  "maintainers": [
+    {
+      "name": "Geraint Luff",
+      "email": "luffgd@gmail.com",
+      "web": "https://github.com/geraintluff/"
+    }
+  ],
+  "main": "tv4.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/geraintluff/tv4.git"
+  },
+  "license:": [
+    {
+      "type": "Public Domain",
+      "url": "http://geraintluff.github.io/tv4/LICENSE.txt"
+    },
+    {
+      "type": "MIT",
+      "url": "http://jsonary.com/LICENSE.txt"
+    }
+  ],
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-clean": "~0.4.1",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-jshint": "~0.6.0",
+    "mocha": "~1.11.0",
+    "grunt-mocha": "~0.3.4",
+    "grunt-mocha-test": "~0.5.0",
+    "grunt-cli": "~0.1.9",
+    "grunt-contrib-uglify": "~0.2.2",
+    "grunt-contrib-copy": "~0.4.1",
+    "proclaim": "~1.4.0",
+    "mocha-unfunk-reporter": "~0.1"
+  },
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  }
 }

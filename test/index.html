@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>tv4</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="./deps/mocha.css"/>
+    <script src="./deps/jquery.js"></script>
+    <script src="./deps/mocha.js"></script>
+    <script src="./deps/proclaim.js"></script>
+    <script src="../tv4.js"></script>
+    <script>
+        //save globals so tests can be shared between node an browsers
+        window.refs = {tv4:tv4, assert:proclaim};
+        mocha.setup('bdd');
+        window.onload = function () {
+            if (navigator.userAgent.indexOf('PhantomJS') < 0) {
+                mocha.run();
+            }
+        };
+    </script>
+    <script src="./all_concat.js"></script>
+</head>
+<body>
+<div id="mocha"></div>
+</body>
+</html>

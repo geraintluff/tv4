@@ -80,50 +80,54 @@ function searchForTrustedSchemas(map, schema, url) {
 	return map;
 }
 
-var globalContext = new ValidatorContext();
-
-var publicApi = {
-	validate: function (data, schema) {
-		var context = new ValidatorContext(globalContext);
-		if (typeof schema == "string") {
-			schema = {"$ref": schema};
-		}
-		var added = context.addSchema("", schema);
-		var error = context.validateAll(data, schema);
-		this.error = error;
-		this.missing = context.missing;
-		this.valid = (error == null);
-		return this.valid;
-	},
-	validateResult: function () {
-		var result = {};
-		this.validate.apply(result, arguments);
-		return result;
-	},
-	validateMultiple: function (data, schema) {
-		var context = new ValidatorContext(globalContext, true);
-		if (typeof schema == "string") {
-			schema = {"$ref": schema};
-		}
-		context.addSchema("", schema);
-		context.validateAll(data, schema);
-		var result = {};
-		result.errors = context.errors;
-		result.missing = context.missing;
-		result.valid = (result.errors.length == 0);
-		return result;
-	},
-	addSchema: function (url, schema) {
-		return globalContext.addSchema(url, schema);
-	},
-	getSchema: function (url) {
-		return globalContext.getSchema(url);
-	},
-	missing: [],
-	error: null,
-	normSchema: normSchema,
-	resolveUrl: resolveUrl,
-	errorCodes: ErrorCodes
+function createApi() {
+	var globalContext = new ValidatorContext();
+	return {
+		freshApi: function () {
+			return createApi();
+		},
+		validate: function (data, schema) {
+			var context = new ValidatorContext(globalContext);
+			if (typeof schema == "string") {
+				schema = {"$ref": schema};
+			}
+			var added = context.addSchema("", schema);
+			var error = context.validateAll(data, schema);
+			this.error = error;
+			this.missing = context.missing;
+			this.valid = (error == null);
+			return this.valid;
+		},
+		validateResult: function () {
+			var result = {};
+			this.validate.apply(result, arguments);
+			return result;
+		},
+		validateMultiple: function (data, schema) {
+			var context = new ValidatorContext(globalContext, true);
+			if (typeof schema == "string") {
+				schema = {"$ref": schema};
+			}
+			context.addSchema("", schema);
+			context.validateAll(data, schema);
+			var result = {};
+			result.errors = context.errors;
+			result.missing = context.missing;
+			result.valid = (result.errors.length == 0);
+			return result;
+		},
+		addSchema: function (url, schema) {
+			return globalContext.addSchema(url, schema);
+		},
+		getSchema: function (url) {
+			return globalContext.getSchema(url);
+		},
+		missing: [],
+		error: null,
+		normSchema: normSchema,
+		resolveUrl: resolveUrl,
+		errorCodes: ErrorCodes
+	};
 };
 
-global.tv4 = publicApi;
+global.tv4 = createApi();

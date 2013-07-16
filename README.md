@@ -1,4 +1,6 @@
-#Tiny Validator (for v4 JSON Schema)
+# Tiny Validator (for v4 JSON Schema)
+
+[![Build Status](https://secure.travis-ci.org/geraintluff/tv4.png?branch=master)](http://travis-ci.org/geraintluff/tv4) [![Dependency Status](https://gemnasium.com/geraintluff/tv4.png)](https://gemnasium.com/geraintluff/tv4) [![NPM version](https://badge.fury.io/js/tv4.png)](http://badge.fury.io/js/tv4)
 
 All you need is ```tv4.js``` (24KB) or ```tv4.min.js``` (12.9KB, 3.8KB gzipped).
 
@@ -80,13 +82,30 @@ tv4.validate(data, schema, function (isValid, validationError) { ... });
 
 `validationFailure` is simply taken from `tv4.error`. 
 
-## Tests
+## Build and test
 
-There are tests available, but they require PHP, so you can't see them on GitHub.
+You can rebuild and run the node and browser tests using node.js and [grunt](http://http://gruntjs.com/):
 
-## Minifying
+Make sure you have the global grunt cli command:
+````	
+$ npm install grunt-cli -g
+````
 
-```tv4.min.js``` is produced using the [Google Closure Compiler](http://closure-compiler.appspot.com/home).
+Navigate to your tv4 git checkout and install the development dependencies:
+
+````
+$ npm install
+````
+
+Rebuild and run the tests:
+````
+$ grunt
+````
+
+## Packages using tv4
+
+* [chai-json-schema](http://chaijs.com/plugins/chai-json-schema) is a [Chai Assertion Library](http://chaijs.com) plugin to assert values against json-schema.
+* [grunt-tv4](http://www.github.com/Bartvds/grunt-tv4) is a plugin for [grunt](http://http://gruntjs.com/) that uses tv4 to validate json files.
 
 ## License
 

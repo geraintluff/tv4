@@ -11,7 +11,10 @@
     "*.md",
     "package.json",
     "node_modules",
-    "tests",
+    ".travis.yml",
+    ".jshintrc",
+    ".npmignore",
+    "test",
     "source"
   ]
 }
