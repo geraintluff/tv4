@@ -1,0 +1,174 @@
+<html>
+	<head>
+		<title>Try out tv4</title>
+		<script src="../tv4.js"></script>
+		<style type="text/css" media="screen">
+			#page-table {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+			}
+			#editor-data-title, #editor-schema-title {
+				font-size: 16px;
+				font-weight: bold;
+				font-family: Verdana;
+				text-align: center;
+				border-bottom: 2px solid black;
+				height: 25px;
+			}
+			#editor-data-title {
+				left: 0;
+				width: 50%;
+				background-color: #CDE;
+				border-right: 1px solid black;
+			}
+			#editor-schema-title {
+				right: 0;
+				width: 50%;
+				background-color: #EDC;
+				border-left: 1px solid black;
+			}
+			#editor-data { 
+				width: 100%;
+				height: 100%;
+				border-right: 1px solid black;
+			}
+			#editor-schema { 
+				width: 100%;
+				height: 100%;
+				border-left: 1px solid black;
+			}
+			#run-button-cell {
+				height: 25px;
+			}
+			#run-button {
+				float: left;
+				width: 90%;
+				height: 25px;
+				font-weight: bold;
+			}
+			#save-button {
+				float: right;
+				width: 9.99%;
+				height: 25px;
+			}
+			#result-cell {
+				vertical-align: top;
+				height: 20em;
+				font-size: 0.9em;
+				font-family: Consolas, Courier New, sans;
+			}
+			#result {
+				height: 100%;
+				overflow: auto;
+				padding: 0.5em;
+			}
+		</style>
+	</head>
+	<body>
+		<table id="page-table" cellspacing=0 cellpadding=0>
+			<thead>
+				<tr>
+					<td id="editor-data-title">data</td>
+					<td id="editor-schema-title">schema</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td style="position: relative">
+<div id="editor-data">{
+	"foo": "bar"
+}</div>
+					</td>
+					<td style="position: relative">
+<div id="editor-schema">{
+	"type": "object",
+	"properties": {
+		"foo": {
+			"type": "string"
+		}
+	},
+	"required": ["foo"]
+}</div>
+					</td>
+				</tr>
+				<tr>
+					<td colspan=2 id="run-button-cell">
+						<input id="run-button" type="button" value="validate" onclick="validate()"></input>
+						<input id="save-button" type="button" value="save to URL" onclick="saveToFragment()"></input>
+					</td>
+				</tr>
+				<tr>
+					<td colspan=2 id="result-cell">
+						<pre id="result">&nbsp;</pre>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+		<script>
+			var editorData = ace.edit("editor-data");
+			editorData.setTheme("ace/theme/dawn");
+			editorData.getSession().setMode("ace/mode/json");
+			
+			var editorSchema = ace.edit("editor-schema");
+			editorSchema.setTheme("ace/theme/dawn");
+			editorSchema.getSession().setMode("ace/mode/json");
+			
+			var hash = (window.location.href.indexOf('#') == -1) ? '#' : window.location.href.substring(window.location.href.indexOf('#'));
+			console.log(hash);
+			if (hash.charAt(1) == "?") {
+				var parts = hash.substring(2).split("&");
+				for (var i = 0; i < parts.length; i++) {
+					var pair = parts[i].split('=');
+					var key = pair[0];
+					var value = decodeURIComponent(pair.length ? parts[i].substring(key.length + 1) : "");
+					if (key == "data") {
+						editorData.getSession().setValue(value);
+					} else if (key == "schema") {
+						editorSchema.getSession().setValue(value);
+					}
+				}
+			}
+			
+			function validate() {
+				var dataJson = editorData.getSession().getValue();
+				try {
+					var data = JSON.parse(dataJson);
+				} catch (e) {
+					return output("Error parsing data JSON:\n" + e);
+				}
+				var schemaJson = editorSchema.getSession().getValue();
+				try {
+					var schema = JSON.parse(schemaJson);
+				} catch (e) {
+					return output("Error parsing schema JSON:\n" + e);
+				}
+				output(tv4.validateMultiple(data, schema));
+			}
+			
+			function saveToFragment() {
+				var dataJson = editorData.getSession().getValue();
+				var schemaJson = editorSchema.getSession().getValue();
+				var hash = "#?data=" + encodeURIComponent(dataJson) + "&schema=" + encodeURIComponent(schemaJson);
+				window.location.href = hash;
+			}
+
+			function output(result) {
+				var target = document.getElementById('result');
+				if (typeof result != 'string') {
+					result = JSON.stringify(result, null, 4)
+				}
+				target.innerHTML = result.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+			}
+			
+			validate();
+		</script>
+	</body>
+</html>
