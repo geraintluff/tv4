@@ -62,12 +62,19 @@ if(!Array.isArray) {
 		return Object.prototype.toString.call(vArg) === "[object Array]";
 	};
 }
-var ValidatorContext = function (parent, collectMultiple) {
+var ValidatorContext = function (parent, collectMultiple, checkRecursive) {
 	this.missing = [];
 	this.schemas = parent ? Object.create(parent.schemas) : {};
 	this.collectMultiple = collectMultiple;
 	this.errors = [];
 	this.handleError = collectMultiple ? this.collectError : this.returnError;
+	if (checkRecursive) {
+		this.checkRecursive = true;
+		this.scanned = [];
+		this.scannedFrozen = [];
+		this.scannedFrozenSchemas = [];
+		this.key = 'tv4_validation_id';
+	}
 };
 ValidatorContext.prototype.returnError = function (error) {
 	return error;
@@ -132,15 +139,40 @@ ValidatorContext.prototype.addSchema = function (url, schema) {
 	}
 	return map;
 };
-	
+
 ValidatorContext.prototype.validateAll = function validateAll(data, schema, dataPathParts, schemaPathParts) {
+  var topLevel;
 	if (schema['$ref'] != undefined) {
 		schema = this.getSchema(schema['$ref']);
 		if (!schema) {
 			return null;
 		}
 	}
-	
+
+	if (this.checkRecursive && (typeof data) == 'object') {
+		topLevel = !this.scanned.length;
+		if (data[this.key] && data[this.key].indexOf(schema) != -1) { return null; }
+		var frozenIndex;
+		if (Object.isFrozen(data)) {
+			frozenIndex = this.scannedFrozen.indexOf(data);
+			if (frozenIndex != -1 && this.scannedFrozenSchemas[frozenIndex].indexOf(schema) != -1) { return null; }
+		}
+		this.scanned.push(data);
+		if (Object.isFrozen(data)) {
+			if (frozenIndex == -1) {
+				frozenIndex = this.scannedFrozen.length;
+				this.scannedFrozen.push(data);
+				this.scannedFrozenSchemas.push([]);
+			}
+			this.scannedFrozenSchemas[frozenIndex].push(schema);
+		} else {
+			if (!data[this.key]) {
+				Object.defineProperty(data, this.key, { value: [] });
+			}
+			data[this.key].push(schema);
+		}
+	}
+
 	var errorCount = this.errors.length;
 	var error = this.validateBasic(data, schema)
 		|| this.validateNumeric(data, schema)
@@ -148,7 +180,17 @@ ValidatorContext.prototype.validateAll = function validateAll(data, schema, data
 		|| this.validateArray(data, schema)
 		|| this.validateObject(data, schema)
 		|| this.validateCombinations(data, schema)
-		|| null
+		|| null;
+
+	if (topLevel) {
+		while (this.scanned.length) {
+			var item = this.scanned.pop();
+			delete item[this.key];
+		}
+		this.scannedFrozen = [];
+		this.scannedFrozenSchemas = [];
+	}
+
 	if (error || errorCount != this.errors.length) {
 		while ((dataPathParts && dataPathParts.length) || (schemaPathParts && schemaPathParts.length)) {
 			var dataPart = (dataPathParts && dataPathParts.length) ? "" + dataPathParts.pop() : null;
@@ -159,7 +201,7 @@ ValidatorContext.prototype.validateAll = function validateAll(data, schema, data
 			this.prefixErrors(errorCount, dataPart, schemaPart);
 		}
 	}
-		
+
 	return this.handleError(error);
 }
 
@@ -226,7 +268,7 @@ ValidatorContext.prototype.validateType = function validateType(data, schema) {
 	if (typeof allowedTypes != "object") {
 		allowedTypes = [allowedTypes];
 	}
-	
+
 	for (var i = 0; i < allowedTypes.length; i++) {
 		var type = allowedTypes[i];
 		if (type == dataType || (type == "integer" && dataType == "number" && (data%1 == 0))) {
@@ -578,10 +620,10 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) 
 	var startErrorCount = this.errors.length;
 	for (var i = 0; i < schema.oneOf.length; i++) {
 		var subSchema = schema.oneOf[i];
-		
+
 		var errorCount = this.errors.length;
 		var error = this.validateAll(data, subSchema, [], ["oneOf", i]);
-		
+
 		if (error == null && errorCount == this.errors.length) {
 			if (validIndex == null) {
 				validIndex = i;
@@ -775,8 +817,8 @@ function createApi() {
 		freshApi: function () {
 			return createApi();
 		},
-		validate: function (data, schema) {
-			var context = new ValidatorContext(globalContext);
+		validate: function (data, schema, checkRecursive) {
+			var context = new ValidatorContext(globalContext, false, checkRecursive);
 			if (typeof schema == "string") {
 				schema = {"$ref": schema};
 			}
@@ -792,8 +834,8 @@ function createApi() {
 			this.validate.apply(result, arguments);
 			return result;
 		},
-		validateMultiple: function (data, schema) {
-			var context = new ValidatorContext(globalContext, true);
+		validateMultiple: function (data, schema, checkRecursive) {
+			var context = new ValidatorContext(globalContext, true, checkRecursive);
 			if (typeof schema == "string") {
 				schema = {"$ref": schema};
 			}
@@ -822,3 +864,4 @@ function createApi() {
 global.tv4 = createApi();
 
 })((typeof module !== 'undefined' && module.exports) ? exports : this);
+
