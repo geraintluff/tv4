@@ -821,7 +821,7 @@ function createApi(language) {
 				code = code.split('-')[0]; // fall back to base language
 			}
 			if (languages[code]) {
-				currentLanguage = languages[code];
+				currentLanguage = code;
 				return code; // so you can tell if fall-back has happened
 			}
 			return false;
