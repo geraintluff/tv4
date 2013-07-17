@@ -1,6 +1,7 @@
 {
   "name": "tv4",
   "version": "1.0.4",
+  "repo": "geraintluff/tv4",
   "description": "A public domain JSON Schema validator for JavaScript",
   "keywords": [
     "json-schema",
@@ -18,18 +19,7 @@
       "url": "http://jsonary.com/LICENSE.txt"
     }
   ],
-  "main": "tv4.js",
-  "ignore": [
-    "*.html",
-    "*.min.js",
-    "*.js.map",
-    "package.json",
-    "component.json",
-    "bower.json",
-    "node_modules",
-    "test",
-    "try",
-    "source",
-    ".*"
+  "scripts": [
+    "tv4.js"
   ]
 }
