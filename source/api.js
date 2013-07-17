@@ -113,7 +113,7 @@ function searchSchemas(map, schema, url) {
 					searchSchemas(map, schema[key], url);
 				} else if (key === "$ref") {
 					var uri = getUriResource(schema[key]);
-					if (uri && typeof schema[uri] == "undefined") {
+					if (uri && typeof map[uri] == "undefined") {
 						map[uri] = undefined;
 					}
 				}
