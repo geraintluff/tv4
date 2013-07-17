@@ -35,7 +35,7 @@ beforeEach(function () {
 
 
 //duck patch standard assert to chai
-//crappy wrappers
+//quick-and-dirty wrappers
 assert.property = function (object, property, message) {
 	if (typeof object[property] === 'undefined') {
 		assert.fail(object, property, message, 'have property');
