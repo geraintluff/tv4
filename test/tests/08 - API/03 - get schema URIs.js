@@ -28,9 +28,8 @@ describe("API 03", function () {
 		var list;
 		list = tv4.getSchemaUris();
 		assert.isArray(list);
-		assert.length(list, 2);
+		assert.length(list, 1);
 		assert.includes(list, "http://example.com/schema/main", 'map has main uri');
-		assert.includes(list, "http://example.com/schema/item", 'map has item uri');
 
 		list = tv4.getMissingUris();
 		assert.isArray(list);
@@ -85,9 +84,8 @@ describe("API 03", function () {
 		var list;
 		list = tv4.getSchemaUris();
 		assert.isArray(list);
-		assert.length(list, 3);
+		assert.length(list, 2);
 		assert.includes(list, "http://example.com/schema/main");
-		assert.includes(list, "http://example.com/schema/lib");
 		assert.includes(list, "http://example.com/schema/item");
 
 		list = tv4.getMissingUris();
@@ -127,9 +125,8 @@ describe("API 03", function () {
 
 		var map;
 		map = tv4.getSchemaMap();
-		assert.length(Object.keys(map), 3);
+		assert.length(Object.keys(map), 2);
 		assert.ownPropertyVal(map, "http://example.com/schema/main", schema);
 		assert.ownPropertyVal(map, "http://example.com/schema/item", sub);
-		assert.ownPropertyVal(map, "http://example.com/schema/lib", undefined);
 	});
 });

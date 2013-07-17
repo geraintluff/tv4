@@ -98,31 +98,6 @@ function isTrustedUrl(baseUrl, testUrl) {
 	return false;
 }
 
-function searchSchemas(map, schema, url) {
-	if (typeof schema.id == "string") {
-		if (isTrustedUrl(url, schema.id)) {
-			if (map[schema.id] == undefined) {
-				map[schema.id] = schema;
-			}
-		}
-	}
-	if (typeof schema == "object") {
-		for (var key in schema) {
-			if (key != "enum") {
-				if (typeof schema[key] == "object") {
-					searchSchemas(map, schema[key], url);
-				} else if (key === "$ref") {
-					var uri = getDocumentUri(schema[key]);
-					if (uri && typeof map[uri] == "undefined") {
-						map[uri] = undefined;
-					}
-				}
-			}
-		}
-	}
-	return map;
-}
-
 var languages = {};
 function createApi(language) {
 	var globalContext = new ValidatorContext();

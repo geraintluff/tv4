@@ -98,6 +98,7 @@ if (!Array.prototype.indexOf) {
 
 var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages) {
 	this.missing = [];
+	this.missingMap = {};
 	this.schemas = parent ? Object.create(parent.schemas) : {};
 	this.collectMultiple = collectMultiple;
 	this.errors = [];
@@ -164,10 +165,33 @@ ValidatorContext.prototype.getSchema = function (url) {
 	if (this.missing[baseUrl] == undefined) {
 		this.missing.push(baseUrl);
 		this.missing[baseUrl] = baseUrl;
+		this.missingMap[baseUrl] = baseUrl;
+	}
+};
+ValidatorContext.prototype.searchSchemas = function (schema, url) {
+	if (typeof schema.id == "string") {
+		if (isTrustedUrl(url, schema.id)) {
+			if (this.schemas[schema.id] == undefined) {
+				this.schemas[schema.id] = schema;
+			}
+		}
+	}
+	if (typeof schema == "object") {
+		for (var key in schema) {
+			if (key != "enum") {
+				if (typeof schema[key] == "object") {
+					this.searchSchemas(schema[key], url);
+				} else if (key === "$ref") {
+					var uri = getDocumentUri(schema[key]);
+					if (uri && this.schemas[uri] == undefined && this.missingMap[uri] == undefined) {
+						this.missingMap[uri] = uri;
+					}
+				}
+			}
+		}
 	}
 };
 ValidatorContext.prototype.addSchema = function (url, schema) {
-	var map = {};
 	//overload
 	if (typeof schema === 'undefined') {
 		if (typeof url === 'object' && typeof url.id === 'string') {
@@ -175,19 +199,17 @@ ValidatorContext.prototype.addSchema = function (url, schema) {
 			url = schema.id;
 		}
 		else {
-			return map;
+			return;
 		}
 	}
-	map[url] = schema;
+	if (url = getDocumentUri(url) + "#") {
+		// Remove empty fragment
+		url = getDocumentUri(url);
+	}
+	this.schemas[url] = schema;
+	delete this.missingMap[url];
 	normSchema(schema, url);
-	searchSchemas(map, schema, url);
-	for (var key in map) {
-		//dont overwrite with empty ref
-		if (!(typeof this.schemas[key] === 'object' && typeof map[key] === 'undefined')) {
-			this.schemas[key] = map[key];
-		}
-	}
-	return map;
+	this.searchSchemas(schema, url);
 };
 
 ValidatorContext.prototype.getSchemaMap = function () {
@@ -210,8 +232,8 @@ ValidatorContext.prototype.getSchemaUris = function (filterRegExp) {
 
 ValidatorContext.prototype.getMissingUris = function (filterRegExp) {
 	var list = [];
-	for (var key in this.schemas) {
-		if (typeof this.schemas[key] == 'undefined' && (!filterRegExp || filterRegExp.test(key))) {
+	for (var key in this.missingMap) {
+		if (!filterRegExp || filterRegExp.test(key)) {
 			list.push(key);
 		}
 	}
@@ -224,6 +246,7 @@ ValidatorContext.prototype.dropSchemas = function () {
 };
 ValidatorContext.prototype.reset = function () {
 	this.missing = [];
+	this.missingMap = {};
 	this.errors = [];
 };
 
@@ -882,31 +905,6 @@ function isTrustedUrl(baseUrl, testUrl) {
 		}
 	}
 	return false;
-}
-
-function searchSchemas(map, schema, url) {
-	if (typeof schema.id == "string") {
-		if (isTrustedUrl(url, schema.id)) {
-			if (map[schema.id] == undefined) {
-				map[schema.id] = schema;
-			}
-		}
-	}
-	if (typeof schema == "object") {
-		for (var key in schema) {
-			if (key != "enum") {
-				if (typeof schema[key] == "object") {
-					searchSchemas(map, schema[key], url);
-				} else if (key === "$ref") {
-					var uri = getDocumentUri(schema[key]);
-					if (uri && typeof map[uri] == "undefined") {
-						map[uri] = undefined;
-					}
-				}
-			}
-		}
-	}
-	return map;
 }
 
 var languages = {};
