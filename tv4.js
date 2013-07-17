@@ -1,12 +1,11 @@
-/**
+/*
 Author: Geraint Luff and others
 Year: 2013
 
 This code is released into the "public domain" by its author(s).  Anybody may use, alter and distribute the code without restriction.  The author makes no guarantees, and takes no liability of any kind for use of this code.
 
 If you find a bug or make an improvement, it would be courteous to let the author know, but it is not compulsory.
-**/
-
+*/
 (function (global) {
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FObject%2Fkeys
 if (!Object.keys) {
@@ -62,7 +61,42 @@ if(!Array.isArray) {
 		return Object.prototype.toString.call(vArg) === "[object Array]";
 	};
 }
-var ValidatorContext = function (parent, collectMultiple, errorMessages) {
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FArray%2FindexOf
+if (!Array.prototype.indexOf) {
+	Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
+		"use strict";
+		if (this == null) {
+			throw new TypeError();
+		}
+		var t = Object(this);
+		var len = t.length >>> 0;
+
+		if (len === 0) {
+			return -1;
+		}
+		var n = 0;
+		if (arguments.length > 1) {
+			n = Number(arguments[1]);
+			if (n != n) { // shortcut for verifying if it's NaN
+				n = 0;
+			} else if (n != 0 && n != Infinity && n != -Infinity) {
+				n = (n > 0 || -1) * Math.floor(Math.abs(n));
+			}
+		}
+		if (n >= len) {
+			return -1;
+		}
+		var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
+		for (; k < len; k++) {
+			if (k in t && t[k] === searchElement) {
+				return k;
+			}
+		}
+		return -1;
+	}
+}
+
+var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages) {
 	this.missing = [];
 	this.schemas = parent ? Object.create(parent.schemas) : {};
 	this.collectMultiple = collectMultiple;
@@ -106,7 +140,7 @@ ValidatorContext.prototype.getSchema = function (url) {
 		fragment = url.substring(url.indexOf("#") + 1);
 		baseUrl = url.substring(0, url.indexOf("#"));
 	}
-	if (this.schemas[baseUrl] != undefined) {
+	if (typeof this.schemas[baseUrl] === 'object') {
 		var schema = this.schemas[baseUrl];
 		var pointerPath = decodeURIComponent(fragment);
 		if (pointerPath == "") {
@@ -134,23 +168,73 @@ ValidatorContext.prototype.getSchema = function (url) {
 };
 ValidatorContext.prototype.addSchema = function (url, schema) {
 	var map = {};
+	//overload
+	if (typeof schema === 'undefined') {
+		if (typeof url === 'object' && typeof url.id === 'string') {
+			schema = url;
+			url = schema.id;
+		}
+		else {
+			return map;
+		}
+	}
 	map[url] = schema;
 	normSchema(schema, url);
-	searchForTrustedSchemas(map, schema, url);
+	searchSchemas(map, schema, url);
 	for (var key in map) {
-		this.schemas[key] = map[key];
+		//dont overwrite with empty ref
+		if (!(typeof this.schemas[key] === 'object' && typeof map[key] === 'undefined')) {
+			this.schemas[key] = map[key];
+		}
 	}
 	return map;
 };
-	
-ValidatorContext.prototype.validateAll = function validateAll(data, schema, dataPathParts, schemaPathParts) {
+
+ValidatorContext.prototype.getSchemaMap = function () {
+	var map = {};
+	for (var key in this.schemas) {
+		map[key] = this.schemas[key];
+	}
+	return map;
+};
+
+ValidatorContext.prototype.getSchemaUris = function (filterRegExp) {
+	var list = [];
+	for (var key in this.schemas) {
+		if (!filterRegExp || filterRegExp.test(key)) {
+			list.push(key);
+		}
+	}
+	return list;
+};
+
+ValidatorContext.prototype.getMissingUris = function (filterRegExp) {
+	var list = [];
+	for (var key in this.schemas) {
+		if (typeof this.schemas[key] == 'undefined' && (!filterRegExp || filterRegExp.test(key))) {
+			list.push(key);
+		}
+	}
+	return list;
+};
+
+ValidatorContext.prototype.dropSchemas = function () {
+	this.schemas = {};
+	this.reset();
+};
+ValidatorContext.prototype.reset = function () {
+	this.missing = [];
+	this.errors = [];
+};
+
+ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, schemaPathParts) {
 	if (schema['$ref'] != undefined) {
 		schema = this.getSchema(schema['$ref']);
 		if (!schema) {
 			return null;
 		}
 	}
-	
+
 	var errorCount = this.errors.length;
 	var error = this.validateBasic(data, schema)
 		|| this.validateNumeric(data, schema)
@@ -169,7 +253,7 @@ ValidatorContext.prototype.validateAll = function validateAll(data, schema, data
 			this.prefixErrors(errorCount, dataPart, schemaPart);
 		}
 	}
-		
+
 	return this.handleError(error);
 }
 
@@ -673,6 +757,10 @@ function resolveUrl(base, href) {// RFC 3986
 		href.hash;
 }
 
+function getUriResource(uri) {
+	return uri.replace(/\/*(#[\s\S]*)?$/, '');
+}
+
 function normSchema(schema, baseUri) {
 	if (baseUri == undefined) {
 		baseUri = schema.id;
@@ -785,23 +873,38 @@ ValidationError.prototype = {
 	}
 };
 
-function searchForTrustedSchemas(map, schema, url) {
+function isTrustedUrl(baseUrl, testUrl) {
+	if(testUrl.substring(0, baseUrl.length) == baseUrl){
+		var remainder = testUrl.substring(baseUrl.length);
+		if ((testUrl.length > 0 && testUrl.charAt(baseUrl.length - 1) == "/")
+			|| remainder.charAt(0) == "#"
+			|| remainder.charAt(0) == "?") {
+			return true;
+		}
+	}
+	return false;
+}
+
+function searchSchemas(map, schema, url) {
 	if (typeof schema.id == "string") {
-		if (schema.id.substring(0, url.length) == url) {
-			var remainder = schema.id.substring(url.length);
-			if ((url.length > 0 && url.charAt(url.length - 1) == "/")
-				|| remainder.charAt(0) == "#"
-				|| remainder.charAt(0) == "?") {
-				if (map[schema.id] == undefined) {
-					map[schema.id] = schema;
-				}
+		if (isTrustedUrl(url, schema.id)) {
+			if (map[schema.id] == undefined) {
+				map[schema.id] = schema;
 			}
 		}
 	}
 	if (typeof schema == "object") {
 		for (var key in schema) {
-			if (key != "enum" && typeof schema[key] == "object") {
-				searchForTrustedSchemas(map, schema[key], url);
+			if (key != "enum" ){
+				if (typeof schema[key] == "object") {
+					searchSchemas(map, schema[key], url);
+				}
+				else if (key === "$ref") {
+					var uri = getUriResource(schema[key]);
+					if (uri && typeof schema[uri] == "undefined") {
+						map[uri] = undefined;
+					}
+				}
 			}
 		}
 	}
@@ -812,7 +915,7 @@ var languages = {};
 function createApi(language) {
 	var globalContext = new ValidatorContext();
 	var currentLanguage = 'en';
-	return {
+	var api = {
 		language: function (code) {
 			if (!code) {
 				return currentLanguage;
@@ -851,7 +954,7 @@ function createApi(language) {
 			if (typeof schema == "string") {
 				schema = {"$ref": schema};
 			}
-			var added = context.addSchema("", schema);
+			context.addSchema("", schema);
 			var error = context.validateAll(data, schema);
 			this.error = error;
 			this.missing = context.missing;
@@ -877,19 +980,42 @@ function createApi(language) {
 			return result;
 		},
 		addSchema: function (url, schema) {
-			return globalContext.addSchema(url, schema);
+			return globalContext.addSchema.apply(globalContext, arguments);
 		},
 		getSchema: function (url) {
-			return globalContext.getSchema(url);
+			return globalContext.getSchema.apply(globalContext, arguments);
+		},
+		getSchemaMap: function () {
+			return globalContext.getSchemaMap.apply(globalContext, arguments);
+		},
+		getSchemaUris: function () {
+			return globalContext.getSchemaUris.apply(globalContext, arguments);
+		},
+		getMissingUris: function () {
+			return globalContext.getMissingUris.apply(globalContext, arguments);
+		},
+		dropSchemas: function () {
+			globalContext.dropSchemas.apply(globalContext, arguments);
+		},
+		reset: function () {
+			globalContext.reset();
+			this.error = null;
+			this.missing = [];
+			this.valid = true;
 		},
 		missing: [],
 		error: null,
+		valid: true,
 		normSchema: normSchema,
 		resolveUrl: resolveUrl,
+		getUriResource: getUriResource,
 		errorCodes: ErrorCodes
 	};
+	return api;
 };
 
 global.tv4 = createApi();
 global.tv4.addLanguage('en-gb', ErrorMessagesDefault);
 })((typeof module !== 'undefined' && module.exports) ? exports : this);
+
+//@ sourceMappingURL=tv4.js.map

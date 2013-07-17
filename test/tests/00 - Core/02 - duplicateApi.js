@@ -1,4 +1,4 @@
-describe("API 02", function () {
+describe("Core 02", function () {
 
 	it("tv4.freshApi() produces working copy", function () {
 		var duplicate = tv4.freshApi();
@@ -11,8 +11,8 @@ describe("API 02", function () {
 	it("tv4.freshApi() has separate schema store", function () {
 		var duplicate = tv4.freshApi();
 		
-		var schemaUrl1 = "http://example.com/schema" + Math.random();
-		var schemaUrl2 = "http://example.com/schema" + Math.random();
+		var schemaUrl1 = "http://example.com/schema/schema1";
+		var schemaUrl2 = "http://example.com/schema/schema2";
 		duplicate.addSchema(schemaUrl1, {});
 		tv4.addSchema(schemaUrl2, {});
 		

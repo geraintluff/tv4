@@ -1,4 +1,4 @@
-var ValidatorContext = function (parent, collectMultiple, errorMessages) {
+var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages) {
 	this.missing = [];
 	this.schemas = parent ? Object.create(parent.schemas) : {};
 	this.collectMultiple = collectMultiple;
@@ -42,7 +42,7 @@ ValidatorContext.prototype.getSchema = function (url) {
 		fragment = url.substring(url.indexOf("#") + 1);
 		baseUrl = url.substring(0, url.indexOf("#"));
 	}
-	if (this.schemas[baseUrl] != undefined) {
+	if (typeof this.schemas[baseUrl] === 'object') {
 		var schema = this.schemas[baseUrl];
 		var pointerPath = decodeURIComponent(fragment);
 		if (pointerPath == "") {
@@ -70,23 +70,73 @@ ValidatorContext.prototype.getSchema = function (url) {
 };
 ValidatorContext.prototype.addSchema = function (url, schema) {
 	var map = {};
+	//overload
+	if (typeof schema === 'undefined') {
+		if (typeof url === 'object' && typeof url.id === 'string') {
+			schema = url;
+			url = schema.id;
+		}
+		else {
+			return map;
+		}
+	}
 	map[url] = schema;
 	normSchema(schema, url);
-	searchForTrustedSchemas(map, schema, url);
+	searchSchemas(map, schema, url);
 	for (var key in map) {
-		this.schemas[key] = map[key];
+		//dont overwrite with empty ref
+		if (!(typeof this.schemas[key] === 'object' && typeof map[key] === 'undefined')) {
+			this.schemas[key] = map[key];
+		}
 	}
 	return map;
 };
-	
-ValidatorContext.prototype.validateAll = function validateAll(data, schema, dataPathParts, schemaPathParts) {
+
+ValidatorContext.prototype.getSchemaMap = function () {
+	var map = {};
+	for (var key in this.schemas) {
+		map[key] = this.schemas[key];
+	}
+	return map;
+};
+
+ValidatorContext.prototype.getSchemaUris = function (filterRegExp) {
+	var list = [];
+	for (var key in this.schemas) {
+		if (!filterRegExp || filterRegExp.test(key)) {
+			list.push(key);
+		}
+	}
+	return list;
+};
+
+ValidatorContext.prototype.getMissingUris = function (filterRegExp) {
+	var list = [];
+	for (var key in this.schemas) {
+		if (typeof this.schemas[key] == 'undefined' && (!filterRegExp || filterRegExp.test(key))) {
+			list.push(key);
+		}
+	}
+	return list;
+};
+
+ValidatorContext.prototype.dropSchemas = function () {
+	this.schemas = {};
+	this.reset();
+};
+ValidatorContext.prototype.reset = function () {
+	this.missing = [];
+	this.errors = [];
+};
+
+ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, schemaPathParts) {
 	if (schema['$ref'] != undefined) {
 		schema = this.getSchema(schema['$ref']);
 		if (!schema) {
 			return null;
 		}
 	}
-	
+
 	var errorCount = this.errors.length;
 	var error = this.validateBasic(data, schema)
 		|| this.validateNumeric(data, schema)
@@ -105,7 +155,7 @@ ValidatorContext.prototype.validateAll = function validateAll(data, schema, data
 			this.prefixErrors(errorCount, dataPart, schemaPart);
 		}
 	}
-		
+
 	return this.handleError(error);
 }
 

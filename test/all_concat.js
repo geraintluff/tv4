@@ -8,59 +8,172 @@ if (typeof process === 'object' && typeof process.cwd !== 'undefined') {
 	// NodeJS
 	tv4 = require('./../').tv4;
 	assert = require('proclaim');
+	require('source-map-support').install();
 }
 else if (typeof window !== 'undefined') {
-	// import for browser, use  from IE7/8 globals bypass
+	// import for browser, use from IE7/8 global bypass
 	assert = window.refs.assert;
 	tv4 = window.refs.tv4;
 }
 
-//check if we got evrything
-if (!assert) {
-	throw new Error('assert no found');
-}
+//check if we got everything
 if (!tv4) {
 	throw new Error('tv4 not found');
 }
+if (!assert) {
+	throw new Error('proclaim not found');
+}
+var helper = {};
+helper.dumpJSON = function (value) {
+	console.log(JSON.stringify(value, null, 2));
+};
+
+
+beforeEach(function () {
+	tv4 = tv4.freshApi();
+});
+
 
 //duck patch standard assert to chai
-assert.property = function(object, property, message){
+//crappy wrappers
+assert.property = function (object, property, message) {
 	if (typeof object[property] === 'undefined') {
-		assert.fail(object, property, message, 'doesn\'t have property');
+		assert.fail(object, property, message, 'have property');
 	}
 };
-assert.notProperty = function(object, property, message){
+assert.notProperty = function (object, property, message) {
 	if (typeof object[property] !== 'undefined') {
-		assert.fail(object, property, message, 'has property');
+		assert.fail(object, property, message, 'not have property');
 	}
 };
 
-assert.propertyVal = function(object, property, value, message){
+assert.ownProperty = function (object, property, message) {
+	if (!object.hasOwnProperty(property)) {
+		assert.fail(object, property, message, 'have own property');
+	}
+};
+assert.notOwnProperty = function (object, property, message) {
+	if (object.hasOwnProperty(property)) {
+		assert.fail(object, property, message, 'not have own property');
+	}
+};
+
+//not ideal at all
+assert.propertyVal = function (object, property, value, message) {
 	assert.property(object, property, message);
 	assert.strictEqual(object[property], value, message);
 };
-assert.propertyNotVal = function(object, property, value, message){
+assert.propertyNotVal = function (object, property, value, message) {
 	assert.property(object, property, message);
 	assert.notStrictEqual(object[property], value, message);
 };
-
-assert.lengthOf = function(object, length, message){
-	if (typeof object['length'] === 'undefined') {
-		assert.fail(object, 'length', message, 'doesn\'t have property');
-	}
-	if (object['length'] !== length) {
-		assert.fail(object['length'], length, message, 'has length');
-	}
+assert.ownPropertyVal = function (object, property, value, message) {
+	assert.ownProperty(object, property, message);
+	assert.strictEqual(object[property], value, message);
 };
-assert.typeOf = function(object, type, message){
-	if (typeof object !== type) {
-		assert.fail(object, type, message, 'is not typeOf');
+assert.notOwnPropertyVal = function (object, property, value, message) {
+	assert.notOwnProperty(object, property, message);
+	assert.notStrictEqual(object[property], value, message);
+};
+//import when fix is pushed
+assert.notOk = function (value, message) {
+	if (!!value) {
+		assert.fail(value, true, message, '!=');
 	}
 };
 
 /* jshint -W060 */
 
 //end of header.js
+
+describe("Core 01", function () {
+
+	it("getUriResource returns only location part of url", function () {
+
+		assert.strictEqual(tv4.getUriResource("http://example.com"), "http://example.com");
+
+		assert.strictEqual(tv4.getUriResource("http://example.com/main"), "http://example.com/main");
+		assert.strictEqual(tv4.getUriResource("http://example.com/main/"), "http://example.com/main");
+		assert.strictEqual(tv4.getUriResource("http://example.com/main//"), "http://example.com/main");
+
+		assert.strictEqual(tv4.getUriResource("http://example.com/main/sub"), "http://example.com/main/sub");
+		assert.strictEqual(tv4.getUriResource("http://example.com/main/sub/"), "http://example.com/main/sub");
+
+		assert.strictEqual(tv4.getUriResource("http://example.com/main#"), "http://example.com/main");
+		assert.strictEqual(tv4.getUriResource("http://example.com/main/sub/#"), "http://example.com/main/sub");
+
+		assert.strictEqual(tv4.getUriResource("http://example.com/main?"), "http://example.com/main?");
+		assert.strictEqual(tv4.getUriResource("http://example.com/main?q=1"), "http://example.com/main?q=1");
+		assert.strictEqual(tv4.getUriResource("http://example.com/main?q=1#abc"), "http://example.com/main?q=1");
+
+		assert.strictEqual(tv4.getUriResource("http://example.com/main/#"), "http://example.com/main");
+		assert.strictEqual(tv4.getUriResource("http://example.com/main/#?"), "http://example.com/main");
+		assert.strictEqual(tv4.getUriResource("http://example.com/main/#?q=a/b/c"), "http://example.com/main");
+	});
+});
+
+describe("Core 02", function () {
+
+	it("tv4.freshApi() produces working copy", function () {
+		var duplicate = tv4.freshApi();
+		assert.isObject(duplicate);
+		// Basic sanity checks
+		assert.isTrue(duplicate.validate({}, {type: "object"}));
+		assert.isObject(duplicate.validateMultiple("string", {}));
+	});
+
+	it("tv4.freshApi() has separate schema store", function () {
+		var duplicate = tv4.freshApi();
+		
+		var schemaUrl1 = "http://example.com/schema/schema1";
+		var schemaUrl2 = "http://example.com/schema/schema2";
+		duplicate.addSchema(schemaUrl1, {});
+		tv4.addSchema(schemaUrl2, {});
+		
+		assert.isObject(duplicate.getSchema(schemaUrl1));
+		assert.isUndefined(tv4.getSchema(schemaUrl1));
+		assert.isUndefined(duplicate.getSchema(schemaUrl2));
+		assert.isObject(tv4.getSchema(schemaUrl2));
+	});
+});
+
+describe("Core 03", function () {
+
+	it("tv4.dropSchemas() drops stored schemas", function () {
+		var schema = {
+			"items": {"$ref": "http://example.com/schema/items#"},
+			"maxItems": 2
+		};
+		tv4.addSchema("http://example.com/schema", schema);
+		assert.strictEqual(tv4.getSchema("http://example.com/schema"), schema, "has schema");
+
+		tv4.dropSchemas();
+		assert.isUndefined(tv4.getSchema("http://example.com/schema"), "doesn't have schema");
+	});
+
+	it("tv4.reset() clears errors, valid and missing", function () {
+		it("must be string, is integer", function () {
+			var data = 5;
+			var schema = {"type": "array", "items" : {"$ref" : "http://example.com"}};
+
+			assert.notOk(tv4.error, "starts with no error");
+			assert.isTrue(tv4.valid, "starts valid");
+			assert.length(tv4.missing, 0, "starts with 0 missing");
+
+			var valid = tv4.validate(data, schema);
+			assert.isFalse(valid);
+			assert.ok(tv4.error, "has error");
+			assert.isFalse(tv4.valid, "is invalid");
+			assert.length(tv4.missing, 1, "missing 1");
+
+			tv4.reset();
+			assert.notOk(tv4.error, "reset to no error");
+			assert.isTrue(tv4.valid, "reset to valid");
+			assert.length(tv4.missing, 0, "reset to 0 missing");
+		});
+	});
+});
+
 describe("Any types 01", function () {
 
 	it("no type specified", function () {
@@ -119,7 +232,6 @@ describe("Any types 01", function () {
 		assert.isTrue(valid);
 	});
 });
-
 
 describe("Any types 01", function () {
 
@@ -198,7 +310,6 @@ describe("Any types 01", function () {
 	});
 });
 
-
 describe("Numberic 01", function () {
 
 	it("multipleOf", function () {
@@ -215,7 +326,6 @@ describe("Numberic 01", function () {
 		assert.isFalse(valid);
 	});
 });
-
 describe("Numberic 02", function () {
 
 	it("minimum success", function () {
@@ -275,7 +385,6 @@ describe("Numberic 02", function () {
 	});
 });
 
-
 describe("Strings 01", function () {
 
 	it("no length constraints", function () {
@@ -323,7 +432,6 @@ describe("Strings 01", function () {
 	});
 });
 
-
 describe("Strings 02", function () {
 
 	it("pattern success", function () {
@@ -340,7 +448,6 @@ describe("Strings 02", function () {
 		assert.isFalse(valid);
 	});
 });
-
 describe("Arrays 01", function () {
 
 	it("no length constraints", function () {
@@ -379,7 +486,6 @@ describe("Arrays 01", function () {
 	});
 });
 
-
 describe("Arrays 02", function () {
 
 	it("uniqueItems success", function () {
@@ -396,7 +502,6 @@ describe("Arrays 02", function () {
 		assert.isFalse(valid);
 	});
 });
-
 
 describe("Arrays 03", function () {
 
@@ -422,7 +527,6 @@ describe("Arrays 03", function () {
 		assert.isFalse(valid);
 	});
 });
-
 
 describe("Arrays 04", function () {
 
@@ -450,7 +554,6 @@ describe("Arrays 04", function () {
 		assert.isFalse(valid);
 	});
 });
-
 
 describe("Arrays 05", function () {
 
@@ -507,7 +610,6 @@ describe("Arrays 05", function () {
 	});
 });
 
-
 describe("Objects 01", function () {
 
 	it("minimum length success", function () {
@@ -539,7 +641,6 @@ describe("Objects 01", function () {
 	});
 });
 
-
 describe("Objects 02", function () {
 
 	it("required success", function () {
@@ -556,7 +657,6 @@ describe("Objects 02", function () {
 		assert.isFalse(valid);
 	});
 });
-
 
 describe("Objects 03", function () {
 
@@ -584,7 +684,6 @@ describe("Objects 03", function () {
 		assert.isFalse(valid);
 	});
 });
-
 
 describe("Objects 04", function () {
 
@@ -630,7 +729,6 @@ describe("Objects 04", function () {
 		assert.isFalse(valid);
 	});
 });
-
 
 describe("Objects 05", function () {
 
@@ -694,7 +792,6 @@ describe("Objects 05", function () {
 		assert.isFalse(valid);
 	});
 });
-
 describe("Objects 06", function () {
 
 	it("string dependency success", function () {
@@ -772,7 +869,6 @@ describe("Objects 06", function () {
 	});
 });
 
-
 describe("Combinators 01", function () {
 
 	it("allOf success", function () {
@@ -799,7 +895,6 @@ describe("Combinators 01", function () {
 		assert.isFalse(valid);
 	});
 });
-
 
 describe("Combinators 02", function () {
 
@@ -828,7 +923,6 @@ it("anyOf failure", function () {
 	assert.isFalse(valid);
 });
 });
-
 
 describe("Combinators 03", function () {
 
@@ -872,7 +966,6 @@ describe("Combinators 03", function () {
 	});
 });
 
-
 describe("Combinators 04", function () {
 
 	it("not success", function () {
@@ -893,7 +986,6 @@ describe("Combinators 04", function () {
 		assert.isFalse(valid);
 	});
 });
-
 
 describe("$ref 01", function () {
 
@@ -964,7 +1056,6 @@ describe("$ref 01", function () {
 	});
 });
 
-
 describe("$ref 02", function () {
 
 	it("skip unneeded", function () {
@@ -973,7 +1064,7 @@ describe("$ref 02", function () {
 		};
 		tv4.validate([], schema);
 		assert.notProperty(tv4.missing, "http://example.com/schema");
-		assert.lengthOf(tv4.missing, 0);
+		assert.length(tv4.missing, 0);
 		//return !tv4.missing["http://example.com/schema"]
 		//	&& tv4.missing.length == 0;
 	});
@@ -992,16 +1083,15 @@ describe("$ref 02", function () {
 			"items": {"$ref": "http://example.com/schema#"}
 		};
 		tv4.validate([1, 2, 3], schema);
-		assert.lengthOf(tv4.missing, 1);
+		assert.length(tv4.missing, 1);
 		assert.strictEqual(tv4.missing[0], "http://example.com/schema");
 		//return tv4.missing[0] == "http://example.com/schema";
 	});
 });
-
 describe("$ref 03", function () {
 
 	it("addSchema(), getSchema()", function () {
-		var url = "http://example.com/schema" + Math.random();
+		var url = "http://example.com/schema";
 		var schema = {
 			"test": "value"
 		};
@@ -1012,7 +1102,7 @@ describe("$ref 03", function () {
 	});
 
 	it("addSchema(), getSchema() with blank fragment", function () {
-		var url = "http://example.com/schema" + Math.random();
+		var url = "http://example.com/schema";
 		var schema = {
 			"test": "value"
 		};
@@ -1023,7 +1113,7 @@ describe("$ref 03", function () {
 	});
 
 	it("addSchema(), getSchema() with pointer path fragment", function () {
-		var url = "http://example.com/schema" + Math.random();
+		var url = "http://example.com/schema";
 		var schema = {
 			"items": {
 				"properties": {
@@ -1038,12 +1128,61 @@ describe("$ref 03", function () {
 		assert.strictEqual(fetched, "value");
 		//return fetched == "value";
 	});
-});
 
+	it("addSchema(), getSchema() adds referred schemas", function () {
+		tv4 = tv4.freshApi();
+
+		var data = [123, true];
+		var valid;
+		var url = "http://example.com/schema";
+		var schema = {
+			"type": "array",
+			"items": {"$ref": "http://example.com/schema/sub#item"}
+		};
+		tv4.addSchema(url, schema);
+
+		//test missing
+		valid = tv4.validate(data, schema);
+		assert.isTrue(valid);
+		assert.length(tv4.missing, 1);
+		assert.isUndefined(tv4.getSchema('http://example.com/schema/sub'));
+
+		var item = {
+			"id": "#item",
+			"type": "boolean"
+		};
+		var sub = {
+			"id": "http://example.com/schema/sub",
+			"type": "object",
+			"lib": {
+				"item": item
+			}
+		};
+		tv4.addSchema(sub);
+
+		//added it?
+		assert.equal(tv4.getSchema(url), schema);
+		assert.equal(tv4.getSchema('http://example.com/schema/sub'), sub);
+		assert.equal(tv4.getSchema('http://example.com/schema/sub#item'), item);
+
+		//now use it
+		valid = tv4.validate(data, schema);
+		assert.length(tv4.missing, 0);
+		assert.isFalse(valid);
+
+		var error = {
+			code: 0,
+			message: 'invalid type: number (expected boolean)',
+			dataPath: '/0',
+			schemaPath: '/items/type',
+			subErrors: null };
+		assert.deepEqual(tv4.error, error);
+	});
+});
 describe("$ref 04", function () {
 
 	it("addSchema(), $ref", function () {
-		var url = "http://example.com/schema" + Math.random();
+		var url = "http://example.com/schema";
 		var schema = {
 			"test": "value"
 		};
@@ -1055,7 +1194,7 @@ describe("$ref 04", function () {
 		var valid = tv4.validate([0,1,2,3], otherSchema);
 
 		assert.isTrue(valid, "should be valid");
-		assert.lengthOf(tv4.missing, 0, "should have no missing schemas");
+		assert.length(tv4.missing, 0, "should have no missing schemas");
 
 		//this.assert(valid, "should be valid");
 		//this.assert(tv4.missing.length == 0, "should have no missing schemas");
@@ -1071,7 +1210,7 @@ describe("$ref 04", function () {
 		assert.isTrue(!tv4.validate([0,1,2,3], schema), "List of ints should not");
 		assert.isTrue(!tv4.validate([[true], []], schema), "List of list with boolean should not");
 
-		assert.lengthOf(tv4.missing, 0, "should have no missing schemas");
+		assert.length(tv4.missing, 0, "should have no missing schemas");
 
 		//this.assert(tv4.validate([[],[[]]], schema), "List of lists should be valid");
 		//this.assert(!tv4.validate([0,1,2,3], schema), "List of ints should not");
@@ -1080,7 +1219,6 @@ describe("$ref 04", function () {
 		//this.assert(tv4.missing.length == 0, "should have no missing schemas");
 	});
 });
-
 
 describe("$ref 05", function () {
 
@@ -1093,13 +1231,22 @@ describe("$ref 05", function () {
 				"type": "boolean"
 			}
 		};
+		var error = {
+			code: 0,
+			message: 'invalid type: number (expected boolean)',
+			dataPath: '/0',
+			schemaPath: '/items/type',
+			subErrors: null
+		};
+
 		var data = [0, false];
 		var valid = tv4.validate(data, schema);
-		assert.isFalse(valid);
+		assert.isFalse(valid, 'inline addressing invalid 0, false');
+		assert.deepEqual(tv4.error, error, 'errors equal');
 	});
 
 	it("don't trust non sub-paths", function () {
-		var examplePathBase = "http://example.com/" + Math.random();
+		var examplePathBase = "http://example.com/schema";
 		var examplePath = examplePathBase + "/schema";
 		var schema = {
 			"id": examplePath,
@@ -1114,7 +1261,7 @@ describe("$ref 05", function () {
 		var data = [0, false];
 		var valid = tv4.validate(data, examplePath);
 
-		assert.lengthOf(tv4.missing, 1, "should have missing schema");
+		assert.length(tv4.missing, 1, "should have missing schema");
 		assert.strictEqual(tv4.missing[0], examplePathBase + "/other-schema", "incorrect schema missing: " + tv4.missing[0]);
 		assert.isTrue(valid, "should pass, as remote schema not found");
 
@@ -1123,7 +1270,6 @@ describe("$ref 05", function () {
 		//this.assert(valid, "should pass, as remote schema not found");
 	});
 });
-
 
 describe("API 01", function () {
 
@@ -1135,9 +1281,8 @@ describe("API 01", function () {
 		var result = tv4.validateResult(data, schema);
 
 		assert.isFalse(result.valid, "result.valid === false");
-		assert.typeOf(result.error, "object", "result.error is object");
+		assert.isTypeOf(result.error, "object", "result.error is object");
 		assert.isArray(result.missing, "result.missing is array");
-		//-> change to assert.notOk(tv4.error) when chai pushed my fix
 		assert.isFalse(!!tv4.error, "tv4.error == null");
 
 		//this.assert(result.valid === false, "result.valid === false");
@@ -1147,7 +1292,6 @@ describe("API 01", function () {
 	});
 });
 
-
 describe("API 02", function () {
 
 	it("tv4.errorCodes exists", function () {
@@ -1156,32 +1300,141 @@ describe("API 02", function () {
 	});
 });
 
+describe("API 03", function () {
 
-describe("API 02", function () {
-
-	it("tv4.freshApi() produces working copy", function () {
-		var duplicate = tv4.freshApi();
-		assert.isObject(duplicate);
-		// Basic sanity checks
-		assert.isTrue(duplicate.validate({}, {type: "object"}));
-		assert.isObject(duplicate.validateMultiple("string", {}));
+	it("getSchemaUris() on clean tv4 returns an empty array", function () {
+		var list = tv4.getSchemaUris();
+		assert.isArray(list);
+		assert.length(list, 0);
 	});
 
-	it("tv4.freshApi() has separate schema store", function () {
-		var duplicate = tv4.freshApi();
-		
-		var schemaUrl1 = "http://example.com/schema" + Math.random();
-		var schemaUrl2 = "http://example.com/schema" + Math.random();
-		duplicate.addSchema(schemaUrl1, {});
-		tv4.addSchema(schemaUrl2, {});
-		
-		assert.isObject(duplicate.getSchema(schemaUrl1));
-		assert.isUndefined(tv4.getSchema(schemaUrl1));
-		assert.isUndefined(duplicate.getSchema(schemaUrl2));
-		assert.isObject(tv4.getSchema(schemaUrl2));
+	it("getSchemaUris() returns newly added schema urls", function () {
+		tv4.addSchema("http://example.com/schema", {type: "object"});
+		var list = tv4.getSchemaUris();
+		assert.isArray(list);
+		assert.length(list, 1);
+		assert.strictEqual(list[0], "http://example.com/schema");
+	});
+
+	it("getMissingUris() returns only missing items", function () {
+		var schema = {
+			"items": {"$ref": "http://example.com/schema/item#"}
+		};
+		tv4.addSchema("http://example.com/schema/main", schema);
+
+		var item = {
+			"id": "http://example.com/schema/item",
+			"type": "boolean"
+		};
+
+		var list;
+		list = tv4.getSchemaUris();
+		assert.isArray(list);
+		assert.length(list, 2);
+		assert.includes(list, "http://example.com/schema/main", 'map has main uri');
+		assert.includes(list, "http://example.com/schema/item", 'map has item uri');
+
+		list = tv4.getMissingUris();
+		assert.isArray(list);
+		assert.length(list, 1);
+		assert.includes(list, "http://example.com/schema/item", 'map has item uri');
+
+		tv4.addSchema(item);
+
+		list = tv4.getMissingUris();
+		assert.isArray(list);
+		assert.length(list, 0);
+	});
+
+	it("getSchemaUris() optionally return filtered items", function () {
+		var schema = {
+			"items": {"$ref": "http://example.com/schema/item#"}
+		};
+		tv4.addSchema("http://example.com/schema/main", schema);
+
+		var list;
+		list = tv4.getSchemaUris(/schema\/main/);
+		assert.isArray(list);
+		assert.length(list, 1, 'list 1 main');
+		assert.includes(list, "http://example.com/schema/main");
+
+		list = tv4.getMissingUris(/^https?/);
+		assert.isArray(list);
+		assert.length(list, 1, 'list 1 item');
+		assert.includes(list, "http://example.com/schema/item");
+	});
+
+	it("getSchemaUris() returns unique uris without fragment", function () {
+		var schema = {
+			"properties": {
+				"alpha": {
+					"$ref": "http://example.com/schema/lib#alpha"
+				},
+				"beta": {
+					"$ref": "http://example.com/schema/lib#beta"
+				}
+			}
+		};
+		tv4.addSchema("http://example.com/schema/main", schema);
+		var sub = {
+			"id": "http://example.com/schema/item",
+			"items": {
+				"type": "boolean"
+			}
+		};
+		tv4.addSchema(sub);
+
+		var list;
+		list = tv4.getSchemaUris();
+		assert.isArray(list);
+		assert.length(list, 3);
+		assert.includes(list, "http://example.com/schema/main");
+		assert.includes(list, "http://example.com/schema/lib");
+		assert.includes(list, "http://example.com/schema/item");
+
+		list = tv4.getMissingUris();
+		assert.isArray(list);
+		assert.length(list, 1);
+		assert.includes(list, "http://example.com/schema/lib");
+	});
+
+
+	it("getSchemaMap() on clean tv4 returns an empty object", function () {
+		var map = tv4.getSchemaMap();
+		assert.isObject(map);
+		assert.isNotArray(map);
+		var list = Object.keys(map);
+		assert.length(list, 0);
+	});
+
+	it("getSchemaMap() returns an object mapping uris to schemas", function () {
+		var schema = {
+			"properties": {
+				"alpha": {
+					"$ref": "http://example.com/schema/lib#alpha"
+				},
+				"beta": {
+					"$ref": "http://example.com/schema/lib#beta"
+				}
+			}
+		};
+		tv4.addSchema("http://example.com/schema/main", schema);
+		var sub = {
+			"id": "http://example.com/schema/item",
+			"items": {
+				"type": "boolean"
+			}
+		};
+		tv4.addSchema(sub);
+
+		var map;
+		map = tv4.getSchemaMap();
+		assert.length(Object.keys(map), 3);
+		assert.ownPropertyVal(map, "http://example.com/schema/main", schema);
+		assert.ownPropertyVal(map, "http://example.com/schema/item", sub);
+		assert.ownPropertyVal(map, "http://example.com/schema/lib", undefined);
 	});
 });
-
 
 describe("Multiple errors 01", function () {
 
@@ -1208,7 +1461,7 @@ describe("Multiple errors 01", function () {
 		var schema = {"additionalProperties": {"type": "string"}};
 		var result = tv4.validateMultiple(data, schema);
 
-		assert.lengthOf(result.errors, 2, "should return two errors");
+		assert.length(result.errors, 2, "should return two errors");
 		//this.assert(result.errors.length == 2, "should return two errors");
 	});
 
@@ -1223,7 +1476,7 @@ describe("Multiple errors 01", function () {
 		var result = tv4.validateMultiple(data, schema);
 
 		assert.isFalse(result.valid, "should not validate");
-		assert.lengthOf(result.errors, 1, "should list one error");
+		assert.length(result.errors, 1, "should list one error");
 
 		//this.assert(result.valid == false, "should not validate");
 		//this.assert(result.errors.length == 1, "should list one error");
@@ -1237,7 +1490,7 @@ describe("Multiple errors 01", function () {
 		var result = tv4.validateMultiple(data, schema);
 
 		assert.isFalse(result.valid, "should not validate");
-		assert.lengthOf(result.errors, 1, "should list one error");
+		assert.length(result.errors, 1, "should list one error");
 
 		//this.assert(result.valid == false, "should not validate");
 		//this.assert(result.errors.length == 1, "should list one error");
@@ -1251,7 +1504,7 @@ describe("Multiple errors 01", function () {
 		var result = tv4.validateMultiple(data, schema);
 
 		assert.isTrue(result.valid, "should validate");
-		assert.lengthOf(result.errors, 0, "no errors");
+		assert.length(result.errors, 0, "no errors");
 
 		//this.assert(result.valid == true, "should validate");
 		//this.assert(result.errors.length == 0, "no errors");
@@ -1268,7 +1521,7 @@ describe("Multiple errors 01", function () {
 		var result = tv4.validateMultiple(data, schema);
 
 		assert.isFalse(result.valid, "should not validate");
-		assert.lengthOf(result.errors, 1, "only one error");
+		assert.length(result.errors, 1, "only one error");
 
 		//this.assert(result.valid == false, "should not validate");
 		//this.assert(result.errors.length == 1, "only one error");
@@ -1282,13 +1535,12 @@ describe("Multiple errors 01", function () {
 		var result = tv4.validateMultiple(data, schema);
 
 		assert.isFalse(result.valid, "should not validate");
-		assert.lengthOf(result.errors, 2, "two errors");
+		assert.length(result.errors, 2, "two errors");
 
 		//this.assert(result.valid == false, "should not validate");
 		//this.assert(result.errors.length == 2, "exactly two errors, not " + result.errors.length);
 	});
 });
-
 describe("Multiple errors 02", function () {
 
 	it("validateMultiple returns array of errors", function () {
@@ -1348,13 +1600,12 @@ describe("Multiple errors 02", function () {
 		var result = tv4.validateMultiple(data, schema);
 
 		assert.isTrue(result.valid, "data should be valid");
-		assert.lengthOf(result.errors, 0, "should have no errors");
+		assert.length(result.errors, 0, "should have no errors");
 
 		//this.assert(result.valid == true, "data should be valid");
 		//this.assert(result.errors.length == 0, "should have no errors");
 	});
 });
-
 describe("Issue 32", function () {
 
 	it("Example from GitHub issue #32", function () {
@@ -1411,8 +1662,9 @@ describe("Issue 32", function () {
 		// Usage 3
 		var expectedMultipleErrorResult = tv4.validateMultiple(addlPropInSubSchema, mySchema);
 		assert.isFalse(expectedMultipleErrorResult.valid, 'validateMultiple should fail');
-		assert.lengthOf(expectedMultipleErrorResult.errors, 1, 'validateMultiple should have exactly one error');
+		assert.length(expectedMultipleErrorResult.errors, 1, 'validateMultiple should have exactly one error');
 		//this.assert(!expectedMultipleErrorResult.valid, 'validateMultiple should fail');
 		//this.assert(expectedMultipleErrorResult.errors.length == 1, 'validateMultiple should have exactly one error');
 	});
 });
+//@ sourceMappingURL=all_concat.js.map

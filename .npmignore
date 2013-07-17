@@ -15,3 +15,5 @@ Gruntfile.js
 /*.php
 /*.min.js
 /*.html
+/*.htm
+/try

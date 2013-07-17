@@ -6,7 +6,7 @@ describe("$ref 02", function () {
 		};
 		tv4.validate([], schema);
 		assert.notProperty(tv4.missing, "http://example.com/schema");
-		assert.lengthOf(tv4.missing, 0);
+		assert.length(tv4.missing, 0);
 		//return !tv4.missing["http://example.com/schema"]
 		//	&& tv4.missing.length == 0;
 	});
@@ -25,7 +25,7 @@ describe("$ref 02", function () {
 			"items": {"$ref": "http://example.com/schema#"}
 		};
 		tv4.validate([1, 2, 3], schema);
-		assert.lengthOf(tv4.missing, 1);
+		assert.length(tv4.missing, 1);
 		assert.strictEqual(tv4.missing[0], "http://example.com/schema");
 		//return tv4.missing[0] == "http://example.com/schema";
 	});

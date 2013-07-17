@@ -4,11 +4,13 @@ module.exports = function (grunt) {
 	var path = require('path');
 	var util = require('util');
 
+	require('source-map-support').install();
+
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-copy');
-	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-concat-sourcemap');
 	grunt.loadNpmTasks('grunt-mocha-test');
 	grunt.loadNpmTasks('grunt-mocha');
 
@@ -23,30 +25,32 @@ module.exports = function (grunt) {
 			}
 		},
 		clean: {
-			tests: ['tmp', 'test/all_concat.js']
+			tests: ['tmp', 'test/all_concat.js'],
+			build: ['tv4.js', 'tv4.min.js', '*js.map', 'test/all_concat.js', 'test/all_concat.js.map']
 		},
 		jshint: {
 			//lint for mistakes
-			options: {
+			options:{
+				reporter: './node_modules/jshint-path-reporter',
 				jshintrc: '.jshintrc'
 			},
 			tests: ['test/tests/**/*.js', 'test/all_*.js']
-
 			//TODO this should be enabled
-			// output: ['tv4.js']
+			//, concat: ['./tv4.js']
 		},
-		concat: {
+		concat_sourcemap: {
+			options: {
+				separator: '\n'
+			},
 			source: {
-				options: {
-					separator: '\n',
-					banner: '/**\n' + grunt.file.read('LICENSE.txt') + '**/\n\n'
-				},
 				expand: true,
 				cwd: 'source',
 				rename: function (dest, src) {
 					return dest;
 				},
-				src: ['_header.js',
+				src: [
+					'../LICENSE.txt',
+					'_header.js',
 					'_polyfill.js',
 					'validate.js',
 					'basic.js',
@@ -58,22 +62,21 @@ module.exports = function (grunt) {
 					'resolve-uri.js',
 					'normalise-schema.js',
 					'api.js',
-					'_footer.js'],
+					'_footer.js'
+				],
 				dest: 'tv4.js'
 			},
 			tests: {
-				options: {
-					separator: '\n\n',
-					banner: grunt.file.read('test/header.js')
-				},
-				//bundle all-in-one
-				src: ['test/tests/**/*.js'], dest: 'test/all_concat.js'
+				src: ['test/_header.js', 'test/tests/**/*.js'],
+				dest: 'test/all_concat.js'
 			}
 		},
 		uglify: {
 			tv4: {
 				options: {
-					report: 'min'
+					report: 'min',
+					sourceMapIn: 'tv4.js.map',
+					sourceMap: 'tv4.min.js.map'
 				},
 				files: {
 					'tv4.min.js': ['tv4.js']
@@ -85,7 +88,8 @@ module.exports = function (grunt) {
 			any: {
 				src: ['test/all_concat.js'],
 				options: {
-					reporter: 'mocha-unfunk-reporter'
+					reporter: 'mocha-unfunk-reporter',
+					bail: false
 				}
 			}
 		},
@@ -102,9 +106,10 @@ module.exports = function (grunt) {
 		}
 	});
 
-	require('mocha-unfunk-reporter').option('style', 'ansi');
 	// main cli commands
 	grunt.registerTask('default', ['test']);
-	grunt.registerTask('build', ['clean', 'concat', 'jshint', 'uglify', 'copy']);
-	grunt.registerTask('test', ['build', 'mocha', 'mochaTest']);
+	grunt.registerTask('build', ['clean', 'concat_sourcemap', 'jshint', 'uglify:tv4', 'copy']);
+	grunt.registerTask('test', ['build', 'mochaTest', 'mocha']);
+
+	grunt.registerTask('dev', ['clean', 'concat_sourcemap', 'jshint', 'mochaTest']);
 };

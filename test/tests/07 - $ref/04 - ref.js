@@ -1,7 +1,7 @@
 describe("$ref 04", function () {
 
 	it("addSchema(), $ref", function () {
-		var url = "http://example.com/schema" + Math.random();
+		var url = "http://example.com/schema";
 		var schema = {
 			"test": "value"
 		};
@@ -13,7 +13,7 @@ describe("$ref 04", function () {
 		var valid = tv4.validate([0,1,2,3], otherSchema);
 
 		assert.isTrue(valid, "should be valid");
-		assert.lengthOf(tv4.missing, 0, "should have no missing schemas");
+		assert.length(tv4.missing, 0, "should have no missing schemas");
 
 		//this.assert(valid, "should be valid");
 		//this.assert(tv4.missing.length == 0, "should have no missing schemas");
@@ -29,7 +29,7 @@ describe("$ref 04", function () {
 		assert.isTrue(!tv4.validate([0,1,2,3], schema), "List of ints should not");
 		assert.isTrue(!tv4.validate([[true], []], schema), "List of list with boolean should not");
 
-		assert.lengthOf(tv4.missing, 0, "should have no missing schemas");
+		assert.length(tv4.missing, 0, "should have no missing schemas");
 
 		//this.assert(tv4.validate([[],[[]]], schema), "List of lists should be valid");
 		//this.assert(!tv4.validate([0,1,2,3], schema), "List of ints should not");

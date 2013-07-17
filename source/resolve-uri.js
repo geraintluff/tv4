@@ -43,3 +43,7 @@ function resolveUrl(base, href) {// RFC 3986
 		(href.protocol || href.authority || href.pathname ? href.search : (href.search || base.search)) +
 		href.hash;
 }
+
+function getUriResource(uri) {
+	return uri.replace(/\/*(#[\s\S]*)?$/, '');
+}
