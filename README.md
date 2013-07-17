@@ -119,12 +119,12 @@ Return a shallow copy of the schema cache object, mapping schema document uri's 
 ````
 var map = tv4.getSchemaMap();
 
-var schema = map[url];
+var schema = map[uri];
 ````
 
 ##### getSchemaUris(filter)
 
-Return an Array with added schema document uri's: 
+Return an Array with known schema document uri's: 
 
 * `filter` optional RegExp to filter uri's
 
@@ -137,9 +137,9 @@ var arr = tv4.getSchemaUris(/^https?://example.com/);
 
 ##### getMissingUris(filter)
 
-Return an Array with schema document url's that are used as `$ref` that currenlty have no associated schema data. 
+Return an Array with schema document uri's that are used as `$ref` that currenlty have no associated schema data. 
 
-Use this in combination with `tv4.addSchema(url, schema)` to preload for complete synchronous validation.
+Use this in combination with `tv4.addSchema(uri, schema)` to preload for complete synchronous validation.
 
 * `filter` optional RegExp to filter uri's
 
@@ -152,7 +152,7 @@ var arr = tv4.getMissingUris(/^https?://example.com/);
 
 ##### dropSchemas()
 
-Drop all known schema document url's from the cache.
+Drop all known schema document uri's from the cache.
 
 ````
 tv4.dropSchemas();
@@ -206,7 +206,7 @@ All you need is ```tv4.js``` or the minified ```tv4.min.js```. Include them as `
 
 ### From a package manager:
 
-Expose `tv4` as a CommonJS module and a browser global.
+Expose `tv4` as a CommonJS module
 
 ````js
 var tv4 = require('tv4').tv4;
