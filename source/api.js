@@ -108,11 +108,10 @@ function searchSchemas(map, schema, url) {
 	}
 	if (typeof schema == "object") {
 		for (var key in schema) {
-			if (key != "enum" ){
+			if (key != "enum") {
 				if (typeof schema[key] == "object") {
 					searchSchemas(map, schema[key], url);
-				}
-				else if (key === "$ref") {
+				} else if (key === "$ref") {
 					var uri = getUriResource(schema[key]);
 					if (uri && typeof schema[uri] == "undefined") {
 						map[uri] = undefined;
