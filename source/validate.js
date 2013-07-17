@@ -1,10 +1,20 @@
-var ValidatorContext = function (parent, collectMultiple) {
+var ValidatorContext = function (parent, collectMultiple, errorMessages) {
 	this.missing = [];
 	this.schemas = parent ? Object.create(parent.schemas) : {};
 	this.collectMultiple = collectMultiple;
 	this.errors = [];
 	this.handleError = collectMultiple ? this.collectError : this.returnError;
+	this.errorMessages = errorMessages;
 };
+ValidatorContext.prototype.createError = function (code, messageParams, dataPath, schemaPath, subErrors) {
+	var messageTemplate = this.errorMessages[code];
+	// Adapted from Crockford's supplant()
+	var message = messageTemplate.replace(/\{([^{}]*)\}/g, function (whole, varName) {
+		var subValue = messageParams[varName];
+		return typeof subValue === 'string' || typeof subValue === 'number' ? subValue : whole;
+	});
+	return new ValidationError(code, message, dataPath, schemaPath, subErrors);
+},
 ValidatorContext.prototype.returnError = function (error) {
 	return error;
 };

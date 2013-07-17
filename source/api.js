@@ -27,6 +27,35 @@ var ErrorCodes = {
 	ARRAY_UNIQUE: 402,
 	ARRAY_ADDITIONAL_ITEMS: 403
 };
+var ErrorMessagesDefault = {
+	INVALID_TYPE: "invalid type: {type} (expected {expected})",
+	ENUM_MISMATCH: "No enum match for: {value}",
+	ANY_OF_MISSING: "Data does not match any schemas from \"anyOf\"",
+	ONE_OF_MISSING: "Data does not match any schemas from \"oneOf\"",
+	ONE_OF_MULTIPLE: "Data is valid against more than one schema from \"oneOf\": indices {index1} and {index2}",
+	NOT_PASSED: "Data matches schema from \"not\"",
+	// Numeric errors
+	NUMBER_MULTIPLE_OF: "Value {value} is not a multiple of {multipleOf}",
+	NUMBER_MINIMUM: "Value {value} is less than minimum {minimum}",
+	NUMBER_MINIMUM_EXCLUSIVE: "Value {value} is equal to exclusive minimum {minimum}",
+	NUMBER_MAXIMUM: "Value {value} is greater than maximum {maximum}",
+	NUMBER_MAXIMUM_EXCLUSIVE: "Value {value} is equal to exclusive maximum {maximum}",
+	// String errors
+	STRING_LENGTH_SHORT: "String is too short ({length} chars), minimum {minimum}",
+	STRING_LENGTH_LONG: "String is too long ({length} chars), maximum {maximum}",
+	STRING_PATTERN: "String does not match pattern: {pattern}",
+	// Object errors
+	OBJECT_PROPERTIES_MINIMUM: "Too few properties defined ({propertyCount}), minimum {minimum}",
+	OBJECT_PROPERTIES_MAXIMUM: "Too many properties defined ({propertyCount}), maximum {maximum}",
+	OBJECT_REQUIRED: "Missing required property: {key}",
+	OBJECT_ADDITIONAL_PROPERTIES: "Additional properties not allowed",
+	OBJECT_DEPENDENCY_KEY: "Dependency failed - key must exist: {missing} (due to key: {key})",
+	// Array errors
+	ARRAY_LENGTH_SHORT: "Array is too short ({length}), minimum {minimum}",
+	ARRAY_LENGTH_LONG: "Array is too long ({length}), maximum {maximum}",
+	ARRAY_UNIQUE: "Array items are not unique (indices {match1} and {match2})",
+	ARRAY_ADDITIONAL_ITEMS: "Additional items not allowed"
+};
 
 function ValidationError(code, message, dataPath, schemaPath, subErrors) {
 	if (code == undefined) {
@@ -80,14 +109,46 @@ function searchForTrustedSchemas(map, schema, url) {
 	return map;
 }
 
-function createApi() {
+var languages = {};
+function createApi(language) {
 	var globalContext = new ValidatorContext();
+	var currentLanguage = 'en';
 	return {
-		freshApi: function () {
-			return createApi();
+		language: function (code) {
+			if (!code) {
+				return currentLanguage;
+			}
+			if (!languages[code]) {
+				code = code.split('-')[0]; // fall back to base language
+			}
+			if (languages[code]) {
+				currentLanguage = languages[code];
+				return code; // so you can tell if fall-back has happened
+			}
+			return false;
+		},
+		addLanguage: function (code, messageMap) {
+			for (var key in ErrorCodes) {
+				if (messageMap[key] && !messageMap[ErrorCodes[key]]) {
+					messageMap[ErrorCodes[key]] = messageMap[key];
+				}
+			}
+			languages[code] = messageMap;
+			code = code.split('-')[0];
+			if (!languages[code]) { // use for base language if not yet defined
+				languages[code] = messageMap;
+			}
+			return this;
+		},
+		freshApi: function (language) {
+			var result = createApi();
+			if (language) {
+				result.language(language);
+			}
+			return result;
 		},
 		validate: function (data, schema) {
-			var context = new ValidatorContext(globalContext);
+			var context = new ValidatorContext(globalContext, false, languages[currentLanguage]);
 			if (typeof schema == "string") {
 				schema = {"$ref": schema};
 			}
@@ -104,7 +165,7 @@ function createApi() {
 			return result;
 		},
 		validateMultiple: function (data, schema) {
-			var context = new ValidatorContext(globalContext, true);
+			var context = new ValidatorContext(globalContext, true, languages[currentLanguage]);
 			if (typeof schema == "string") {
 				schema = {"$ref": schema};
 			}
@@ -131,3 +192,4 @@ function createApi() {
 };
 
 global.tv4 = createApi();
+global.tv4.addLanguage('en-gb', ErrorMessagesDefault);
