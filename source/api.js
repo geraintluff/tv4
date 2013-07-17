@@ -112,7 +112,7 @@ function searchSchemas(map, schema, url) {
 				if (typeof schema[key] == "object") {
 					searchSchemas(map, schema[key], url);
 				} else if (key === "$ref") {
-					var uri = getUriResource(schema[key]);
+					var uri = getDocumentUri(schema[key]);
 					if (uri && typeof map[uri] == "undefined") {
 						map[uri] = undefined;
 					}
@@ -220,7 +220,7 @@ function createApi(language) {
 		valid: true,
 		normSchema: normSchema,
 		resolveUrl: resolveUrl,
-		getUriResource: getUriResource,
+		getDocumentUri: getDocumentUri,
 		errorCodes: ErrorCodes
 	};
 	return api;

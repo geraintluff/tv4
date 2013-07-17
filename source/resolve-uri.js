@@ -44,6 +44,6 @@ function resolveUrl(base, href) {// RFC 3986
 		href.hash;
 }
 
-function getUriResource(uri) {
-	return uri.replace(/\/*(#[\s\S]*)?$/, '');
+function getDocumentUri(uri) {
+	return uri.split('#')[0];
 }
