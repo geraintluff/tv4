@@ -1,0 +1,89 @@
+<html>
+<head>
+    <title>Tiny Validator for v4 JSON Schema</title>
+    <style>
+        body {
+            background-color: #F0F0E0;
+            font-family: sans-serif;
+        }
+
+        a {
+            color: #04D;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #08F;
+            text-decoration: underline;
+        }
+
+        #main {
+            width: 680px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid #888;
+            border-radius: 3px;
+            background-color: #FFF;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-bottom: 1px solid black;
+            margin: 0;
+            padding: 0.3em;
+            padding-left: 1em;
+            background-color: #F8F8F0;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+        }
+
+        h2 {
+            border-bottom: 1px solid #BBB;
+        }
+
+        h2, h3, h4{
+            padding-left: .8em;
+            padding-right: .8em;
+        }
+        h5, p, pre, ul, ol, .content {
+            padding-left: 1em;
+            padding-right: 1em;
+        }
+        li {
+            margin-left: 1em;
+            margin-right: 1em;
+        }
+        code, .code {
+            background-color: #F8F8F8;
+            border: 1px solid #DDD;
+            border-radius: 3px;
+            padding:.1em .2em;
+        }
+        pre code {
+            display:block;
+            margin:5px;
+            padding:.5em;
+        }
+    </style>
+</head>
+<body>
+<script src="tv4.js"></script>
+<script>
+    function runDemo(elementId) {
+        var element = document.getElementById(elementId);
+        var text = "";
+        for (var i = 0; i < element.childNodes.length; i++) {
+            if (element.childNodes[i].nodeType == 3) {
+                text += element.childNodes[i].nodeValue;
+            }
+        }
+        eval(text);
+    }
+</script>
+<div id="main">
+<%=content%>
+</div>
+</body>
+</html>

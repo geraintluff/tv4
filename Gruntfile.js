@@ -12,6 +12,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-concat-sourcemap');
 	grunt.loadNpmTasks('grunt-mocha-test');
+	grunt.loadNpmTasks('grunt-markdown');
 	grunt.loadNpmTasks('grunt-mocha');
 
 	grunt.initConfig({
@@ -103,12 +104,24 @@ module.exports = function (grunt) {
 					run: true
 				}
 			}
+		},
+		markdown: {
+			index: {
+				options: {
+					template: 'doc/_template.html',
+					markdownOptions: {
+						gfm: true
+					}
+				},
+				src: 'README.md',
+				dest: 'index.html'
+			}
 		}
 	});
 
 	// main cli commands
 	grunt.registerTask('default', ['test']);
-	grunt.registerTask('build', ['clean', 'concat_sourcemap', 'jshint', 'uglify:tv4', 'copy']);
+	grunt.registerTask('build', ['clean', 'concat_sourcemap', 'jshint', 'uglify:tv4', 'copy', 'markdown']);
 	grunt.registerTask('test', ['build', 'mochaTest', 'mocha']);
 
 	grunt.registerTask('dev', ['clean', 'concat_sourcemap', 'jshint', 'mochaTest']);

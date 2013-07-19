@@ -45,7 +45,8 @@
     "mocha-unfunk-reporter": "~0.2",
     "jshint-path-reporter": "~0.1",
     "grunt-concat-sourcemap": "~0.2",
-    "source-map-support": "~0.1"
+    "source-map-support": "~0.1",
+    "grunt-markdown": "~0.3.0"
   },
   "engines": {
     "node": ">= 0.8.0"
