@@ -15,17 +15,23 @@ if (!Object.keys) {
 			dontEnumsLength = dontEnums.length;
 
 		return function (obj) {
-			if (typeof obj !== 'object' && typeof obj !== 'function' || obj === null) throw new TypeError('Object.keys called on non-object');
+			if (typeof obj !== 'object' && typeof obj !== 'function' || obj === null) {
+				throw new TypeError('Object.keys called on non-object');
+			}
 
 			var result = [];
 
 			for (var prop in obj) {
-				if (hasOwnProperty.call(obj, prop)) result.push(prop);
+				if (hasOwnProperty.call(obj, prop)) {
+					result.push(prop);
+				}
 			}
 
 			if (hasDontEnumBug) {
 				for (var i=0; i < dontEnumsLength; i++) {
-					if (hasOwnProperty.call(obj, dontEnums[i])) result.push(dontEnums[i]);
+					if (hasOwnProperty.call(obj, dontEnums[i])) {
+						result.push(dontEnums[i]);
+					}
 				}
 			}
 			return result;
@@ -38,7 +44,7 @@ if (!Object.create) {
 		function F(){}
 
 		return function(o){
-			if (arguments.length != 1) {
+			if (arguments.length !== 1) {
 				throw new Error('Object.create implementation only accepts one parameter.');
 			}
 			F.prototype = o
@@ -55,8 +61,7 @@ if(!Array.isArray) {
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FArray%2FindexOf
 if (!Array.prototype.indexOf) {
 	Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
-		"use strict";
-		if (this == null) {
+		if (this === null) {
 			throw new TypeError();
 		}
 		var t = Object(this);
@@ -68,9 +73,9 @@ if (!Array.prototype.indexOf) {
 		var n = 0;
 		if (arguments.length > 1) {
 			n = Number(arguments[1]);
-			if (n != n) { // shortcut for verifying if it's NaN
+			if (n !== n) { // shortcut for verifying if it's NaN
 				n = 0;
-			} else if (n != 0 && n != Infinity && n != -Infinity) {
+			} else if (n !== 0 && n !== Infinity && n !== -Infinity) {
 				n = (n > 0 || -1) * Math.floor(Math.abs(n));
 			}
 		}

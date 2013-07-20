@@ -35,9 +35,8 @@ module.exports = function (grunt) {
 				reporter: './node_modules/jshint-path-reporter',
 				jshintrc: '.jshintrc'
 			},
-			tests: ['test/tests/**/*.js', 'test/all_*.js']
-			//TODO this should be enabled
-			//, concat: ['./tv4.js']
+			tests: ['test/tests/**/*.js', 'test/all_*.js'],
+			output: ['./tv4.js']
 		},
 		concat_sourcemap: {
 			options: {

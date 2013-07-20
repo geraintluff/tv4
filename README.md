@@ -2,7 +2,7 @@
 
 [![Build Status](https://secure.travis-ci.org/geraintluff/tv4.png?branch=master)](http://travis-ci.org/geraintluff/tv4) [![Dependency Status](https://gemnasium.com/geraintluff/tv4.png)](https://gemnasium.com/geraintluff/tv4) [![NPM version](https://badge.fury.io/js/tv4.png)](http://badge.fury.io/js/tv4)
 
-Use [json-schema](http://json-schema.org/) [draft v4](http://json-schema.org/latest/json-schema-core.html) to validate simple values and complex objects against the rich collection of IETF standardised [validation terms](http://json-schema.org/latest/json-schema-validation.html) ([examples](http://json-schema.org/examples.html)). 
+Use [json-schema](http://json-schema.org/) [draft v4](http://json-schema.org/latest/json-schema-core.html) to validate simple values and complex objects against the rich collection of IETF standardised [validation terms](http://json-schema.org/latest/json-schema-validation.html) ([examples](http://json-schema.org/examples.html)).
 
 There is support for `$ref` with JSON Pointer fragment paths (```other-schema.json#/properties/myKey```).
 
@@ -26,7 +26,7 @@ The error object will look something like:
 
 The `"code"` property will refer to one of the values in `tv4.errorCodes` - in this case, `tv4.errorCodes.INVALID_TYPE`.
 
-To enable external schema to be referenced, you use: 
+To enable external schema to be referenced, you use:
 ```javascript
 tv4.addSchema(url, schema);
 ```
@@ -52,7 +52,7 @@ The result will look something like:
 
 ## Usage 3: Multiple errors
 
-Normally, `tv4` stops when it encounters the first validation error.  However, you can collect an array of validation errors using:
+Normally, `tv4` stops when it encounters the first validation error.  However, you can collect an array of validation errors using:https://github.com/geraintluff/tv4.git
 
 ```javascript
 var result = tv4.validateMultiple(data, schema);
@@ -80,7 +80,25 @@ Usage:
 tv4.validate(data, schema, function (isValid, validationError) { ... });
 ```
 
-`validationFailure` is simply taken from `tv4.error`. 
+`validationFailure` is simply taken from `tv4.error`.
+
+## Cyclical JavaScript objects
+
+While they don't occur in proper JSON, JavaScript does support self-referencing objects. Any of the above calls support an optional final argument, checkRecursive. If true, tv4 will handle self-referencing objects properly - this slows down validation slightly, but that's better than a hanging script.
+
+```javascript
+var a = {};
+var b = { a: a };
+a.b = b;
+var aSchema = { properties: { b: { $ref: 'bSchema' }}};
+var bSchema = { properties: { a: { $ref: 'aSchema' }}};
+tv4.addSchema('aSchema', aSchema);
+tv4.addSchema('bSchema', bSchema);
+tv4.validate(a, aSchema, true); // If the final checkRecursive argument were missing, this would throw a "too much recursion" error.
+tv4.validate(a, schema, asynchronousFunction, true); // Works with asynchronous validation.
+tv4.validateResult(data, aSchema, true); // Also multi-threaded and multiple error validation.
+tv4.validateMultiple(data, aSchema, true);
+```
 
 ## API
 
@@ -137,7 +155,7 @@ var arr = tv4.getSchemaUris(/^https?://example.com/);
 
 ##### getMissingUris(filter)
 
-Return an Array with schema document uri's that are used as `$ref` in known schema's but which currently have no associated schema data. 
+Return an Array with schema document uri's that are used as `$ref` in known schema's but which currently have no associated schema data.
 
 Use this in combination with `tv4.addSchema(uri, schema)` to preload the cache for complete synchronous validation with.
 
@@ -216,7 +234,7 @@ alert("data 2: " + tv4.validate(data2, schema)); // false
 alert("data 2 error: " + JSON.stringify(tv4.error, null, 4));
 </pre>
 </div>
-				
+
 ### Use of <code>$ref</code>
 <div class="content">
 <a href="javascript:runDemo('demo2');">run demo</a>
@@ -308,7 +326,7 @@ $ component install geraintluff/tv4
 You can rebuild and run the node and browser tests using node.js and [grunt](http://http://gruntjs.com/):
 
 Make sure you have the global grunt cli command:
-````	
+````
 $ npm install grunt-cli -g
 ````
 

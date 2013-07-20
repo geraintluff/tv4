@@ -10,23 +10,23 @@ ValidatorContext.prototype.validateBasic = function validateBasic(data, schema) 
 }
 
 ValidatorContext.prototype.validateType = function validateType(data, schema) {
-	if (schema.type == undefined) {
+	if (schema.type === undefined) {
 		return null;
 	}
 	var dataType = typeof data;
-	if (data == null) {
+	if (data === null) {
 		dataType = "null";
 	} else if (Array.isArray(data)) {
 		dataType = "array";
 	}
 	var allowedTypes = schema.type;
-	if (typeof allowedTypes != "object") {
+	if (typeof allowedTypes !== "object") {
 		allowedTypes = [allowedTypes];
 	}
-	
+
 	for (var i = 0; i < allowedTypes.length; i++) {
 		var type = allowedTypes[i];
-		if (type == dataType || (type == "integer" && dataType == "number" && (data%1 == 0))) {
+		if (type === dataType || (type === "integer" && dataType === "number" && (data % 1 === 0))) {
 			return null;
 		}
 	}
@@ -34,7 +34,7 @@ ValidatorContext.prototype.validateType = function validateType(data, schema) {
 }
 
 ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
-	if (schema["enum"] == undefined) {
+	if (schema["enum"] === undefined) {
 		return null;
 	}
 	for (var i = 0; i < schema["enum"].length; i++) {

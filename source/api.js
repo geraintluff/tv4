@@ -58,7 +58,7 @@ var ErrorMessagesDefault = {
 };
 
 function ValidationError(code, message, dataPath, schemaPath, subErrors) {
-	if (code == undefined) {
+	if (code === undefined) {
 		throw new Error ("No code supplied for error: "+ message);
 	}
 	this.code = code;
@@ -69,15 +69,15 @@ function ValidationError(code, message, dataPath, schemaPath, subErrors) {
 }
 ValidationError.prototype = {
 	prefixWith: function (dataPrefix, schemaPrefix) {
-		if (dataPrefix != null) {
+		if (dataPrefix !== null) {
 			dataPrefix = dataPrefix.replace("~", "~0").replace("/", "~1");
 			this.dataPath = "/" + dataPrefix + this.dataPath;
 		}
-		if (schemaPrefix != null) {
+		if (schemaPrefix !== null) {
 			schemaPrefix = schemaPrefix.replace("~", "~0").replace("/", "~1");
 			this.schemaPath = "/" + schemaPrefix + this.schemaPath;
 		}
-		if (this.subErrors != null) {
+		if (this.subErrors !== null) {
 			for (var i = 0; i < this.subErrors.length; i++) {
 				this.subErrors[i].prefixWith(dataPrefix, schemaPrefix);
 			}
@@ -87,11 +87,11 @@ ValidationError.prototype = {
 };
 
 function isTrustedUrl(baseUrl, testUrl) {
-	if(testUrl.substring(0, baseUrl.length) == baseUrl){
+	if(testUrl.substring(0, baseUrl.length) === baseUrl){
 		var remainder = testUrl.substring(baseUrl.length);
-		if ((testUrl.length > 0 && testUrl.charAt(baseUrl.length - 1) == "/")
-			|| remainder.charAt(0) == "#"
-			|| remainder.charAt(0) == "?") {
+		if ((testUrl.length > 0 && testUrl.charAt(baseUrl.length - 1) === "/")
+			|| remainder.charAt(0) === "#"
+			|| remainder.charAt(0) === "?") {
 			return true;
 		}
 	}
@@ -101,7 +101,7 @@ function isTrustedUrl(baseUrl, testUrl) {
 var languages = {};
 function createApi(language) {
 	var globalContext = new ValidatorContext();
-	var currentLanguage = 'en';
+	var currentLanguage = language || 'en';
 	var api = {
 		language: function (code) {
 			if (!code) {
@@ -136,16 +136,16 @@ function createApi(language) {
 			}
 			return result;
 		},
-		validate: function (data, schema) {
-			var context = new ValidatorContext(globalContext, false, languages[currentLanguage]);
-			if (typeof schema == "string") {
+		validate: function (data, schema, checkRecursive) {
+			var context = new ValidatorContext(globalContext, false, languages[currentLanguage], checkRecursive);
+			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
 			context.addSchema("", schema);
 			var error = context.validateAll(data, schema);
 			this.error = error;
 			this.missing = context.missing;
-			this.valid = (error == null);
+			this.valid = (error === null);
 			return this.valid;
 		},
 		validateResult: function () {
@@ -153,9 +153,9 @@ function createApi(language) {
 			this.validate.apply(result, arguments);
 			return result;
 		},
-		validateMultiple: function (data, schema) {
-			var context = new ValidatorContext(globalContext, true, languages[currentLanguage]);
-			if (typeof schema == "string") {
+		validateMultiple: function (data, schema, checkRecursive) {
+			var context = new ValidatorContext(globalContext, true, languages[currentLanguage], checkRecursive);
+			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
 			context.addSchema("", schema);
@@ -163,13 +163,13 @@ function createApi(language) {
 			var result = {};
 			result.errors = context.errors;
 			result.missing = context.missing;
-			result.valid = (result.errors.length == 0);
+			result.valid = (result.errors.length === 0);
 			return result;
 		},
-		addSchema: function (url, schema) {
+		addSchema: function () {
 			return globalContext.addSchema.apply(globalContext, arguments);
 		},
-		getSchema: function (url) {
+		getSchema: function () {
 			return globalContext.getSchema.apply(globalContext, arguments);
 		},
 		getSchemaMap: function () {
@@ -199,7 +199,7 @@ function createApi(language) {
 		errorCodes: ErrorCodes
 	};
 	return api;
-};
+}
 
 global.tv4 = createApi();
 global.tv4.addLanguage('en-gb', ErrorMessagesDefault);

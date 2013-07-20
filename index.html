@@ -85,7 +85,7 @@
 <div id="main">
 <h1>Tiny Validator (for v4 JSON Schema)</h1>
 <p><a href="http://travis-ci.org/geraintluff/tv4"><img src="https://secure.travis-ci.org/geraintluff/tv4.png?branch=master" alt="Build Status"></a> <a href="https://gemnasium.com/geraintluff/tv4"><img src="https://gemnasium.com/geraintluff/tv4.png" alt="Dependency Status"></a> <a href="http://badge.fury.io/js/tv4"><img src="https://badge.fury.io/js/tv4.png" alt="NPM version"></a></p>
-<p>Use <a href="http://json-schema.org/">json-schema</a> <a href="http://json-schema.org/latest/json-schema-core.html">draft v4</a> to validate simple values and complex objects against the rich collection of IETF standardised <a href="http://json-schema.org/latest/json-schema-validation.html">validation terms</a> (<a href="http://json-schema.org/examples.html">examples</a>). </p>
+<p>Use <a href="http://json-schema.org/">json-schema</a> <a href="http://json-schema.org/latest/json-schema-core.html">draft v4</a> to validate simple values and complex objects against the rich collection of IETF standardised <a href="http://json-schema.org/latest/json-schema-validation.html">validation terms</a> (<a href="http://json-schema.org/examples.html">examples</a>).</p>
 <p>There is support for <code>$ref</code> with JSON Pointer fragment paths (<code>other-schema.json#/properties/myKey</code>).</p>
 <h2>Usage 1: Simple validation</h2>
 <pre><code class="lang-javascript">var valid = tv4.validate(data, schema);</code></pre>
@@ -98,7 +98,7 @@
     &quot;schemaKey&quot;: &quot;/properties/intKey/type&quot;
 }</code></pre>
 <p>The <code>&quot;code&quot;</code> property will refer to one of the values in <code>tv4.errorCodes</code> - in this case, <code>tv4.errorCodes.INVALID_TYPE</code>.</p>
-<p>To enable external schema to be referenced, you use: </p>
+<p>To enable external schema to be referenced, you use:</p>
 <pre><code class="lang-javascript">tv4.addSchema(url, schema);</code></pre>
 <p>If schemas are referenced (<code>$ref</code>) but not known, then validation will return <code>true</code> and the missing schema(s) will be listed in <code>tv4.missing</code>. For more info see the API documentation below.</p>
 <h2>Usage 2: Multi-threaded validation</h2>
@@ -111,7 +111,7 @@
     &quot;missing&quot;: [...]
 }</code></pre>
 <h2>Usage 3: Multiple errors</h2>
-<p>Normally, <code>tv4</code> stops when it encounters the first validation error.  However, you can collect an array of validation errors using:</p>
+<p>Normally, <code>tv4</code> stops when it encounters the first validation error.  However, you can collect an array of validation errors using:<a href="https://github.com/geraintluff/tv4.git">https://github.com/geraintluff/tv4.git</a></p>
 <pre><code class="lang-javascript">var result = tv4.validateMultiple(data, schema);</code></pre>
 <p>The result will look something like:</p>
 <pre><code class="lang-json">{
@@ -126,7 +126,20 @@
 <p>Support for asynchronous validation (where missing schemas are fetched) can be added by including an extra JavaScript file.  Currently, the only version requires jQuery (<code>tv4.async-jquery.js</code>), but the code is very short and should be fairly easy to modify for other libraries (such as MooTools).</p>
 <p>Usage:</p>
 <pre><code class="lang-javascript">tv4.validate(data, schema, function (isValid, validationError) { ... });</code></pre>
-<p><code>validationFailure</code> is simply taken from <code>tv4.error</code>. </p>
+<p><code>validationFailure</code> is simply taken from <code>tv4.error</code>.</p>
+<h2>Cyclical JavaScript objects</h2>
+<p>While they don&#39;t occur in proper JSON, JavaScript does support self-referencing objects. Any of the above calls support an optional final argument, checkRecursive. If true, tv4 will handle self-referencing objects properly - this slows down validation slightly, but that&#39;s better than a hanging script.</p>
+<pre><code class="lang-javascript">var a = {};
+var b = { a: a };
+a.b = b;
+var aSchema = { properties: { b: { $ref: &#39;bSchema&#39; }}};
+var bSchema = { properties: { a: { $ref: &#39;aSchema&#39; }}};
+tv4.addSchema(&#39;aSchema&#39;, aSchema);
+tv4.addSchema(&#39;bSchema&#39;, bSchema);
+tv4.validate(a, aSchema, true); // If the final checkRecursive argument were missing, this would throw a &quot;too much recursion&quot; error.
+tv4.validate(a, schema, asynchronousFunction, true); // Works with asynchronous validation.
+tv4.validateResult(data, aSchema, true); // Also multi-threaded and multiple error validation.
+tv4.validateMultiple(data, aSchema, true);</code></pre>
 <h2>API</h2>
 <p>There are additional api commands available for more complex use-cases:</p>
 <h5>addSchema(uri, schema)</h5>
@@ -159,7 +172,7 @@ var schema = map[uri];</code></pre>
 // optional filter using a RegExp
 var arr = tv4.getSchemaUris(/^https?://example.com/);</code></pre>
 <h5>getMissingUris(filter)</h5>
-<p>Return an Array with schema document uri&#39;s that are used as <code>$ref</code> in known schema&#39;s but which currently have no associated schema data. </p>
+<p>Return an Array with schema document uri&#39;s that are used as <code>$ref</code> in known schema&#39;s but which currently have no associated schema data.</p>
 <p>Use this in combination with <code>tv4.addSchema(uri, schema)</code> to preload the cache for complete synchronous validation with.</p>
 <ul>
 <li><code>filter</code> optional RegExp to filter uri&#39;s</li>
