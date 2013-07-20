@@ -1,5 +1,3 @@
-"use strict";
-
 //need to declare these for node and modern browsers
 var tv4;
 var assert;

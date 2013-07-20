@@ -177,7 +177,10 @@ ValidatorContext.prototype.validateAll = function validateAll(data, schema, data
 			this.scannedFrozenSchemas[frozenIndex].push(schema);
 		} else {
 			if (!data[this.key]) {
-				Object.defineProperty(data, this.key, { value: [] });
+				Object.defineProperty(data, this.key, {
+					value: [],
+					configurable: true
+				});
 			}
 			data[this.key].push(schema);
 		}

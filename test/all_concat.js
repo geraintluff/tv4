@@ -1,5 +1,3 @@
-"use strict";
-
 //need to declare these for node and modern browsers
 var tv4;
 var assert;
@@ -1354,6 +1352,23 @@ describe("Multiple errors 02", function () {
 		//this.assert(result.errors.length == 0, "should have no errors");
 	});
 });
+
+describe("Recursive objects 01", function () {
+	it("validate and variants do not choke on recursive objects", function () {
+		var itemA = {};
+		var itemB = { a: itemA };
+		itemA.b = itemB;
+		var aSchema = { properties: { b: { $ref: 'bSchema' }}};
+		var bSchema = { properties: { a: { $ref: 'aSchema' }}};
+		tv4.addSchema('aSchema', aSchema);
+		tv4.addSchema('bSchema', bSchema);
+		tv4.validate(itemA, aSchema, true);
+		tv4.validate(itemA, aSchema, function () {}, true);
+		tv4.validateResult(itemA, aSchema, true);
+		tv4.validateMultiple(itemA, aSchema, true);
+	});
+});
+
 
 describe("Issue 32", function () {
 

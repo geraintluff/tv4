@@ -96,8 +96,8 @@ tv4.addSchema('aSchema', aSchema);
 tv4.addSchema('bSchema', bSchema);
 tv4.validate(a, aSchema, true); // If the final checkRecursive argument were missing, this would throw a "too much recursion" error.
 tv4.validate(a, schema, asynchronousFunction, true); // Works with asynchronous validation.
-tv4.validateResult(data, schema, true); // Also multi-threaded and multiple error validation.
-tv4.validateMultiple(data, schema, true);
+tv4.validateResult(data, aSchema, true); // Also multi-threaded and multiple error validation.
+tv4.validateMultiple(data, aSchema, true);
 ```
 
 ## Build and test
