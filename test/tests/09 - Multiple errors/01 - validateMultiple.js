@@ -23,7 +23,7 @@ describe("Multiple errors 01", function () {
 		var schema = {"additionalProperties": {"type": "string"}};
 		var result = tv4.validateMultiple(data, schema);
 
-		assert.lengthOf(result.errors, 2, "should return two errors");
+		assert.length(result.errors, 2, "should return two errors");
 		//this.assert(result.errors.length == 2, "should return two errors");
 	});
 
@@ -38,7 +38,7 @@ describe("Multiple errors 01", function () {
 		var result = tv4.validateMultiple(data, schema);
 
 		assert.isFalse(result.valid, "should not validate");
-		assert.lengthOf(result.errors, 1, "should list one error");
+		assert.length(result.errors, 1, "should list one error");
 
 		//this.assert(result.valid == false, "should not validate");
 		//this.assert(result.errors.length == 1, "should list one error");
@@ -52,7 +52,7 @@ describe("Multiple errors 01", function () {
 		var result = tv4.validateMultiple(data, schema);
 
 		assert.isFalse(result.valid, "should not validate");
-		assert.lengthOf(result.errors, 1, "should list one error");
+		assert.length(result.errors, 1, "should list one error");
 
 		//this.assert(result.valid == false, "should not validate");
 		//this.assert(result.errors.length == 1, "should list one error");
@@ -66,7 +66,7 @@ describe("Multiple errors 01", function () {
 		var result = tv4.validateMultiple(data, schema);
 
 		assert.isTrue(result.valid, "should validate");
-		assert.lengthOf(result.errors, 0, "no errors");
+		assert.length(result.errors, 0, "no errors");
 
 		//this.assert(result.valid == true, "should validate");
 		//this.assert(result.errors.length == 0, "no errors");
@@ -83,7 +83,7 @@ describe("Multiple errors 01", function () {
 		var result = tv4.validateMultiple(data, schema);
 
 		assert.isFalse(result.valid, "should not validate");
-		assert.lengthOf(result.errors, 1, "only one error");
+		assert.length(result.errors, 1, "only one error");
 
 		//this.assert(result.valid == false, "should not validate");
 		//this.assert(result.errors.length == 1, "only one error");
@@ -97,7 +97,7 @@ describe("Multiple errors 01", function () {
 		var result = tv4.validateMultiple(data, schema);
 
 		assert.isFalse(result.valid, "should not validate");
-		assert.lengthOf(result.errors, 2, "two errors");
+		assert.length(result.errors, 2, "two errors");
 
 		//this.assert(result.valid == false, "should not validate");
 		//this.assert(result.errors.length == 2, "exactly two errors, not " + result.errors.length);

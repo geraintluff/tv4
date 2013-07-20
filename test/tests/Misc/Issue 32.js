@@ -54,7 +54,7 @@ describe("Issue 32", function () {
 		// Usage 3
 		var expectedMultipleErrorResult = tv4.validateMultiple(addlPropInSubSchema, mySchema);
 		assert.isFalse(expectedMultipleErrorResult.valid, 'validateMultiple should fail');
-		assert.lengthOf(expectedMultipleErrorResult.errors, 1, 'validateMultiple should have exactly one error');
+		assert.length(expectedMultipleErrorResult.errors, 1, 'validateMultiple should have exactly one error');
 		//this.assert(!expectedMultipleErrorResult.valid, 'validateMultiple should fail');
 		//this.assert(expectedMultipleErrorResult.errors.length == 1, 'validateMultiple should have exactly one error');
 	});

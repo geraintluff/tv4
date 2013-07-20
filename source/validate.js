@@ -1,5 +1,6 @@
-var ValidatorContext = function (parent, collectMultiple, checkRecursive) {
+var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages, checkRecursive) {
 	this.missing = [];
+	this.missingMap = {};
 	this.schemas = parent ? Object.create(parent.schemas) : {};
 	this.collectMultiple = collectMultiple;
 	this.errors = [];
@@ -11,10 +12,20 @@ var ValidatorContext = function (parent, collectMultiple, checkRecursive) {
 		this.scannedFrozenSchemas = [];
 		this.key = 'tv4_validation_id';
 	}
+	this.errorMessages = errorMessages;
 };
+ValidatorContext.prototype.createError = function (code, messageParams, dataPath, schemaPath, subErrors) {
+	var messageTemplate = this.errorMessages[code];
+	// Adapted from Crockford's supplant()
+	var message = messageTemplate.replace(/\{([^{}]*)\}/g, function (whole, varName) {
+		var subValue = messageParams[varName];
+		return typeof subValue === 'string' || typeof subValue === 'number' ? subValue : whole;
+	});
+	return new ValidationError(code, message, dataPath, schemaPath, subErrors);
+}
 ValidatorContext.prototype.returnError = function (error) {
 	return error;
-};
+}
 ValidatorContext.prototype.collectError = function (error) {
 	if (error) {
 		this.errors.push(error);
@@ -36,16 +47,16 @@ ValidatorContext.prototype.getSchema = function (url) {
 	}
 	var baseUrl = url;
 	var fragment = "";
-	if (url.indexOf('#') != -1) {
+	if (url.indexOf('#') !== -1) {
 		fragment = url.substring(url.indexOf("#") + 1);
 		baseUrl = url.substring(0, url.indexOf("#"));
 	}
-	if (this.schemas[baseUrl] !== undefined) {
+	if (typeof this.schemas[baseUrl] === 'object') {
 		schema = this.schemas[baseUrl];
 		var pointerPath = decodeURIComponent(fragment);
 		if (pointerPath === "") {
 			return schema;
-		} else if (pointerPath.charAt(0) != "/") {
+		} else if (pointerPath.charAt(0) !== "/") {
 			return undefined;
 		}
 		var parts = pointerPath.split("/").slice(1);
@@ -64,20 +75,92 @@ ValidatorContext.prototype.getSchema = function (url) {
 	if (this.missing[baseUrl] === undefined) {
 		this.missing.push(baseUrl);
 		this.missing[baseUrl] = baseUrl;
+		this.missingMap[baseUrl] = baseUrl;
+	}
+};
+ValidatorContext.prototype.searchSchemas = function (schema, url) {
+	if (typeof schema.id === "string") {
+		if (isTrustedUrl(url, schema.id)) {
+			if (this.schemas[schema.id] === undefined) {
+				this.schemas[schema.id] = schema;
+			}
+		}
+	}
+	if (typeof schema === "object") {
+		for (var key in schema) {
+			if (key !== "enum") {
+				if (typeof schema[key] === "object") {
+					this.searchSchemas(schema[key], url);
+				} else if (key === "$ref") {
+					var uri = getDocumentUri(schema[key]);
+					if (uri && this.schemas[uri] === undefined && this.missingMap[uri] === undefined) {
+						this.missingMap[uri] = uri;
+					}
+				}
+			}
+		}
 	}
 };
 ValidatorContext.prototype.addSchema = function (url, schema) {
-	var map = {};
-	map[url] = schema;
+	//overload
+	if (typeof schema === 'undefined') {
+		if (typeof url === 'object' && typeof url.id === 'string') {
+			schema = url;
+			url = schema.id;
+		}
+		else {
+			return;
+		}
+	}
+	if (url = getDocumentUri(url) + "#") {
+		// Remove empty fragment
+		url = getDocumentUri(url);
+	}
+	this.schemas[url] = schema;
+	delete this.missingMap[url];
 	normSchema(schema, url);
-	searchForTrustedSchemas(map, schema, url);
-	for (var key in map) {
-		this.schemas[key] = map[key];
+	this.searchSchemas(schema, url);
+};
+
+ValidatorContext.prototype.getSchemaMap = function () {
+	var map = {};
+	for (var key in this.schemas) {
+		map[key] = this.schemas[key];
 	}
 	return map;
 };
 
-ValidatorContext.prototype.validateAll = function validateAll(data, schema, dataPathParts, schemaPathParts) {
+ValidatorContext.prototype.getSchemaUris = function (filterRegExp) {
+	var list = [];
+	for (var key in this.schemas) {
+		if (!filterRegExp || filterRegExp.test(key)) {
+			list.push(key);
+		}
+	}
+	return list;
+};
+
+ValidatorContext.prototype.getMissingUris = function (filterRegExp) {
+	var list = [];
+	for (var key in this.missingMap) {
+		if (!filterRegExp || filterRegExp.test(key)) {
+			list.push(key);
+		}
+	}
+	return list;
+};
+
+ValidatorContext.prototype.dropSchemas = function () {
+	this.schemas = {};
+	this.reset();
+};
+ValidatorContext.prototype.reset = function () {
+	this.missing = [];
+	this.missingMap = {};
+	this.errors = [];
+};
+
+ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, schemaPathParts) {
 	var topLevel;
 	if (schema['$ref'] !== undefined) {
 		schema = this.getSchema(schema['$ref']);
@@ -86,17 +169,17 @@ ValidatorContext.prototype.validateAll = function validateAll(data, schema, data
 		}
 	}
 
-	if (this.checkRecursive && (typeof data) == 'object') {
+	if (this.checkRecursive && (typeof data) === 'object') {
 		topLevel = !this.scanned.length;
-		if (data[this.key] && data[this.key].indexOf(schema) != -1) { return null; }
+		if (data[this.key] && data[this.key].indexOf(schema) !== -1) { return null; }
 		var frozenIndex;
 		if (Object.isFrozen(data)) {
 			frozenIndex = this.scannedFrozen.indexOf(data);
-			if (frozenIndex != -1 && this.scannedFrozenSchemas[frozenIndex].indexOf(schema) != -1) { return null; }
+			if (frozenIndex !== -1 && this.scannedFrozenSchemas[frozenIndex].indexOf(schema) !== -1) { return null; }
 		}
 		this.scanned.push(data);
 		if (Object.isFrozen(data)) {
-			if (frozenIndex == -1) {
+			if (frozenIndex === -1) {
 				frozenIndex = this.scannedFrozen.length;
 				this.scannedFrozen.push(data);
 				this.scannedFrozenSchemas.push([]);
@@ -131,7 +214,7 @@ ValidatorContext.prototype.validateAll = function validateAll(data, schema, data
 		this.scannedFrozenSchemas = [];
 	}
 
-	if (error || errorCount != this.errors.length) {
+	if (error || errorCount !== this.errors.length) {
 		while ((dataPathParts && dataPathParts.length) || (schemaPathParts && schemaPathParts.length)) {
 			var dataPart = (dataPathParts && dataPathParts.length) ? "" + dataPathParts.pop() : null;
 			var schemaPart = (schemaPathParts && schemaPathParts.length) ? "" + schemaPathParts.pop() : null;
@@ -149,11 +232,11 @@ function recursiveCompare(A, B) {
 	if (A === B) {
 		return true;
 	}
-	if (typeof A == "object" && typeof B == "object") {
-		if (Array.isArray(A) != Array.isArray(B)) {
+	if (typeof A === "object" && typeof B === "object") {
+		if (Array.isArray(A) !== Array.isArray(B)) {
 			return false;
 		} else if (Array.isArray(A)) {
-			if (A.length != B.length) {
+			if (A.length !== B.length) {
 				return false
 			}
 			for (var i = 0; i < A.length; i++) {

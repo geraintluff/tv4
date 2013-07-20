@@ -1,5 +1,5 @@
 ValidatorContext.prototype.validateObject = function validateObject(data, schema) {
-	if (typeof data != "object" || data == null || Array.isArray(data)) {
+	if (typeof data !== "object" || data === null || Array.isArray(data)) {
 		return null;
 	}
 	return this.validateObjectMinMaxProperties(data, schema)
@@ -14,7 +14,7 @@ ValidatorContext.prototype.validateObjectMinMaxProperties = function validateObj
 	var error;
 	if (schema.minProperties !== undefined) {
 		if (keys.length < schema.minProperties) {
-			error = new ValidationError(ErrorCodes.OBJECT_PROPERTIES_MINIMUM, "Too few properties defined (" + keys.length + "), minimum " + schema.minProperties).prefixWith(null, "minProperties");
+			error = this.createError(ErrorCodes.OBJECT_PROPERTIES_MINIMUM, {propertyCount: keys.length, minimum: schema.minProperties}).prefixWith(null, "minProperties");
 			if (this.handleError(error)) {
 				return error;
 			}
@@ -22,7 +22,7 @@ ValidatorContext.prototype.validateObjectMinMaxProperties = function validateObj
 	}
 	if (schema.maxProperties !== undefined) {
 		if (keys.length > schema.maxProperties) {
-			error = new ValidationError(ErrorCodes.OBJECT_PROPERTIES_MAXIMUM, "Too many properties defined (" + keys.length + "), maximum " + schema.maxProperties).prefixWith(null, "maxProperties");
+			error = this.createError(ErrorCodes.OBJECT_PROPERTIES_MAXIMUM, {propertyCount: keys.length, maximum: schema.maxProperties}).prefixWith(null, "maxProperties");
 			if (this.handleError(error)) {
 				return error;
 			}
@@ -36,7 +36,7 @@ ValidatorContext.prototype.validateObjectRequiredProperties = function validateO
 		for (var i = 0; i < schema.required.length; i++) {
 			var key = schema.required[i];
 			if (data[key] === undefined) {
-				var error = new ValidationError(ErrorCodes.OBJECT_REQUIRED, "Missing required property: " + key).prefixWith(null, "" + i).prefixWith(null, "required");
+				var error = this.createError(ErrorCodes.OBJECT_REQUIRED, {key: key}).prefixWith(null, "" + i).prefixWith(null, "required");
 				if (this.handleError(error)) {
 					return error;
 				}
@@ -68,9 +68,9 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 			}
 		}
 		if (!foundMatch && schema.additionalProperties !== undefined) {
-			if (typeof schema.additionalProperties == "boolean") {
+			if (typeof schema.additionalProperties === "boolean") {
 				if (!schema.additionalProperties) {
-					error = new ValidationError(ErrorCodes.OBJECT_ADDITIONAL_PROPERTIES, "Additional properties not allowed").prefixWith(key, "additionalProperties");
+					error = this.createError(ErrorCodes.OBJECT_ADDITIONAL_PROPERTIES, {}).prefixWith(key, "additionalProperties");
 					if (this.handleError(error)) {
 						return error;
 					}
@@ -91,9 +91,9 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 		for (var depKey in schema.dependencies) {
 			if (data[depKey] !== undefined) {
 				var dep = schema.dependencies[depKey];
-				if (typeof dep == "string") {
+				if (typeof dep === "string") {
 					if (data[dep] === undefined) {
-						error = new ValidationError(ErrorCodes.OBJECT_DEPENDENCY_KEY, "Dependency failed - key must exist: " + dep).prefixWith(null, depKey).prefixWith(null, "dependencies");
+						error = this.createError(ErrorCodes.OBJECT_DEPENDENCY_KEY, {key: depKey, missing: dep}).prefixWith(null, depKey).prefixWith(null, "dependencies");
 						if (this.handleError(error)) {
 							return error;
 						}
@@ -102,7 +102,7 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 					for (var i = 0; i < dep.length; i++) {
 						var requiredKey = dep[i];
 						if (data[requiredKey] === undefined) {
-							error = new ValidationError(ErrorCodes.OBJECT_DEPENDENCY_KEY, "Dependency failed - key must exist: " + requiredKey).prefixWith(null, "" + i).prefixWith(null, depKey).prefixWith(null, "dependencies");
+							error = this.createError(ErrorCodes.OBJECT_DEPENDENCY_KEY, {key: depKey, missing: requiredKey}).prefixWith(null, "" + i).prefixWith(null, depKey).prefixWith(null, "dependencies");
 							if (this.handleError(error)) {
 								return error;
 							}

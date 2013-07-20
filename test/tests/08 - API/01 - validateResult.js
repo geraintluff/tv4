@@ -8,9 +8,8 @@ describe("API 01", function () {
 		var result = tv4.validateResult(data, schema);
 
 		assert.isFalse(result.valid, "result.valid === false");
-		assert.typeOf(result.error, "object", "result.error is object");
+		assert.isTypeOf(result.error, "object", "result.error is object");
 		assert.isArray(result.missing, "result.missing is array");
-		//-> change to assert.notOk(tv4.error) when chai pushed my fix
 		assert.isFalse(!!tv4.error, "tv4.error == null");
 
 		//this.assert(result.valid === false, "result.valid === false");

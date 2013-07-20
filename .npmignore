@@ -4,6 +4,7 @@
 .travis.yml
 .jshintrc
 bower.json
+component.json
 Gruntfile.js
 
 /source
@@ -14,4 +15,8 @@ Gruntfile.js
 /*.tgz
 /*.php
 /*.min.js
+/*.js.map
 /*.html
+/*.htm
+/try
+/doc

@@ -9,13 +9,22 @@ describe("$ref 05", function () {
 				"type": "boolean"
 			}
 		};
+		var error = {
+			code: 0,
+			message: 'invalid type: number (expected boolean)',
+			dataPath: '/0',
+			schemaPath: '/items/type',
+			subErrors: null
+		};
+
 		var data = [0, false];
 		var valid = tv4.validate(data, schema);
-		assert.isFalse(valid);
+		assert.isFalse(valid, 'inline addressing invalid 0, false');
+		assert.deepEqual(tv4.error, error, 'errors equal');
 	});
 
 	it("don't trust non sub-paths", function () {
-		var examplePathBase = "http://example.com/" + Math.random();
+		var examplePathBase = "http://example.com/schema";
 		var examplePath = examplePathBase + "/schema";
 		var schema = {
 			"id": examplePath,
@@ -30,7 +39,7 @@ describe("$ref 05", function () {
 		var data = [0, false];
 		var valid = tv4.validate(data, examplePath);
 
-		assert.lengthOf(tv4.missing, 1, "should have missing schema");
+		assert.length(tv4.missing, 1, "should have missing schema");
 		assert.strictEqual(tv4.missing[0], examplePathBase + "/other-schema", "incorrect schema missing: " + tv4.missing[0]);
 		assert.isTrue(valid, "should pass, as remote schema not found");
 

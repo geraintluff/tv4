@@ -14,23 +14,23 @@ ValidatorContext.prototype.validateType = function validateType(data, schema) {
 		return null;
 	}
 	var dataType = typeof data;
-	if (data == null) {
+	if (data === null) {
 		dataType = "null";
 	} else if (Array.isArray(data)) {
 		dataType = "array";
 	}
 	var allowedTypes = schema.type;
-	if (typeof allowedTypes != "object") {
+	if (typeof allowedTypes !== "object") {
 		allowedTypes = [allowedTypes];
 	}
 
 	for (var i = 0; i < allowedTypes.length; i++) {
 		var type = allowedTypes[i];
-		if (type == dataType || (type == "integer" && dataType == "number" && (data % 1 === 0))) {
+		if (type === dataType || (type === "integer" && dataType === "number" && (data % 1 === 0))) {
 			return null;
 		}
 	}
-	return new ValidationError(ErrorCodes.INVALID_TYPE, "invalid data type: " + dataType);
+	return this.createError(ErrorCodes.INVALID_TYPE, {type: dataType, expected: allowedTypes.join("/")});
 }
 
 ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
@@ -43,5 +43,5 @@ ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
 			return null;
 		}
 	}
-	return new ValidationError(ErrorCodes.ENUM_MISMATCH, "No enum match for: " + JSON.stringify(data));
+	return this.createError(ErrorCodes.ENUM_MISMATCH, {value: JSON.stringify(data)});
 }

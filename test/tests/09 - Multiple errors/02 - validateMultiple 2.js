@@ -57,7 +57,7 @@ describe("Multiple errors 02", function () {
 		var result = tv4.validateMultiple(data, schema);
 
 		assert.isTrue(result.valid, "data should be valid");
-		assert.lengthOf(result.errors, 0, "should have no errors");
+		assert.length(result.errors, 0, "should have no errors");
 
 		//this.assert(result.valid == true, "data should be valid");
 		//this.assert(result.errors.length == 0, "should have no errors");
