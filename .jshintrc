@@ -1,6 +1,5 @@
 {
 	"curly": true,
-	"eqeqeq": true,
 	"immed": true,
 	"latedef": true,
 	"newcap": true,
@@ -13,6 +12,8 @@
 	"node": true,
 	"smarttabs": true,
 	"browser": true,
+	"laxbreak": true,
+	"asi": true,
 	"globals": {
 		"describe": true,
 		"it": true,

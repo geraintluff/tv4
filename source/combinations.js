@@ -1,5 +1,4 @@
 ValidatorContext.prototype.validateCombinations = function validateCombinations(data, schema) {
-	var error;
 	return this.validateAllOf(data, schema)
 		|| this.validateAnyOf(data, schema)
 		|| this.validateOneOf(data, schema)
@@ -8,7 +7,7 @@ ValidatorContext.prototype.validateCombinations = function validateCombinations(
 }
 
 ValidatorContext.prototype.validateAllOf = function validateAllOf(data, schema) {
-	if (schema.allOf == undefined) {
+	if (schema.allOf === undefined) {
 		return null;
 	}
 	var error;
@@ -22,7 +21,7 @@ ValidatorContext.prototype.validateAllOf = function validateAllOf(data, schema) 
 }
 
 ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema) {
-	if (schema.anyOf == undefined) {
+	if (schema.anyOf === undefined) {
 		return null;
 	}
 	var errors = [];
@@ -47,7 +46,7 @@ ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema) 
 }
 
 ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) {
-	if (schema.oneOf == undefined) {
+	if (schema.oneOf === undefined) {
 		return null;
 	}
 	var validIndex = null;
@@ -55,10 +54,10 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) 
 	var startErrorCount = this.errors.length;
 	for (var i = 0; i < schema.oneOf.length; i++) {
 		var subSchema = schema.oneOf[i];
-		
+
 		var errorCount = this.errors.length;
 		var error = this.validateAll(data, subSchema, [], ["oneOf", i]);
-		
+
 		if (error == null && errorCount == this.errors.length) {
 			if (validIndex == null) {
 				validIndex = i;
@@ -70,7 +69,7 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) 
 			errors.push(error.prefixWith(null, "" + i).prefixWith(null, "oneOf"));
 		}
 	}
-	if (validIndex == null) {
+	if (validIndex === null) {
 		errors = errors.concat(this.errors.slice(startErrorCount));
 		this.errors = this.errors.slice(0, startErrorCount);
 		return new ValidationError(ErrorCodes.ONE_OF_MISSING, "Data does not match any schemas from \"oneOf\"", "", "/oneOf", errors);
@@ -81,14 +80,14 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) 
 }
 
 ValidatorContext.prototype.validateNot = function validateNot(data, schema) {
-	if (schema.not == undefined) {
+	if (schema.not === undefined) {
 		return null;
 	}
 	var oldErrorCount = this.errors.length;
 	var error = this.validateAll(data, schema.not);
 	var notErrors = this.errors.slice(oldErrorCount);
 	this.errors = this.errors.slice(0, oldErrorCount);
-	if (error == null && notErrors.length == 0) {
+	if (error == null && notErrors.length === 0) {
 		return new ValidationError(ErrorCodes.NOT_PASSED, "Data matches schema from \"not\"", "", "/not")
 	}
 	return null;

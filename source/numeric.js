@@ -6,11 +6,11 @@ ValidatorContext.prototype.validateNumeric = function validateNumeric(data, sche
 
 ValidatorContext.prototype.validateMultipleOf = function validateMultipleOf(data, schema) {
 	var multipleOf = schema.multipleOf || schema.divisibleBy;
-	if (multipleOf == undefined) {
+	if (multipleOf === undefined) {
 		return null;
 	}
 	if (typeof data == "number") {
-		if (data%multipleOf != 0) {
+		if (data % multipleOf !== 0) {
 			return new ValidationError(ErrorCodes.NUMBER_MULTIPLE_OF, "Value " + data + " is not a multiple of " + multipleOf);
 		}
 	}
@@ -21,7 +21,7 @@ ValidatorContext.prototype.validateMinMax = function validateMinMax(data, schema
 	if (typeof data != "number") {
 		return null;
 	}
-	if (schema.minimum != undefined) {
+	if (schema.minimum !== undefined) {
 		if (data < schema.minimum) {
 			return new ValidationError(ErrorCodes.NUMBER_MINIMUM, "Value " + data + " is less than minimum " + schema.minimum).prefixWith(null, "minimum");
 		}
@@ -29,7 +29,7 @@ ValidatorContext.prototype.validateMinMax = function validateMinMax(data, schema
 			return new ValidationError(ErrorCodes.NUMBER_MINIMUM_EXCLUSIVE, "Value "+ data + " is equal to exclusive minimum " + schema.minimum).prefixWith(null, "exclusiveMinimum");
 		}
 	}
-	if (schema.maximum != undefined) {
+	if (schema.maximum !== undefined) {
 		if (data > schema.maximum) {
 			return new ValidationError(ErrorCodes.NUMBER_MAXIMUM, "Value " + data + " is greater than maximum " + schema.maximum).prefixWith(null, "maximum");
 		}

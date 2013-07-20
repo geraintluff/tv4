@@ -30,10 +30,10 @@ module.exports = function (grunt) {
 			options: {
 				jshintrc: '.jshintrc'
 			},
-			tests: ['test/tests/**/*.js', 'test/all_*.js']
+			tests: ['test/tests/**/*.js', 'test/all_*.js'],
 
 			//TODO this should be enabled
-			// output: ['tv4.js']
+			output: ['tv4.js']
 		},
 		concat: {
 			source: {

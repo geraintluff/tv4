@@ -29,7 +29,7 @@ var ErrorCodes = {
 };
 
 function ValidationError(code, message, dataPath, schemaPath, subErrors) {
-	if (code == undefined) {
+	if (code === undefined) {
 		throw new Error ("No code supplied for error: "+ message);
 	}
 	this.code = code;
@@ -64,7 +64,7 @@ function searchForTrustedSchemas(map, schema, url) {
 			if ((url.length > 0 && url.charAt(url.length - 1) == "/")
 				|| remainder.charAt(0) == "#"
 				|| remainder.charAt(0) == "?") {
-				if (map[schema.id] == undefined) {
+				if (map[schema.id] === undefined) {
 					map[schema.id] = schema;
 				}
 			}
@@ -86,12 +86,12 @@ function createApi() {
 		freshApi: function () {
 			return createApi();
 		},
-		validate: function (data, schema) {
-			var context = new ValidatorContext(globalContext);
+		validate: function (data, schema, checkRecursive) {
+			var context = new ValidatorContext(globalContext, false, checkRecursive);
 			if (typeof schema == "string") {
 				schema = {"$ref": schema};
 			}
-			var added = context.addSchema("", schema);
+			context.addSchema("", schema);
 			var error = context.validateAll(data, schema);
 			this.error = error;
 			this.missing = context.missing;
@@ -103,8 +103,8 @@ function createApi() {
 			this.validate.apply(result, arguments);
 			return result;
 		},
-		validateMultiple: function (data, schema) {
-			var context = new ValidatorContext(globalContext, true);
+		validateMultiple: function (data, schema, checkRecursive) {
+			var context = new ValidatorContext(globalContext, true, checkRecursive);
 			if (typeof schema == "string") {
 				schema = {"$ref": schema};
 			}
@@ -113,7 +113,7 @@ function createApi() {
 			var result = {};
 			result.errors = context.errors;
 			result.missing = context.missing;
-			result.valid = (result.errors.length == 0);
+			result.valid = (result.errors.length === 0);
 			return result;
 		},
 		addSchema: function (url, schema) {
@@ -128,6 +128,6 @@ function createApi() {
 		resolveUrl: resolveUrl,
 		errorCodes: ErrorCodes
 	};
-};
+}
 
 global.tv4 = createApi();
