@@ -111,7 +111,7 @@
     &quot;missing&quot;: [...]
 }</code></pre>
 <h2>Usage 3: Multiple errors</h2>
-<p>Normally, <code>tv4</code> stops when it encounters the first validation error.  However, you can collect an array of validation errors using:<a href="https://github.com/geraintluff/tv4.git">https://github.com/geraintluff/tv4.git</a></p>
+<p>Normally, <code>tv4</code> stops when it encounters the first validation error.  However, you can collect an array of validation errors using:</p>
 <pre><code class="lang-javascript">var result = tv4.validateMultiple(data, schema);</code></pre>
 <p>The result will look something like:</p>
 <pre><code class="lang-json">{
@@ -149,7 +149,7 @@ tv4.validateMultiple(data, aSchema, true);</code></pre>
 <li><code>uri</code> the uri to identify this schema.</li>
 <li><code>schema</code> the schema object.</li>
 </ul>
-<p>Schema&#39;s that have their <code>id</code> property set can be added directly.</p>
+<p>Schemas that have their <code>id</code> property set can be added directly.</p>
 <pre><code class="lang-js">tv4.addSchema({ ... });</code></pre>
 <h5>getSchema(uri)</h5>
 <p>Return a schema from the cache.</p>
@@ -158,37 +158,37 @@ tv4.validateMultiple(data, aSchema, true);</code></pre>
 </ul>
 <pre><code class="lang-js">var schema = tv4.getSchema(&#39;http://example.com/schema&#39;);</code></pre>
 <h5>getSchemaMap()</h5>
-<p>Return a shallow copy of the schema cache, mapping schema document uri&#39;s to schema objects.</p>
+<p>Return a shallow copy of the schema cache, mapping schema document URIs to schema objects.</p>
 <pre><code>var map = tv4.getSchemaMap();
 
 var schema = map[uri];</code></pre>
 <h5>getSchemaUris(filter)</h5>
-<p>Return an Array with known schema document uri&#39;s.</p>
+<p>Return an Array with known schema document URIs.</p>
 <ul>
-<li><code>filter</code> optional RegExp to filter uri&#39;s</li>
+<li><code>filter</code> optional RegExp to filter URIs</li>
 </ul>
 <pre><code>var arr = tv4.getSchemaUris();
 
 // optional filter using a RegExp
 var arr = tv4.getSchemaUris(/^https?://example.com/);</code></pre>
 <h5>getMissingUris(filter)</h5>
-<p>Return an Array with schema document uri&#39;s that are used as <code>$ref</code> in known schema&#39;s but which currently have no associated schema data.</p>
+<p>Return an Array with schema document URIs that are used as <code>$ref</code> in known schemas but which currently have no associated schema data.</p>
 <p>Use this in combination with <code>tv4.addSchema(uri, schema)</code> to preload the cache for complete synchronous validation with.</p>
 <ul>
-<li><code>filter</code> optional RegExp to filter uri&#39;s</li>
+<li><code>filter</code> optional RegExp to filter URIs</li>
 </ul>
 <pre><code>var arr = tv4.getMissingUris();
 
 // optional filter using a RegExp
 var arr = tv4.getMissingUris(/^https?://example.com/);</code></pre>
 <h5>dropSchemas()</h5>
-<p>Drop all known schema document uri&#39;s from the cache.</p>
+<p>Drop all known schema document URIs from the cache.</p>
 <pre><code>tv4.dropSchemas();</code></pre>
 <h5>freshApi()</h5>
 <p>Return a new tv4 instance with no shared state.</p>
 <pre><code>var otherTV4 = tv4.freshApi();</code></pre>
 <h5>reset()</h5>
-<p>Manually reset validation status from the simple <code>tv4.validate(data, schema)</code>. Although tv4 will self reset on each validation there are some implementation scenario&#39;s where this is useful.</p>
+<p>Manually reset validation status from the simple <code>tv4.validate(data, schema)</code>. Although tv4 will self reset on each validation there are some implementation scenarios where this is useful.</p>
 <pre><code>tv4.reset();</code></pre>
 <h5>language(code)</h5>
 <p>Select the language map used for reporting.</p>
@@ -200,7 +200,7 @@ var arr = tv4.getMissingUris(/^https?://example.com/);</code></pre>
 <p>Add a new language map for selection by <code>tv4.language(code)</code></p>
 <ul>
 <li><code>code</code> is new language code</li>
-<li><code>map</code> is an object mapping error id&#39;s to language strings.</li>
+<li><code>map</code> is an object mapping error IDs or constant names (e.g. <code>103</code> or <code>&quot;NUMBER_MAXIMUM&quot;</code>) to language strings.</li>
 </ul>
 <pre><code>tv4.addLanguage(&#39;fr&#39;, { ... });
 
