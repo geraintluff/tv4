@@ -114,7 +114,7 @@ tv4.addSchema('http://example.com/schema', { ... });
 * `uri` the uri to identify this schema.
 * `schema` the schema object.
 
-Schema's that have their `id` property set can be added directly.
+Schemas that have their `id` property set can be added directly.
 
 ````js
 tv4.addSchema({ ... });
@@ -132,7 +132,7 @@ var schema = tv4.getSchema('http://example.com/schema');
 
 ##### getSchemaMap()
 
-Return a shallow copy of the schema cache, mapping schema document uri's to schema objects.
+Return a shallow copy of the schema cache, mapping schema document URIs to schema objects.
 
 ````
 var map = tv4.getSchemaMap();
@@ -142,9 +142,9 @@ var schema = map[uri];
 
 ##### getSchemaUris(filter)
 
-Return an Array with known schema document uri's.
+Return an Array with known schema document URIs.
 
-* `filter` optional RegExp to filter uri's
+* `filter` optional RegExp to filter URIs
 
 ````
 var arr = tv4.getSchemaUris();
@@ -155,11 +155,11 @@ var arr = tv4.getSchemaUris(/^https?://example.com/);
 
 ##### getMissingUris(filter)
 
-Return an Array with schema document uri's that are used as `$ref` in known schema's but which currently have no associated schema data.
+Return an Array with schema document URIs that are used as `$ref` in known schemas but which currently have no associated schema data.
 
 Use this in combination with `tv4.addSchema(uri, schema)` to preload the cache for complete synchronous validation with.
 
-* `filter` optional RegExp to filter uri's
+* `filter` optional RegExp to filter URIs
 
 ````
 var arr = tv4.getMissingUris();
@@ -170,7 +170,7 @@ var arr = tv4.getMissingUris(/^https?://example.com/);
 
 ##### dropSchemas()
 
-Drop all known schema document uri's from the cache.
+Drop all known schema document URIs from the cache.
 
 ````
 tv4.dropSchemas();
@@ -186,7 +186,7 @@ var otherTV4 = tv4.freshApi();
 
 ##### reset()
 
-Manually reset validation status from the simple `tv4.validate(data, schema)`. Although tv4 will self reset on each validation there are some implementation scenario's where this is useful.
+Manually reset validation status from the simple `tv4.validate(data, schema)`. Although tv4 will self reset on each validation there are some implementation scenarios where this is useful.
 
 ````
 tv4.reset();
@@ -207,7 +207,7 @@ tv4.language('en-gb');
 Add a new language map for selection by `tv4.language(code)`
 
 * `code` is new language code
-* `map` is an object mapping error id's to language strings.
+* `map` is an object mapping error IDs or constant names (e.g. `103` or `"NUMBER_MAXIMUM"`) to language strings.
 
 ````
 tv4.addLanguage('fr', { ... });
