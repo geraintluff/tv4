@@ -22,22 +22,22 @@ ValidatorContext.prototype.createError = function (code, messageParams, dataPath
 		return typeof subValue === 'string' || typeof subValue === 'number' ? subValue : whole;
 	});
 	return new ValidationError(code, message, dataPath, schemaPath, subErrors);
-}
+};
 ValidatorContext.prototype.returnError = function (error) {
 	return error;
-}
+};
 ValidatorContext.prototype.collectError = function (error) {
 	if (error) {
 		this.errors.push(error);
 	}
 	return null;
-}
+};
 ValidatorContext.prototype.prefixErrors = function (startIndex, dataPath, schemaPath) {
 	for (var i = startIndex; i < this.errors.length; i++) {
 		this.errors[i] = this.errors[i].prefixWith(dataPath, schemaPath);
 	}
 	return this;
-}
+};
 
 ValidatorContext.prototype.getSchema = function (url) {
 	var schema;
@@ -226,7 +226,7 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 	}
 
 	return this.handleError(error);
-}
+};
 
 function recursiveCompare(A, B) {
 	if (A === B) {
@@ -237,7 +237,7 @@ function recursiveCompare(A, B) {
 			return false;
 		} else if (Array.isArray(A)) {
 			if (A.length !== B.length) {
-				return false
+				return false;
 			}
 			for (var i = 0; i < A.length; i++) {
 				if (!recursiveCompare(A[i], B[i])) {

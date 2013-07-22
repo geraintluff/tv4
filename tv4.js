@@ -58,10 +58,10 @@ if (!Object.create) {
 			if (arguments.length !== 1) {
 				throw new Error('Object.create implementation only accepts one parameter.');
 			}
-			F.prototype = o
-			return new F()
-		}
-	})()
+			F.prototype = o;
+			return new F();
+		};
+	})();
 }
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FArray%2FisArray
 if(!Array.isArray) {
@@ -100,7 +100,7 @@ if (!Array.prototype.indexOf) {
 			}
 		}
 		return -1;
-	}
+	};
 }
 
 var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages, checkRecursive) {
@@ -127,22 +127,22 @@ ValidatorContext.prototype.createError = function (code, messageParams, dataPath
 		return typeof subValue === 'string' || typeof subValue === 'number' ? subValue : whole;
 	});
 	return new ValidationError(code, message, dataPath, schemaPath, subErrors);
-}
+};
 ValidatorContext.prototype.returnError = function (error) {
 	return error;
-}
+};
 ValidatorContext.prototype.collectError = function (error) {
 	if (error) {
 		this.errors.push(error);
 	}
 	return null;
-}
+};
 ValidatorContext.prototype.prefixErrors = function (startIndex, dataPath, schemaPath) {
 	for (var i = startIndex; i < this.errors.length; i++) {
 		this.errors[i] = this.errors[i].prefixWith(dataPath, schemaPath);
 	}
 	return this;
-}
+};
 
 ValidatorContext.prototype.getSchema = function (url) {
 	var schema;
@@ -331,7 +331,7 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 	}
 
 	return this.handleError(error);
-}
+};
 
 function recursiveCompare(A, B) {
 	if (A === B) {
@@ -342,7 +342,7 @@ function recursiveCompare(A, B) {
 			return false;
 		} else if (Array.isArray(A)) {
 			if (A.length !== B.length) {
-				return false
+				return false;
 			}
 			for (var i = 0; i < A.length; i++) {
 				if (!recursiveCompare(A[i], B[i])) {
@@ -381,7 +381,7 @@ ValidatorContext.prototype.validateBasic = function validateBasic(data, schema) 
 		return error.prefixWith(null, "type");
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateType = function validateType(data, schema) {
 	if (schema.type === undefined) {
@@ -405,7 +405,7 @@ ValidatorContext.prototype.validateType = function validateType(data, schema) {
 		}
 	}
 	return this.createError(ErrorCodes.INVALID_TYPE, {type: dataType, expected: allowedTypes.join("/")});
-}
+};
 
 ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
 	if (schema["enum"] === undefined) {
@@ -418,13 +418,13 @@ ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
 		}
 	}
 	return this.createError(ErrorCodes.ENUM_MISMATCH, {value: JSON.stringify(data)});
-}
+};
 
 ValidatorContext.prototype.validateNumeric = function validateNumeric(data, schema) {
 	return this.validateMultipleOf(data, schema)
 		|| this.validateMinMax(data, schema)
 		|| null;
-}
+};
 
 ValidatorContext.prototype.validateMultipleOf = function validateMultipleOf(data, schema) {
 	var multipleOf = schema.multipleOf || schema.divisibleBy;
@@ -437,7 +437,7 @@ ValidatorContext.prototype.validateMultipleOf = function validateMultipleOf(data
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateMinMax = function validateMinMax(data, schema) {
 	if (typeof data !== "number") {
@@ -460,13 +460,13 @@ ValidatorContext.prototype.validateMinMax = function validateMinMax(data, schema
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateString = function validateString(data, schema) {
 	return this.validateStringLength(data, schema)
 		|| this.validateStringPattern(data, schema)
 		|| null;
-}
+};
 
 ValidatorContext.prototype.validateStringLength = function validateStringLength(data, schema) {
 	if (typeof data !== "string") {
@@ -483,7 +483,7 @@ ValidatorContext.prototype.validateStringLength = function validateStringLength(
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateStringPattern = function validateStringPattern(data, schema) {
 	if (typeof data !== "string" || schema.pattern === undefined) {
@@ -494,8 +494,7 @@ ValidatorContext.prototype.validateStringPattern = function validateStringPatter
 		return this.createError(ErrorCodes.STRING_PATTERN, {pattern: schema.pattern}).prefixWith(null, "pattern");
 	}
 	return null;
-}
-
+};
 ValidatorContext.prototype.validateArray = function validateArray(data, schema) {
 	if (!Array.isArray(data)) {
 		return null;
@@ -504,7 +503,7 @@ ValidatorContext.prototype.validateArray = function validateArray(data, schema) 
 		|| this.validateArrayUniqueItems(data, schema)
 		|| this.validateArrayItems(data, schema)
 		|| null;
-}
+};
 
 ValidatorContext.prototype.validateArrayLength = function validateArrayLength(data, schema) {
 	var error;
@@ -525,7 +524,7 @@ ValidatorContext.prototype.validateArrayLength = function validateArrayLength(da
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateArrayUniqueItems = function validateArrayUniqueItems(data, schema) {
 	if (schema.uniqueItems) {
@@ -541,7 +540,7 @@ ValidatorContext.prototype.validateArrayUniqueItems = function validateArrayUniq
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data, schema) {
 	if (schema.items === undefined) {
@@ -575,7 +574,7 @@ ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateObject = function validateObject(data, schema) {
 	if (typeof data !== "object" || data === null || Array.isArray(data)) {
@@ -586,7 +585,7 @@ ValidatorContext.prototype.validateObject = function validateObject(data, schema
 		|| this.validateObjectProperties(data, schema)
 		|| this.validateObjectDependencies(data, schema)
 		|| null;
-}
+};
 
 ValidatorContext.prototype.validateObjectMinMaxProperties = function validateObjectMinMaxProperties(data, schema) {
 	var keys = Object.keys(data);
@@ -608,7 +607,7 @@ ValidatorContext.prototype.validateObjectMinMaxProperties = function validateObj
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateObjectRequiredProperties = function validateObjectRequiredProperties(data, schema) {
 	if (schema.required !== undefined) {
@@ -623,7 +622,7 @@ ValidatorContext.prototype.validateObjectRequiredProperties = function validateO
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateObjectProperties = function validateObjectProperties(data, schema) {
 	var error;
@@ -662,7 +661,7 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateObjectDependencies = function validateObjectDependencies(data, schema) {
 	var error;
@@ -696,7 +695,7 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateCombinations = function validateCombinations(data, schema) {
 	return this.validateAllOf(data, schema)
@@ -704,7 +703,7 @@ ValidatorContext.prototype.validateCombinations = function validateCombinations(
 		|| this.validateOneOf(data, schema)
 		|| this.validateNot(data, schema)
 		|| null;
-}
+};
 
 ValidatorContext.prototype.validateAllOf = function validateAllOf(data, schema) {
 	if (schema.allOf === undefined) {
@@ -718,7 +717,7 @@ ValidatorContext.prototype.validateAllOf = function validateAllOf(data, schema) 
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema) {
 	if (schema.anyOf === undefined) {
@@ -743,7 +742,7 @@ ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema) 
 	errors = errors.concat(this.errors.slice(startErrorCount));
 	this.errors = this.errors.slice(0, startErrorCount);
 	return this.createError(ErrorCodes.ANY_OF_MISSING, {}, "", "/anyOf", errors);
-}
+};
 
 ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) {
 	if (schema.oneOf === undefined) {
@@ -777,7 +776,7 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) 
 		this.errors = this.errors.slice(0, startErrorCount);
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateNot = function validateNot(data, schema) {
 	if (schema.not === undefined) {
@@ -788,10 +787,10 @@ ValidatorContext.prototype.validateNot = function validateNot(data, schema) {
 	var notErrors = this.errors.slice(oldErrorCount);
 	this.errors = this.errors.slice(0, oldErrorCount);
 	if (error === null && notErrors.length === 0) {
-		return this.createError(ErrorCodes.NOT_PASSED, {}, "", "/not")
+		return this.createError(ErrorCodes.NOT_PASSED, {}, "", "/not");
 	}
 	return null;
-}
+};
 
 // parseURI() and resolveUrl() are from https://gist.github.com/1088850
 //   -  released as public domain by author ("Yaffle") - see comments on gist

@@ -13,7 +13,6 @@
 	"smarttabs": true,
 	"browser": true,
 	"laxbreak": true,
-	"asi": true,
 	"eqeqeq": true,
 	"globals": {
 		"describe": true,

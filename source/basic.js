@@ -7,7 +7,7 @@ ValidatorContext.prototype.validateBasic = function validateBasic(data, schema) 
 		return error.prefixWith(null, "type");
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateType = function validateType(data, schema) {
 	if (schema.type === undefined) {
@@ -31,7 +31,7 @@ ValidatorContext.prototype.validateType = function validateType(data, schema) {
 		}
 	}
 	return this.createError(ErrorCodes.INVALID_TYPE, {type: dataType, expected: allowedTypes.join("/")});
-}
+};
 
 ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
 	if (schema["enum"] === undefined) {
@@ -44,4 +44,4 @@ ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
 		}
 	}
 	return this.createError(ErrorCodes.ENUM_MISMATCH, {value: JSON.stringify(data)});
-}
+};

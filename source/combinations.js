@@ -4,7 +4,7 @@ ValidatorContext.prototype.validateCombinations = function validateCombinations(
 		|| this.validateOneOf(data, schema)
 		|| this.validateNot(data, schema)
 		|| null;
-}
+};
 
 ValidatorContext.prototype.validateAllOf = function validateAllOf(data, schema) {
 	if (schema.allOf === undefined) {
@@ -18,7 +18,7 @@ ValidatorContext.prototype.validateAllOf = function validateAllOf(data, schema) 
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema) {
 	if (schema.anyOf === undefined) {
@@ -43,7 +43,7 @@ ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema) 
 	errors = errors.concat(this.errors.slice(startErrorCount));
 	this.errors = this.errors.slice(0, startErrorCount);
 	return this.createError(ErrorCodes.ANY_OF_MISSING, {}, "", "/anyOf", errors);
-}
+};
 
 ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) {
 	if (schema.oneOf === undefined) {
@@ -77,7 +77,7 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema) 
 		this.errors = this.errors.slice(0, startErrorCount);
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateNot = function validateNot(data, schema) {
 	if (schema.not === undefined) {
@@ -88,7 +88,7 @@ ValidatorContext.prototype.validateNot = function validateNot(data, schema) {
 	var notErrors = this.errors.slice(oldErrorCount);
 	this.errors = this.errors.slice(0, oldErrorCount);
 	if (error === null && notErrors.length === 0) {
-		return this.createError(ErrorCodes.NOT_PASSED, {}, "", "/not")
+		return this.createError(ErrorCodes.NOT_PASSED, {}, "", "/not");
 	}
 	return null;
-}
+};

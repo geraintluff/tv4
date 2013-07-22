@@ -2,7 +2,7 @@ ValidatorContext.prototype.validateString = function validateString(data, schema
 	return this.validateStringLength(data, schema)
 		|| this.validateStringPattern(data, schema)
 		|| null;
-}
+};
 
 ValidatorContext.prototype.validateStringLength = function validateStringLength(data, schema) {
 	if (typeof data !== "string") {
@@ -19,7 +19,7 @@ ValidatorContext.prototype.validateStringLength = function validateStringLength(
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateStringPattern = function validateStringPattern(data, schema) {
 	if (typeof data !== "string" || schema.pattern === undefined) {
@@ -30,4 +30,4 @@ ValidatorContext.prototype.validateStringPattern = function validateStringPatter
 		return this.createError(ErrorCodes.STRING_PATTERN, {pattern: schema.pattern}).prefixWith(null, "pattern");
 	}
 	return null;
-}
+};

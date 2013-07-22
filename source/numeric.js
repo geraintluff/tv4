@@ -2,7 +2,7 @@ ValidatorContext.prototype.validateNumeric = function validateNumeric(data, sche
 	return this.validateMultipleOf(data, schema)
 		|| this.validateMinMax(data, schema)
 		|| null;
-}
+};
 
 ValidatorContext.prototype.validateMultipleOf = function validateMultipleOf(data, schema) {
 	var multipleOf = schema.multipleOf || schema.divisibleBy;
@@ -15,7 +15,7 @@ ValidatorContext.prototype.validateMultipleOf = function validateMultipleOf(data
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateMinMax = function validateMinMax(data, schema) {
 	if (typeof data !== "number") {
@@ -38,4 +38,4 @@ ValidatorContext.prototype.validateMinMax = function validateMinMax(data, schema
 		}
 	}
 	return null;
-}
+};

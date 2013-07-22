@@ -47,10 +47,10 @@ if (!Object.create) {
 			if (arguments.length !== 1) {
 				throw new Error('Object.create implementation only accepts one parameter.');
 			}
-			F.prototype = o
-			return new F()
-		}
-	})()
+			F.prototype = o;
+			return new F();
+		};
+	})();
 }
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FArray%2FisArray
 if(!Array.isArray) {
@@ -89,5 +89,5 @@ if (!Array.prototype.indexOf) {
 			}
 		}
 		return -1;
-	}
+	};
 }

@@ -6,7 +6,7 @@ ValidatorContext.prototype.validateArray = function validateArray(data, schema) 
 		|| this.validateArrayUniqueItems(data, schema)
 		|| this.validateArrayItems(data, schema)
 		|| null;
-}
+};
 
 ValidatorContext.prototype.validateArrayLength = function validateArrayLength(data, schema) {
 	var error;
@@ -27,7 +27,7 @@ ValidatorContext.prototype.validateArrayLength = function validateArrayLength(da
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateArrayUniqueItems = function validateArrayUniqueItems(data, schema) {
 	if (schema.uniqueItems) {
@@ -43,7 +43,7 @@ ValidatorContext.prototype.validateArrayUniqueItems = function validateArrayUniq
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data, schema) {
 	if (schema.items === undefined) {
@@ -77,4 +77,4 @@ ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data
 		}
 	}
 	return null;
-}
+};

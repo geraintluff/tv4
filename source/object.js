@@ -7,7 +7,7 @@ ValidatorContext.prototype.validateObject = function validateObject(data, schema
 		|| this.validateObjectProperties(data, schema)
 		|| this.validateObjectDependencies(data, schema)
 		|| null;
-}
+};
 
 ValidatorContext.prototype.validateObjectMinMaxProperties = function validateObjectMinMaxProperties(data, schema) {
 	var keys = Object.keys(data);
@@ -29,7 +29,7 @@ ValidatorContext.prototype.validateObjectMinMaxProperties = function validateObj
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateObjectRequiredProperties = function validateObjectRequiredProperties(data, schema) {
 	if (schema.required !== undefined) {
@@ -44,7 +44,7 @@ ValidatorContext.prototype.validateObjectRequiredProperties = function validateO
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateObjectProperties = function validateObjectProperties(data, schema) {
 	var error;
@@ -83,7 +83,7 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 		}
 	}
 	return null;
-}
+};
 
 ValidatorContext.prototype.validateObjectDependencies = function validateObjectDependencies(data, schema) {
 	var error;
@@ -117,4 +117,4 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 		}
 	}
 	return null;
-}
+};
