@@ -52,7 +52,7 @@ The result will look something like:
 
 ## Usage 3: Multiple errors
 
-Normally, `tv4` stops when it encounters the first validation error.  However, you can collect an array of validation errors using:https://github.com/geraintluff/tv4.git
+Normally, `tv4` stops when it encounters the first validation error.  However, you can collect an array of validation errors using:
 
 ```javascript
 var result = tv4.validateMultiple(data, schema);
