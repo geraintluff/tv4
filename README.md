@@ -341,7 +341,7 @@ Rebuild and run the tests:
 $ grunt
 ````
 
-It will run a build and display one Spec-style report for the node.js and two Dot-style reports for both the plain and minified browser tests (via phantomJS). You can also use your own browser to manually run the suites by opening `test/index.html` and `test/index-min.html`.
+It will run a build and display one Spec-style report for the node.js and two Dot-style reports for both the plain and minified browser tests (via phantomJS). You can also use your own browser to manually run the suites by opening [`test/index.html`](http://geraintluff.github.io/tv4/test/index.html) and [`test/index-min.html`](http://geraintluff.github.io/tv4/test/index-min.html).
 
 ## Contributing
 
