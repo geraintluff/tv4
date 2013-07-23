@@ -187,10 +187,15 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 			this.scannedFrozenSchemas[frozenIndex].push(schema);
 		} else {
 			if (!data[this.key]) {
-				Object.defineProperty(data, this.key, {
-					value: [],
-					configurable: true
-				});
+				if (Object.defineProperty) {
+					Object.defineProperty(data, this.key, {
+						value: [],
+						configurable: true
+					});
+				} else {
+					//IE7 workaround
+					data[this.key] = [];
+				}
 			}
 			data[this.key].push(schema);
 		}

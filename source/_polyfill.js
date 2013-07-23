@@ -91,3 +91,20 @@ if (!Array.prototype.indexOf) {
 		return -1;
 	};
 }
+
+// Grungey Object.isFrozen hack
+if (!Object.isFrozen) {
+	Object.isFrozen = function (obj) {
+		var key = "tv4_test_frozen_key";
+		while (obj.hasOwnProperty(key)) {
+			key += Math.random();
+		}
+		try {
+			obj[key] = true;
+			delete obj[key];
+			return false;
+		} catch (e) {
+			return true;
+		}
+	};
+}

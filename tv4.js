@@ -103,6 +103,22 @@ if (!Array.prototype.indexOf) {
 	};
 }
 
+// Grungey Object.isFrozen hack
+if (!Object.isFrozen) {
+	Object.isFrozen = function (obj) {
+		var key = "tv4_test_frozen_key";
+		while (obj.hasOwnProperty(key)) {
+			key += Math.random();
+		}
+		try {
+			obj[key] = true;
+			delete obj[key];
+			return false;
+		} catch (e) {
+			return true;
+		}
+	};
+}
 var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages, checkRecursive) {
 	this.missing = [];
 	this.missingMap = {};
@@ -292,10 +308,14 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 			this.scannedFrozenSchemas[frozenIndex].push(schema);
 		} else {
 			if (!data[this.key]) {
-				Object.defineProperty(data, this.key, {
-					value: [],
-					configurable: true
-				});
+				if (Object.defineProperty) {
+					Object.defineProperty(data, this.key, {
+						value: [],
+						configurable: true
+					});
+				} else {
+					data[this.key] = [];
+				}
 			}
 			data[this.key].push(schema);
 		}
