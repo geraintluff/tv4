@@ -291,7 +291,7 @@ alert("data 2: " + tv4.validate(data2, schema)); // false
 
 * Node.js
 * All modern browsers
-* IE >= 8
+* IE >= 7
 
 ## Installation
 
