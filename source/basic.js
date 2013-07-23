@@ -43,5 +43,5 @@ ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
 			return null;
 		}
 	}
-	return this.createError(ErrorCodes.ENUM_MISMATCH, {value: JSON.stringify(data)});
+	return this.createError(ErrorCodes.ENUM_MISMATCH, {value: (typeof JSON !== 'undefined') ? JSON.stringify(data) : data});
 };
