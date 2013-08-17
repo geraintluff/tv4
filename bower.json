@@ -1,6 +1,6 @@
 {
   "name": "tv4",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A public domain JSON Schema validator for JavaScript",
   "keywords": [
     "json-schema",
