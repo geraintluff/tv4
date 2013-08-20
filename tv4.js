@@ -122,6 +122,7 @@ if (!Object.isFrozen) {
 var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages, checkRecursive) {
 	this.missing = [];
 	this.missingMap = {};
+	this.formatValidators = parent ? Object.create(parent.formatValidators) : {};
 	this.schemas = parent ? Object.create(parent.schemas) : {};
 	this.collectMultiple = collectMultiple;
 	this.errors = [];
@@ -136,7 +137,10 @@ var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorM
 	this.errorMessages = errorMessages;
 };
 ValidatorContext.prototype.createError = function (code, messageParams, dataPath, schemaPath, subErrors) {
-	var messageTemplate = this.errorMessages[code];
+	var messageTemplate = this.errorMessages[code] || ErrorMessagesDefault[code];
+	if (typeof messageTemplate !== 'string') {
+		return new ValidationError(code, "Unknown error code " + code + ": " + JSON.stringify(messageParams), dataPath, schemaPath, subErrors);
+	}
 	// Adapted from Crockford's supplant()
 	var message = messageTemplate.replace(/\{([^{}]*)\}/g, function (whole, varName) {
 		var subValue = messageParams[varName];
@@ -160,6 +164,15 @@ ValidatorContext.prototype.prefixErrors = function (startIndex, dataPath, schema
 	return this;
 };
 
+ValidatorContext.prototype.addFormat = function (format, validator) {
+	if (typeof format === 'object') {
+		for (var key in format) {
+			this.addFormat(key, format[key]);
+		}
+		return this;
+	}
+	this.formatValidators[format] = validator;
+};
 ValidatorContext.prototype.getSchema = function (url) {
 	var schema;
 	if (this.schemas[url] !== undefined) {
@@ -329,6 +342,7 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 		|| this.validateArray(data, schema)
 		|| this.validateObject(data, schema)
 		|| this.validateCombinations(data, schema)
+		|| this.validateFormat(data, schema)
 		|| null;
 
 	if (topLevel) {
@@ -352,6 +366,18 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 	}
 
 	return this.handleError(error);
+};
+ValidatorContext.prototype.validateFormat = function (data, schema) {
+	if (typeof schema.format !== 'string' || !this.formatValidators[schema.format]) {
+		return null;
+	}
+	var errorMessage = this.formatValidators[schema.format].call(null, data, schema);
+	if (typeof errorMessage === 'string' || typeof errorMessage === 'number') {
+		return this.createError(ErrorCodes.FORMAT_CUSTOM, {message: errorMessage}).prefixWith(null, "format");
+	} else if (errorMessage && typeof errorMessage === 'object') {
+		return this.createError(ErrorCodes.FORMAT_CUSTOM, {message: errorMessage.message || "?"}, errorMessage.dataPath || null, errorMessage.schemaPath || "/format");
+	}
+	return null;
 };
 
 function recursiveCompare(A, B) {
@@ -913,7 +939,9 @@ var ErrorCodes = {
 	ARRAY_LENGTH_SHORT: 400,
 	ARRAY_LENGTH_LONG: 401,
 	ARRAY_UNIQUE: 402,
-	ARRAY_ADDITIONAL_ITEMS: 403
+	ARRAY_ADDITIONAL_ITEMS: 403,
+	// Format errors
+	FORMAT_CUSTOM: 500
 };
 var ErrorMessagesDefault = {
 	INVALID_TYPE: "invalid type: {type} (expected {expected})",
@@ -942,7 +970,9 @@ var ErrorMessagesDefault = {
 	ARRAY_LENGTH_SHORT: "Array is too short ({length}), minimum {minimum}",
 	ARRAY_LENGTH_LONG: "Array is too long ({length}), maximum {maximum}",
 	ARRAY_UNIQUE: "Array items are not unique (indices {match1} and {match2})",
-	ARRAY_ADDITIONAL_ITEMS: "Additional items not allowed"
+	ARRAY_ADDITIONAL_ITEMS: "Additional items not allowed",
+	// Format errors
+	FORMAT_CUSTOM: "Format validation failed ({message})"
 };
 
 function ValidationError(code, message, dataPath, schemaPath, subErrors) {
@@ -951,9 +981,9 @@ function ValidationError(code, message, dataPath, schemaPath, subErrors) {
 	}
 	this.code = code;
 	this.message = message;
-	this.dataPath = dataPath ? dataPath : "";
-	this.schemaPath = schemaPath ? schemaPath : "";
-	this.subErrors = subErrors ? subErrors : null;
+	this.dataPath = dataPath || "";
+	this.schemaPath = schemaPath || "";
+	this.subErrors = subErrors || null;
 }
 ValidationError.prototype = {
 	prefixWith: function (dataPrefix, schemaPrefix) {
@@ -991,6 +1021,9 @@ function createApi(language) {
 	var globalContext = new ValidatorContext();
 	var currentLanguage = language || 'en';
 	var api = {
+		addFormat: function () {
+			globalContext.addFormat.apply(globalContext, arguments);
+		},
 		language: function (code) {
 			if (!code) {
 				return currentLanguage;
@@ -1005,15 +1038,24 @@ function createApi(language) {
 			return false;
 		},
 		addLanguage: function (code, messageMap) {
-			for (var key in ErrorCodes) {
+			var key;
+			for (key in ErrorCodes) {
 				if (messageMap[key] && !messageMap[ErrorCodes[key]]) {
 					messageMap[ErrorCodes[key]] = messageMap[key];
 				}
 			}
-			languages[code] = messageMap;
-			code = code.split('-')[0];
-			if (!languages[code]) { // use for base language if not yet defined
+			var rootCode = code.split('-')[0];
+			if (!languages[rootCode]) { // use for base language if not yet defined
 				languages[code] = messageMap;
+				languages[rootCode] = messageMap;
+			} else {
+				languages[code] = Object.create(languages[rootCode]);
+				for (key in messageMap) {
+					if (typeof languages[rootCode][key] === 'undefined') {
+						languages[rootCode][key] = messageMap[key];
+					}
+					languages[code][key] = messageMap[key];
+				}
 			}
 			return this;
 		},

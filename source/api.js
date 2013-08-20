@@ -25,7 +25,9 @@ var ErrorCodes = {
 	ARRAY_LENGTH_SHORT: 400,
 	ARRAY_LENGTH_LONG: 401,
 	ARRAY_UNIQUE: 402,
-	ARRAY_ADDITIONAL_ITEMS: 403
+	ARRAY_ADDITIONAL_ITEMS: 403,
+	// Format errors
+	FORMAT_CUSTOM: 500
 };
 var ErrorMessagesDefault = {
 	INVALID_TYPE: "invalid type: {type} (expected {expected})",
@@ -54,7 +56,9 @@ var ErrorMessagesDefault = {
 	ARRAY_LENGTH_SHORT: "Array is too short ({length}), minimum {minimum}",
 	ARRAY_LENGTH_LONG: "Array is too long ({length}), maximum {maximum}",
 	ARRAY_UNIQUE: "Array items are not unique (indices {match1} and {match2})",
-	ARRAY_ADDITIONAL_ITEMS: "Additional items not allowed"
+	ARRAY_ADDITIONAL_ITEMS: "Additional items not allowed",
+	// Format errors
+	FORMAT_CUSTOM: "Format validation failed ({message})"
 };
 
 function ValidationError(code, message, dataPath, schemaPath, subErrors) {
@@ -63,9 +67,9 @@ function ValidationError(code, message, dataPath, schemaPath, subErrors) {
 	}
 	this.code = code;
 	this.message = message;
-	this.dataPath = dataPath ? dataPath : "";
-	this.schemaPath = schemaPath ? schemaPath : "";
-	this.subErrors = subErrors ? subErrors : null;
+	this.dataPath = dataPath || "";
+	this.schemaPath = schemaPath || "";
+	this.subErrors = subErrors || null;
 }
 ValidationError.prototype = {
 	prefixWith: function (dataPrefix, schemaPrefix) {
@@ -103,6 +107,9 @@ function createApi(language) {
 	var globalContext = new ValidatorContext();
 	var currentLanguage = language || 'en';
 	var api = {
+		addFormat: function () {
+			globalContext.addFormat.apply(globalContext, arguments);
+		},
 		language: function (code) {
 			if (!code) {
 				return currentLanguage;
@@ -117,15 +124,24 @@ function createApi(language) {
 			return false;
 		},
 		addLanguage: function (code, messageMap) {
-			for (var key in ErrorCodes) {
+			var key;
+			for (key in ErrorCodes) {
 				if (messageMap[key] && !messageMap[ErrorCodes[key]]) {
 					messageMap[ErrorCodes[key]] = messageMap[key];
 				}
 			}
-			languages[code] = messageMap;
-			code = code.split('-')[0];
-			if (!languages[code]) { // use for base language if not yet defined
+			var rootCode = code.split('-')[0];
+			if (!languages[rootCode]) { // use for base language if not yet defined
 				languages[code] = messageMap;
+				languages[rootCode] = messageMap;
+			} else {
+				languages[code] = Object.create(languages[rootCode]);
+				for (key in messageMap) {
+					if (typeof languages[rootCode][key] === 'undefined') {
+						languages[rootCode][key] = messageMap[key];
+					}
+					languages[code][key] = messageMap[key];
+				}
 			}
 			return this;
 		},

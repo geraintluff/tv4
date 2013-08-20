@@ -215,6 +215,33 @@ tv4.addLanguage('fr', { ... });
 // select for use
 tv4.language('fr')
 ````
+
+##### addFormat(format, validationFunction)
+
+Add a custom format validator.
+
+* `format` is a string, corresponding to the `"format"` value in schemas.
+* `validationFunction` is a function that either returns:
+  * `null` (meaning no error)
+  * an error string (explaining the reason for failure)
+
+````
+tv4.addFormat('decimal-digits', function (data, schema) {
+	if (typeof data === 'string' && !/^[0-9]+$/.test(data)) {
+		return null;
+	}
+	return "must be string of decimal digits";
+});
+````
+
+Alternatively, multiple formats can be added at the same time using an object:
+````
+tv4.addFormat({
+	'my-format': function () {...},
+	'other-format': function () {...}
+});
+````
+
 ## Demos
 
 ### Basic usage
