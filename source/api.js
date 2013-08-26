@@ -71,23 +71,22 @@ function ValidationError(code, message, dataPath, schemaPath, subErrors) {
 	this.schemaPath = schemaPath || "";
 	this.subErrors = subErrors || null;
 }
-ValidationError.prototype = {
-	prefixWith: function (dataPrefix, schemaPrefix) {
-		if (dataPrefix !== null) {
-			dataPrefix = dataPrefix.replace("~", "~0").replace("/", "~1");
-			this.dataPath = "/" + dataPrefix + this.dataPath;
-		}
-		if (schemaPrefix !== null) {
-			schemaPrefix = schemaPrefix.replace("~", "~0").replace("/", "~1");
-			this.schemaPath = "/" + schemaPrefix + this.schemaPath;
-		}
-		if (this.subErrors !== null) {
-			for (var i = 0; i < this.subErrors.length; i++) {
-				this.subErrors[i].prefixWith(dataPrefix, schemaPrefix);
-			}
-		}
-		return this;
+ValidationError.prototype = new Error();
+ValidationError.prototype.prefixWith = function (dataPrefix, schemaPrefix) {
+	if (dataPrefix !== null) {
+		dataPrefix = dataPrefix.replace("~", "~0").replace("/", "~1");
+		this.dataPath = "/" + dataPrefix + this.dataPath;
 	}
+	if (schemaPrefix !== null) {
+		schemaPrefix = schemaPrefix.replace("~", "~0").replace("/", "~1");
+		this.schemaPath = "/" + schemaPrefix + this.schemaPath;
+	}
+	if (this.subErrors !== null) {
+		for (var i = 0; i < this.subErrors.length; i++) {
+			this.subErrors[i].prefixWith(dataPrefix, schemaPrefix);
+		}
+	}
+	return this;
 };
 
 function isTrustedUrl(baseUrl, testUrl) {
