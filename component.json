@@ -1,0 +1,15 @@
+{
+  "name": "tv4",
+  "repo": "geraintluff/tv4",
+  "description": "Tiny Validator for JSON Schema v4",
+  "version": "1.0.7",
+  "keywords": [],
+  "dependencies": {},
+  "development": {},
+  "license": "MIT",
+  "main": "component.js",
+  "scripts": [
+    "component.js",
+    "tv4.js"
+  ]
+}

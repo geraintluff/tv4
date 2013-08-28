@@ -8,3 +8,7 @@ npm-debug.log
 .DS_Store
 
 /*.tgz
+
+build
+components
+
