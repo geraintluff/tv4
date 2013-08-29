@@ -86,6 +86,8 @@ tv4.validate(data, schema, function (isValid, validationError) { ... });
 
 While they don't occur in proper JSON, JavaScript does support self-referencing objects. Any of the above calls support an optional final argument, checkRecursive. If true, tv4 will handle self-referencing objects properly - this slows down validation slightly, but that's better than a hanging script.
 
+Consider this data, notice how both `a` and `b` refer to each other:
+
 ```javascript
 var a = {};
 var b = { a: a };
@@ -94,9 +96,17 @@ var aSchema = { properties: { b: { $ref: 'bSchema' }}};
 var bSchema = { properties: { a: { $ref: 'aSchema' }}};
 tv4.addSchema('aSchema', aSchema);
 tv4.addSchema('bSchema', bSchema);
-tv4.validate(a, aSchema, true); // If the final checkRecursive argument were missing, this would throw a "too much recursion" error.
-tv4.validate(a, schema, asynchronousFunction, true); // Works with asynchronous validation.
-tv4.validateResult(data, aSchema, true); // Also multi-threaded and multiple error validation.
+```
+
+If the final checkRecursive argument were missing, this would throw a "too much recursion" error. 
+
+To enable supprot for this pass `true` as additional argument to any of the regular validation methods: 
+
+```javascript
+tv4.validate(a, aSchema, true);
+tv4.validate(a, schema, asynchronousFunction, true);
+
+tv4.validateResult(data, aSchema, true); 
 tv4.validateMultiple(data, aSchema, true);
 ```
 
@@ -196,7 +206,7 @@ tv4.reset();
 
 Select the language map used for reporting.
 
-* `code` is a langauge code, like `'en'` or `'en-gb'`
+* `code` is a language code, like `'en'` or `'en-gb'`
 
 ````
 tv4.language('en-gb');
@@ -245,8 +255,7 @@ tv4.addFormat({
 ## Demos
 
 ### Basic usage
-<div class="content" markdown="1">
-<a href="javascript:runDemo('demo1');">run demo</a>
+<div class="content inline-demo" markdown="1" data-demo="demo1">
 <pre class="code" id="demo1">
 var schema = {
 	"items": {
@@ -263,8 +272,7 @@ alert("data 2 error: " + JSON.stringify(tv4.error, null, 4));
 </div>
 
 ### Use of <code>$ref</code>
-<div class="content">
-<a href="javascript:runDemo('demo2');">run demo</a>
+<div class="content inline-demo" markdown="1" data-demo="demo2">
 <pre class="code" id="demo2">
 var schema = {
 	"type": "array",
@@ -279,12 +287,11 @@ alert("data 2: " + tv4.validate(data2, schema)); // false
 </div>
 
 ### Missing schema
-<div class="content">
-<a href="javascript:runDemo('demo3');">run demo</a>
+<div class="content inline-demo" markdown="1" data-demo="demo3">
 <pre class="code" id="demo3">
 var schema = {
 	"type": "array",
-	"items": {"$ref": "http://example.com/schema"}
+	"items": {"$ref": "http://example.com/schema" }
 };
 var data = [1, 2, 3];
 
@@ -294,8 +301,7 @@ alert("Missing schemas: " + JSON.stringify(tv4.missing));
 </div>
 
 ### Referencing remote schema
-<div class="content">
-<a href="javascript:runDemo('demo4');">run demo</a>
+<div class="content inline-demo" markdown="1" data-demo="demo4">
 <pre class="code" id="demo4">
 tv4.addSchema("http://example.com/schema", {
 	"definitions": {
@@ -304,7 +310,7 @@ tv4.addSchema("http://example.com/schema", {
 });
 var schema = {
 	"type": "array",
-	"items": {"$ref": "http://example.com/schema#/definitions/arrayItem"}
+	"items": {"$ref": "http://example.com/schema#/definitions/arrayItem" }
 };
 var data1 = [true, false, true];
 var data2 = [1, 2, 3];
@@ -327,7 +333,7 @@ You can manually download [`tv4.js`](https://raw.github.com/geraintluff/tv4/mast
 Alternately use it as a CommonJS module:
 
 ````js
-var tv4 = require('tv4').tv4;
+var tv4 = require('tv4');
 ````
 
 #### npm
@@ -377,7 +383,7 @@ Pull-requests for fixes and expansions are welcome. Edit the partial files in `/
 ## Packages using tv4
 
 * [chai-json-schema](http://chaijs.com/plugins/chai-json-schema) is a [Chai Assertion Library](http://chaijs.com) plugin to assert values against json-schema.
-* [grunt-tv4](http://www.github.com/Bartvds/grunt-tv4) is a plugin for [grunt](http://http://gruntjs.com/) that uses tv4 to bulk validate json files.
+* [grunt-tv4](http://www.github.com/Bartvds/grunt-tv4) is a plugin for [Grunt](http://http://gruntjs.com/) that uses tv4 to bulk validate json files.
 
 ## License
 

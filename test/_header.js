@@ -9,6 +9,54 @@ if (typeof process === 'object' && typeof process.cwd !== 'undefined') {
 	tv4 = require('./../').tv4;
 	assert = require('proclaim');
 	require('source-map-support').install();
+
+	var fs = require('fs');
+	var getJSON = function (file) {
+		var json;
+		try {
+			json = JSON.parse(fs.readFileSync(file, 'utf8'));
+		}
+		catch (e) {
+			assert.fail(e, null, file + ': ' + String(e), 'getJSON');
+		}
+		assert.isObject(json, file);
+		return json;
+	};
+	assert.isFile = function(file, msg) {
+		if (!fs.existsSync(file)){
+			assert.fail(false, true, msg + ': missing file ' + file, 'existsSync');
+		}
+	};
+
+	describe('Verify package definition files', function (){
+		var pkg;
+		var component;
+		var bower;
+		it('pkg', function () {
+			pkg = getJSON('./package.json');
+
+			assert.property(pkg, 'main', 'main');
+			assert.isFile(pkg.main, 'main');
+		});
+		it('component', function () {
+			component = getJSON('./component.json');
+
+			assert.property(component, 'main', 'main');
+			assert.isFile(component.main, 'main');
+
+			component.scripts.forEach(function(name) {
+				assert.isFile(name, 'scripts');
+			});
+		});
+		it('bower', function () {
+			bower = getJSON('./bower.json');
+
+			assert.property(bower, 'main', 'main');
+			assert.isFile(bower.main, 'main');
+
+			// should verify ignore field
+		});
+	});
 }
 else if (typeof window !== 'undefined') {
 	// import for browser, use from IE7/8 global bypass

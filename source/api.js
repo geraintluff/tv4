@@ -216,5 +216,15 @@ function createApi(language) {
 	return api;
 }
 
-global.tv4 = createApi();
-global.tv4.addLanguage('en-gb', ErrorMessagesDefault);
+var tv4 = createApi();
+tv4.addLanguage('en-gb', ErrorMessagesDefault);
+
+//legacy property
+tv4.tv4 = tv4;
+
+if (typeof module !== 'undefined' && module.exports){
+	module.exports = tv4;
+}
+else {
+	global.tv4 = tv4;
+}

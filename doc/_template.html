@@ -18,7 +18,7 @@
         }
 
         #main {
-            width: 680px;
+            width: 780px;
             margin-left: auto;
             margin-right: auto;
             border: 1px solid #888;
@@ -28,7 +28,7 @@
 
         h1 {
             text-align: center;
-            font-size: 1.3em;
+            font-size: 1.4em;
             font-weight: bold;
             border-bottom: 1px solid black;
             margin: 0;
@@ -68,18 +68,46 @@
         }
     </style>
 </head>
-<body>
+<body onload="enableDemos();">
 <script src="tv4.js"></script>
 <script>
-    function runDemo(elementId) {
-        var element = document.getElementById(elementId);
+    function enableDemos() {
+        if (!document.querySelectorAll) {
+            return;
+        }
+        var demos = document.querySelectorAll(".inline-demo");
+        if (!demos || demos.length === 0) {
+            return;
+        }
+        for (var i = 0, ii = demos.length; i < ii; i++) {
+            linkDemo(demos[i]);
+        }
+    }
+    function linkDemo(demo) {
+        var id = demo.dataset['demo'];
+        var a = document.createElement('a');
+        a.appendChild(document.createTextNode('run demo'));
+        a.href = "javascript:runDemo('" + id + "');";
+        demo.insertBefore(a, demo.firstChild);
+    }
+
+    function getDeepNodeValue(element) {
         var text = "";
-        for (var i = 0; i < element.childNodes.length; i++) {
-            if (element.childNodes[i].nodeType == 3) {
-                text += element.childNodes[i].nodeValue;
+        for (var i = 0, ii = element.childNodes.length; i < ii; i++) {
+            var child = element.childNodes[i];
+            if (child.nodeType === 3) {
+                text += child.nodeValue;
+            }
+            else if (child.nodeType === 1){
+                text += getDeepNodeValue(child);
             }
         }
-        eval(text);
+        return text;
+    }
+
+    function runDemo(elementId) {
+        var element = document.getElementById(elementId);
+        eval(getDeepNodeValue(element));
     }
 </script>
 <div id="main">

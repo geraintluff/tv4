@@ -18,7 +18,7 @@
         }
 
         #main {
-            width: 680px;
+            width: 780px;
             margin-left: auto;
             margin-right: auto;
             border: 1px solid #888;
@@ -28,7 +28,7 @@
 
         h1 {
             text-align: center;
-            font-size: 1.3em;
+            font-size: 1.4em;
             font-weight: bold;
             border-bottom: 1px solid black;
             margin: 0;
@@ -68,18 +68,46 @@
         }
     </style>
 </head>
-<body>
+<body onload="enableDemos();">
 <script src="tv4.js"></script>
 <script>
-    function runDemo(elementId) {
-        var element = document.getElementById(elementId);
+    function enableDemos() {
+        if (!document.querySelectorAll) {
+            return;
+        }
+        var demos = document.querySelectorAll(".inline-demo");
+        if (!demos || demos.length === 0) {
+            return;
+        }
+        for (var i = 0, ii = demos.length; i < ii; i++) {
+            linkDemo(demos[i]);
+        }
+    }
+    function linkDemo(demo) {
+        var id = demo.dataset['demo'];
+        var a = document.createElement('a');
+        a.appendChild(document.createTextNode('run demo'));
+        a.href = "javascript:runDemo('" + id + "');";
+        demo.insertBefore(a, demo.firstChild);
+    }
+
+    function getDeepNodeValue(element) {
         var text = "";
-        for (var i = 0; i < element.childNodes.length; i++) {
-            if (element.childNodes[i].nodeType == 3) {
-                text += element.childNodes[i].nodeValue;
+        for (var i = 0, ii = element.childNodes.length; i < ii; i++) {
+            var child = element.childNodes[i];
+            if (child.nodeType === 3) {
+                text += child.nodeValue;
+            }
+            else if (child.nodeType === 1){
+                text += getDeepNodeValue(child);
             }
         }
-        eval(text);
+        return text;
+    }
+
+    function runDemo(elementId) {
+        var element = document.getElementById(elementId);
+        eval(getDeepNodeValue(element));
     }
 </script>
 <div id="main">
@@ -129,16 +157,20 @@
 <p><code>validationFailure</code> is simply taken from <code>tv4.error</code>.</p>
 <h2>Cyclical JavaScript objects</h2>
 <p>While they don&#39;t occur in proper JSON, JavaScript does support self-referencing objects. Any of the above calls support an optional final argument, checkRecursive. If true, tv4 will handle self-referencing objects properly - this slows down validation slightly, but that&#39;s better than a hanging script.</p>
+<p>Consider this data, notice how both <code>a</code> and <code>b</code> refer to each other:</p>
 <pre><code class="lang-javascript">var a = {};
 var b = { a: a };
 a.b = b;
 var aSchema = { properties: { b: { $ref: &#39;bSchema&#39; }}};
 var bSchema = { properties: { a: { $ref: &#39;aSchema&#39; }}};
 tv4.addSchema(&#39;aSchema&#39;, aSchema);
-tv4.addSchema(&#39;bSchema&#39;, bSchema);
-tv4.validate(a, aSchema, true); // If the final checkRecursive argument were missing, this would throw a &quot;too much recursion&quot; error.
-tv4.validate(a, schema, asynchronousFunction, true); // Works with asynchronous validation.
-tv4.validateResult(data, aSchema, true); // Also multi-threaded and multiple error validation.
+tv4.addSchema(&#39;bSchema&#39;, bSchema);</code></pre>
+<p>If the final checkRecursive argument were missing, this would throw a &quot;too much recursion&quot; error. </p>
+<p>To enable supprot for this pass <code>true</code> as additional argument to any of the regular validation methods: </p>
+<pre><code class="lang-javascript">tv4.validate(a, aSchema, true);
+tv4.validate(a, schema, asynchronousFunction, true);
+
+tv4.validateResult(data, aSchema, true); 
 tv4.validateMultiple(data, aSchema, true);</code></pre>
 <h2>API</h2>
 <p>There are additional api commands available for more complex use-cases:</p>
@@ -193,7 +225,7 @@ var arr = tv4.getMissingUris(/^https?://example.com/);</code></pre>
 <h5>language(code)</h5>
 <p>Select the language map used for reporting.</p>
 <ul>
-<li><code>code</code> is a langauge code, like <code>&#39;en&#39;</code> or <code>&#39;en-gb&#39;</code></li>
+<li><code>code</code> is a language code, like <code>&#39;en&#39;</code> or <code>&#39;en-gb&#39;</code></li>
 </ul>
 <pre><code>tv4.language(&#39;en-gb&#39;);</code></pre>
 <h5>addLanguage(code, map)</h5>
@@ -229,8 +261,7 @@ tv4.language(&#39;fr&#39;)</code></pre>
 });</code></pre>
 <h2>Demos</h2>
 <h3>Basic usage</h3>
-<div class="content" markdown="1">
-<a href="javascript:runDemo('demo1');">run demo</a>
+<div class="content inline-demo" markdown="1" data-demo="demo1">
 <pre class="code" id="demo1">
 var schema = {
     &quot;items&quot;: {
@@ -247,8 +278,7 @@ alert(&quot;data 2 error: &quot; + JSON.stringify(tv4.error, null, 4));
 </div>
 
 <h3>Use of <code>$ref</code></h3>
-<div class="content">
-<a href="javascript:runDemo('demo2');">run demo</a>
+<div class="content inline-demo" markdown="1" data-demo="demo2">
 <pre class="code" id="demo2">
 var schema = {
     &quot;type&quot;: &quot;array&quot;,
@@ -263,12 +293,11 @@ alert(&quot;data 2: &quot; + tv4.validate(data2, schema)); // false
 </div>
 
 <h3>Missing schema</h3>
-<div class="content">
-<a href="javascript:runDemo('demo3');">run demo</a>
+<div class="content inline-demo" markdown="1" data-demo="demo3">
 <pre class="code" id="demo3">
 var schema = {
     &quot;type&quot;: &quot;array&quot;,
-    &quot;items&quot;: {&quot;$ref&quot;: &quot;<a href="http://example.com/schema&quot;}">http://example.com/schema&quot;}</a>
+    &quot;items&quot;: {&quot;$ref&quot;: &quot;<a href="http://example.com/schema">http://example.com/schema</a>&quot; }
 };
 var data = [1, 2, 3];
 
@@ -278,8 +307,7 @@ alert(&quot;Missing schemas: &quot; + JSON.stringify(tv4.missing));
 </div>
 
 <h3>Referencing remote schema</h3>
-<div class="content">
-<a href="javascript:runDemo('demo4');">run demo</a>
+<div class="content inline-demo" markdown="1" data-demo="demo4">
 <pre class="code" id="demo4">
 tv4.addSchema(&quot;<a href="http://example.com/schema">http://example.com/schema</a>&quot;, {
     &quot;definitions&quot;: {
@@ -288,7 +316,7 @@ tv4.addSchema(&quot;<a href="http://example.com/schema">http://example.com/schem
 });
 var schema = {
     &quot;type&quot;: &quot;array&quot;,
-    &quot;items&quot;: {&quot;$ref&quot;: &quot;<a href="http://example.com/schema#/definitions/arrayItem&quot;}">http://example.com/schema#/definitions/arrayItem&quot;}</a>
+    &quot;items&quot;: {&quot;$ref&quot;: &quot;<a href="http://example.com/schema#/definitions/arrayItem">http://example.com/schema#/definitions/arrayItem</a>&quot; }
 };
 var data1 = [true, false, true];
 var data2 = [1, 2, 3];
@@ -307,7 +335,7 @@ alert(&quot;data 2: &quot; + tv4.validate(data2, schema)); // false
 <h2>Installation</h2>
 <p>You can manually download <a href="https://raw.github.com/geraintluff/tv4/master/tv4.js"><code>tv4.js</code></a> or the minified <a href="https://raw.github.com/geraintluff/tv4/master/tv4.min.js"><code>tv4.min.js</code></a> and include it in your html to create the global <code>tv4</code> variable.</p>
 <p>Alternately use it as a CommonJS module:</p>
-<pre><code class="lang-js">var tv4 = require(&#39;tv4&#39;).tv4;</code></pre>
+<pre><code class="lang-js">var tv4 = require(&#39;tv4&#39;);</code></pre>
 <h4>npm</h4>
 <pre><code>$ npm install tv4</code></pre>
 <h4>bower</h4>
@@ -328,7 +356,7 @@ alert(&quot;data 2: &quot; + tv4.validate(data2, schema)); // false
 <h2>Packages using tv4</h2>
 <ul>
 <li><a href="http://chaijs.com/plugins/chai-json-schema">chai-json-schema</a> is a <a href="http://chaijs.com">Chai Assertion Library</a> plugin to assert values against json-schema.</li>
-<li><a href="http://www.github.com/Bartvds/grunt-tv4">grunt-tv4</a> is a plugin for <a href="http://http://gruntjs.com/">grunt</a> that uses tv4 to bulk validate json files.</li>
+<li><a href="http://www.github.com/Bartvds/grunt-tv4">grunt-tv4</a> is a plugin for <a href="http://http://gruntjs.com/">Grunt</a> that uses tv4 to bulk validate json files.</li>
 </ul>
 <h2>License</h2>
 <p>The code is available as &quot;public domain&quot;, meaning that it is completely free to use, without any restrictions at all.  Read the full license <a href="http://geraintluff.github.com/tv4/LICENSE.txt">here</a>.</p>

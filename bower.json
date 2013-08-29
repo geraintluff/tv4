@@ -24,6 +24,7 @@
     "*.txt",
     "*.min.js",
     "*.js.map",
+    "*.md",
     "Gruntfile.js",
     "package.json",
     "component.json",
@@ -31,6 +32,9 @@
     "node_modules",
     "test",
     "try",
+    "lang",
+    "build",
+    "dist",
     "doc",
     "source",
     ".*"
