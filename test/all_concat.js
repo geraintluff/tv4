@@ -1338,6 +1338,26 @@ describe("API 01", function () {
 		//this.assert(Array.isArray(result.missing), "result.missing is array");
 		//this.assert(tv4.error == null, "tv4.error == null");
 	});
+
+  it("validate and validateMultiple let you set a schema context", function () {
+    var data = -1;
+    var subSchema = { $ref: '#/definitions/positiveInteger' };
+    var contextSchema = { 
+      "definitions": {
+        "positiveInteger": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    };
+    
+    var valid = tv4.validate(data, subSchema, false, contextSchema);
+    assert.isFalse(valid, "result.valid === false");
+
+    var result = tv4.validateMultiple(data, subSchema, false, contextSchema);
+    assert.isFalse(result.valid, "result.valid === false");
+  });
+
 });
 
 describe("API 02", function () {
