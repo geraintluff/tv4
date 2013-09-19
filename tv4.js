@@ -889,6 +889,7 @@ function getDocumentUri(uri) {
 	return uri.split('#')[0];
 }
 function normSchema(schema, baseUri) {
+    if (schema === undefined || schema === null) { return; }
 	if (baseUri === undefined) {
 		baseUri = schema.id;
 	} else if (typeof schema.id === "string") {

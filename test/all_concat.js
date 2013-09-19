@@ -1102,6 +1102,12 @@ describe("$ref 01", function () {
 		var valid = tv4.validate(data, schema);
 		assert.isFalse(valid);
 	});
+
+	it("Does not crash when normalizing null values", function () {
+		var schema = { "default": null };
+		tv4.normSchema(schema);
+	});
+
 });
 
 describe("$ref 02", function () {
