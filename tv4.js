@@ -1065,12 +1065,12 @@ function createApi(language) {
 			}
 			return result;
 		},
-		validate: function (data, schema, checkRecursive, contextSchema) {
+		validate: function (data, schema, checkRecursive) {
 			var context = new ValidatorContext(globalContext, false, languages[currentLanguage], checkRecursive);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
-			context.addSchema("", contextSchema || schema);
+			context.addSchema("", schema);
 			var error = context.validateAll(data, schema);
 			this.error = error;
 			this.missing = context.missing;
@@ -1082,12 +1082,12 @@ function createApi(language) {
 			this.validate.apply(result, arguments);
 			return result;
 		},
-		validateMultiple: function (data, schema, checkRecursive, contextSchema) {
+		validateMultiple: function (data, schema, checkRecursive) {
 			var context = new ValidatorContext(globalContext, true, languages[currentLanguage], checkRecursive);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
-			context.addSchema("", contextSchema || schema);
+			context.addSchema("", schema);
 			context.validateAll(data, schema);
 			var result = {};
 			result.errors = context.errors;
