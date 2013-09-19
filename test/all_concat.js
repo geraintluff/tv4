@@ -1102,6 +1102,12 @@ describe("$ref 01", function () {
 		var valid = tv4.validate(data, schema);
 		assert.isFalse(valid);
 	});
+
+	it("Does not crash when normalizing null values", function () {
+		var schema = { "default": null };
+		tv4.normSchema(schema);
+	});
+
 });
 
 describe("$ref 02", function () {
@@ -1323,7 +1329,7 @@ describe("API 01", function () {
 
 	it("validateResult returns object with appropriate properties", function () {
 		var data = {};
-		var schema = {"type": "array"};
+		var schema = {"type": "array", default: null };
 		tv4.error = null;
 		tv4.missing = [];
 		var result = tv4.validateResult(data, schema);

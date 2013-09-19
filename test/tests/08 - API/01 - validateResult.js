@@ -2,7 +2,7 @@ describe("API 01", function () {
 
 	it("validateResult returns object with appropriate properties", function () {
 		var data = {};
-		var schema = {"type": "array"};
+		var schema = {"type": "array", default: null };
 		tv4.error = null;
 		tv4.missing = [];
 		var result = tv4.validateResult(data, schema);

@@ -92,6 +92,7 @@ ValidatorContext.prototype.getSchema = function (url) {
 	}
 };
 ValidatorContext.prototype.searchSchemas = function (schema, url) {
+	if (schema === undefined || schema === null) { return; }
 	if (typeof schema.id === "string") {
 		if (isTrustedUrl(url, schema.id)) {
 			if (this.schemas[schema.id] === undefined) {
