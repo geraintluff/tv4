@@ -1,11 +1,11 @@
-ValidatorContext.prototype.validateObject = function validateObject(data, schema) {
+ValidatorContext.prototype.validateObject = function validateObject(data, schema, dataPointerPath) {
 	if (typeof data !== "object" || data === null || Array.isArray(data)) {
 		return null;
 	}
-	return this.validateObjectMinMaxProperties(data, schema)
-		|| this.validateObjectRequiredProperties(data, schema)
-		|| this.validateObjectProperties(data, schema)
-		|| this.validateObjectDependencies(data, schema)
+	return this.validateObjectMinMaxProperties(data, schema, dataPointerPath)
+		|| this.validateObjectRequiredProperties(data, schema, dataPointerPath)
+		|| this.validateObjectProperties(data, schema, dataPointerPath)
+		|| this.validateObjectDependencies(data, schema, dataPointerPath)
 		|| null;
 };
 
@@ -46,13 +46,14 @@ ValidatorContext.prototype.validateObjectRequiredProperties = function validateO
 	return null;
 };
 
-ValidatorContext.prototype.validateObjectProperties = function validateObjectProperties(data, schema) {
+ValidatorContext.prototype.validateObjectProperties = function validateObjectProperties(data, schema, dataPointerPath) {
 	var error;
 	for (var key in data) {
+		var keyPointerPath = dataPointerPath + "/" + key.replace(/~/g, '~0').replace(/\//g, '~1');
 		var foundMatch = false;
 		if (schema.properties !== undefined && schema.properties[key] !== undefined) {
 			foundMatch = true;
-			if (error = this.validateAll(data[key], schema.properties[key], [key], ["properties", key])) {
+			if (error = this.validateAll(data[key], schema.properties[key], [key], ["properties", key], keyPointerPath)) {
 				return error;
 			}
 		}
@@ -61,31 +62,42 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 				var regexp = new RegExp(patternKey);
 				if (regexp.test(key)) {
 					foundMatch = true;
-					if (error = this.validateAll(data[key], schema.patternProperties[patternKey], [key], ["patternProperties", patternKey])) {
+					if (error = this.validateAll(data[key], schema.patternProperties[patternKey], [key], ["patternProperties", patternKey], keyPointerPath)) {
 						return error;
 					}
 				}
 			}
 		}
-		if (!foundMatch && schema.additionalProperties !== undefined) {
-			if (typeof schema.additionalProperties === "boolean") {
-				if (!schema.additionalProperties) {
-					error = this.createError(ErrorCodes.OBJECT_ADDITIONAL_PROPERTIES, {}).prefixWith(key, "additionalProperties");
-					if (this.handleError(error)) {
+		if (!foundMatch) {
+			if (schema.additionalProperties !== undefined) {
+				if (this.trackUnknownProperties) {
+					this.knownPropertyPaths[keyPointerPath] = true;
+					delete this.unknownPropertyPaths[keyPointerPath];
+				}
+				if (typeof schema.additionalProperties === "boolean") {
+					if (!schema.additionalProperties) {
+						error = this.createError(ErrorCodes.OBJECT_ADDITIONAL_PROPERTIES, {}).prefixWith(key, "additionalProperties");
+						if (this.handleError(error)) {
+							return error;
+						}
+					}
+				} else {
+					if (error = this.validateAll(data[key], schema.additionalProperties, [key], ["additionalProperties"], keyPointerPath)) {
 						return error;
 					}
 				}
-			} else {
-				if (error = this.validateAll(data[key], schema.additionalProperties, [key], ["additionalProperties"])) {
-					return error;
-				}
+			} else if (this.trackUnknownProperties && !this.knownPropertyPaths[keyPointerPath]) {
+				this.unknownPropertyPaths[keyPointerPath] = true;
 			}
+		} else if (this.trackUnknownProperties) {
+			this.knownPropertyPaths[keyPointerPath] = true;
+			delete this.unknownPropertyPaths[keyPointerPath];
 		}
 	}
 	return null;
 };
 
-ValidatorContext.prototype.validateObjectDependencies = function validateObjectDependencies(data, schema) {
+ValidatorContext.prototype.validateObjectDependencies = function validateObjectDependencies(data, schema, dataPointerPath) {
 	var error;
 	if (schema.dependencies !== undefined) {
 		for (var depKey in schema.dependencies) {
@@ -109,7 +121,7 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 						}
 					}
 				} else {
-					if (error = this.validateAll(data, dep, [], ["dependencies", depKey])) {
+					if (error = this.validateAll(data, dep, [], ["dependencies", depKey], dataPointerPath)) {
 						return error;
 					}
 				}

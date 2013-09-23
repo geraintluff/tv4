@@ -1,10 +1,10 @@
-ValidatorContext.prototype.validateArray = function validateArray(data, schema) {
+ValidatorContext.prototype.validateArray = function validateArray(data, schema, dataPointerPath) {
 	if (!Array.isArray(data)) {
 		return null;
 	}
-	return this.validateArrayLength(data, schema)
-		|| this.validateArrayUniqueItems(data, schema)
-		|| this.validateArrayItems(data, schema)
+	return this.validateArrayLength(data, schema, dataPointerPath)
+		|| this.validateArrayUniqueItems(data, schema, dataPointerPath)
+		|| this.validateArrayItems(data, schema, dataPointerPath)
 		|| null;
 };
 
@@ -45,7 +45,7 @@ ValidatorContext.prototype.validateArrayUniqueItems = function validateArrayUniq
 	return null;
 };
 
-ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data, schema) {
+ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data, schema, dataPointerPath) {
 	if (schema.items === undefined) {
 		return null;
 	}
@@ -53,7 +53,7 @@ ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data
 	if (Array.isArray(schema.items)) {
 		for (i = 0; i < data.length; i++) {
 			if (i < schema.items.length) {
-				if (error = this.validateAll(data[i], schema.items[i], [i], ["items", i])) {
+				if (error = this.validateAll(data[i], schema.items[i], [i], ["items", i], dataPointerPath + "/" + i)) {
 					return error;
 				}
 			} else if (schema.additionalItems !== undefined) {
@@ -64,14 +64,14 @@ ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data
 							return error;
 						}
 					}
-				} else if (error = this.validateAll(data[i], schema.additionalItems, [i], ["additionalItems"])) {
+				} else if (error = this.validateAll(data[i], schema.additionalItems, [i], ["additionalItems"], dataPointerPath + "/" + i)) {
 					return error;
 				}
 			}
 		}
 	} else {
 		for (i = 0; i < data.length; i++) {
-			if (error = this.validateAll(data[i], schema.items, [i], ["items"])) {
+			if (error = this.validateAll(data[i], schema.items, [i], ["items"], dataPointerPath + "/" + i)) {
 				return error;
 			}
 		}

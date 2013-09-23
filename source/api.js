@@ -27,7 +27,9 @@ var ErrorCodes = {
 	ARRAY_UNIQUE: 402,
 	ARRAY_ADDITIONAL_ITEMS: 403,
 	// Format errors
-	FORMAT_CUSTOM: 500
+	FORMAT_CUSTOM: 500,
+	// Non-standard validation options
+	UNKNOWN_PROPERTY: 1000
 };
 var ErrorMessagesDefault = {
 	INVALID_TYPE: "invalid type: {type} (expected {expected})",
@@ -58,7 +60,8 @@ var ErrorMessagesDefault = {
 	ARRAY_UNIQUE: "Array items are not unique (indices {match1} and {match2})",
 	ARRAY_ADDITIONAL_ITEMS: "Additional items not allowed",
 	// Format errors
-	FORMAT_CUSTOM: "Format validation failed ({message})"
+	FORMAT_CUSTOM: "Format validation failed ({message})",
+	UNKNOWN_PROPERTY: "Unknown property (not in schema)"
 };
 
 function ValidationError(code, message, dataPath, schemaPath, subErrors) {
@@ -74,11 +77,11 @@ function ValidationError(code, message, dataPath, schemaPath, subErrors) {
 ValidationError.prototype = new Error();
 ValidationError.prototype.prefixWith = function (dataPrefix, schemaPrefix) {
 	if (dataPrefix !== null) {
-		dataPrefix = dataPrefix.replace("~", "~0").replace("/", "~1");
+		dataPrefix = dataPrefix.replace(/~/g, "~0").replace(/\//g, "~1");
 		this.dataPath = "/" + dataPrefix + this.dataPath;
 	}
 	if (schemaPrefix !== null) {
-		schemaPrefix = schemaPrefix.replace("~", "~0").replace("/", "~1");
+		schemaPrefix = schemaPrefix.replace(/~/g, "~0").replace(/\//g, "~1");
 		this.schemaPath = "/" + schemaPrefix + this.schemaPath;
 	}
 	if (this.subErrors !== null) {
@@ -151,13 +154,16 @@ function createApi(language) {
 			}
 			return result;
 		},
-		validate: function (data, schema, checkRecursive) {
-			var context = new ValidatorContext(globalContext, false, languages[currentLanguage], checkRecursive);
+		validate: function (data, schema, checkRecursive, banUnknownProperties) {
+			var context = new ValidatorContext(globalContext, false, languages[currentLanguage], checkRecursive, banUnknownProperties);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
 			context.addSchema("", schema);
-			var error = context.validateAll(data, schema);
+			var error = context.validateAll(data, schema, null, null, "");
+			if (!error && banUnknownProperties) {
+				error = context.banUnknownProperties();
+			}
 			this.error = error;
 			this.missing = context.missing;
 			this.valid = (error === null);
@@ -168,13 +174,16 @@ function createApi(language) {
 			this.validate.apply(result, arguments);
 			return result;
 		},
-		validateMultiple: function (data, schema, checkRecursive) {
-			var context = new ValidatorContext(globalContext, true, languages[currentLanguage], checkRecursive);
+		validateMultiple: function (data, schema, checkRecursive, banUnknownProperties) {
+			var context = new ValidatorContext(globalContext, true, languages[currentLanguage], checkRecursive, banUnknownProperties);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
 			context.addSchema("", schema);
-			context.validateAll(data, schema);
+			context.validateAll(data, schema, null, null, "");
+			if (banUnknownProperties) {
+				context.banUnknownProperties();
+			}
 			var result = {};
 			result.errors = context.errors;
 			result.missing = context.missing;

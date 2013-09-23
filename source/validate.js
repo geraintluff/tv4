@@ -1,4 +1,4 @@
-var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages, checkRecursive) {
+var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages, checkRecursive, trackUnknownProperties) {
 	this.missing = [];
 	this.missingMap = {};
 	this.formatValidators = parent ? Object.create(parent.formatValidators) : {};
@@ -12,6 +12,11 @@ var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorM
 		this.scannedFrozen = [];
 		this.scannedFrozenSchemas = [];
 		this.key = 'tv4_validation_id';
+	}
+	if (trackUnknownProperties) {
+		this.trackUnknownProperties = true;
+		this.knownPropertyPaths = {};
+		this.unknownPropertyPaths = {};
 	}
 	this.errorMessages = errorMessages;
 };
@@ -41,6 +46,15 @@ ValidatorContext.prototype.prefixErrors = function (startIndex, dataPath, schema
 		this.errors[i] = this.errors[i].prefixWith(dataPath, schemaPath);
 	}
 	return this;
+};
+ValidatorContext.prototype.banUnknownProperties = function () {
+	for (var unknownPath in this.unknownPropertyPaths) {
+		var error = this.createError(ErrorCodes.UNKNOWN_PROPERTY, {path: unknownPath}, unknownPath, "");
+		var result = this.handleError(error);
+		if (result) {
+			return result;
+		}
+	}
 };
 
 ValidatorContext.prototype.addFormat = function (format, validator) {
@@ -74,7 +88,7 @@ ValidatorContext.prototype.getSchema = function (url) {
 		}
 		var parts = pointerPath.split("/").slice(1);
 		for (var i = 0; i < parts.length; i++) {
-			var component = parts[i].replace("~1", "/").replace("~0", "~");
+			var component = parts[i].replace(/~1/g, "/").replace(/~0/g, "~");
 			if (schema[component] === undefined) {
 				schema = undefined;
 				break;
@@ -173,7 +187,7 @@ ValidatorContext.prototype.reset = function () {
 	this.errors = [];
 };
 
-ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, schemaPathParts) {
+ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, schemaPathParts, dataPointerPath) {
 	var topLevel;
 	if (schema['$ref'] !== undefined) {
 		schema = this.getSchema(schema['$ref']);
@@ -215,13 +229,13 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 	}
 
 	var errorCount = this.errors.length;
-	var error = this.validateBasic(data, schema)
-		|| this.validateNumeric(data, schema)
-		|| this.validateString(data, schema)
-		|| this.validateArray(data, schema)
-		|| this.validateObject(data, schema)
-		|| this.validateCombinations(data, schema)
-		|| this.validateFormat(data, schema)
+	var error = this.validateBasic(data, schema, dataPointerPath)
+		|| this.validateNumeric(data, schema, dataPointerPath)
+		|| this.validateString(data, schema, dataPointerPath)
+		|| this.validateArray(data, schema, dataPointerPath)
+		|| this.validateObject(data, schema, dataPointerPath)
+		|| this.validateCombinations(data, schema, dataPointerPath)
+		|| this.validateFormat(data, schema, dataPointerPath)
 		|| null;
 
 	if (topLevel) {

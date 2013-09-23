@@ -1,6 +1,6 @@
-ValidatorContext.prototype.validateNumeric = function validateNumeric(data, schema) {
-	return this.validateMultipleOf(data, schema)
-		|| this.validateMinMax(data, schema)
+ValidatorContext.prototype.validateNumeric = function validateNumeric(data, schema, dataPointerPath) {
+	return this.validateMultipleOf(data, schema, dataPointerPath)
+		|| this.validateMinMax(data, schema, dataPointerPath)
 		|| null;
 };
 

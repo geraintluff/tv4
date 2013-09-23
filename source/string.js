@@ -1,6 +1,6 @@
-ValidatorContext.prototype.validateString = function validateString(data, schema) {
-	return this.validateStringLength(data, schema)
-		|| this.validateStringPattern(data, schema)
+ValidatorContext.prototype.validateString = function validateString(data, schema, dataPointerPath) {
+	return this.validateStringLength(data, schema, dataPointerPath)
+		|| this.validateStringPattern(data, schema, dataPointerPath)
 		|| null;
 };
 
