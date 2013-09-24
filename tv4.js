@@ -176,6 +176,7 @@ ValidatorContext.prototype.banUnknownProperties = function () {
 			return result;
 		}
 	}
+	return null;
 };
 
 ValidatorContext.prototype.addFormat = function (format, validator) {
