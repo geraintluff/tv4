@@ -188,11 +188,22 @@ ValidatorContext.prototype.addFormat = function (format, validator) {
 	}
 	this.formatValidators[format] = validator;
 };
-ValidatorContext.prototype.getSchema = function (url) {
+ValidatorContext.prototype.resolveRefs = function (schema, urlHistory) {
+	if (schema['$ref'] !== undefined) {
+		urlHistory = urlHistory || {};
+		if (urlHistory[schema['$ref']]) {
+			return this.createError(ErrorCodes.CIRCULAR_REFERENCE, {urls: Object.keys(urlHistory).join(', ')}, '', '');
+		}
+		urlHistory[schema['$ref']] = true;
+		schema = this.getSchema(schema['$ref'], urlHistory);
+	}
+	return schema;
+};
+ValidatorContext.prototype.getSchema = function (url, urlHistory) {
 	var schema;
 	if (this.schemas[url] !== undefined) {
 		schema = this.schemas[url];
-		return schema;
+		return this.resolveRefs(schema, urlHistory);
 	}
 	var baseUrl = url;
 	var fragment = "";
@@ -204,7 +215,7 @@ ValidatorContext.prototype.getSchema = function (url) {
 		schema = this.schemas[baseUrl];
 		var pointerPath = decodeURIComponent(fragment);
 		if (pointerPath === "") {
-			return schema;
+			return this.resolveRefs(schema, urlHistory);
 		} else if (pointerPath.charAt(0) !== "/") {
 			return undefined;
 		}
@@ -218,7 +229,7 @@ ValidatorContext.prototype.getSchema = function (url) {
 			schema = schema[component];
 		}
 		if (schema !== undefined) {
-			return schema;
+			return this.resolveRefs(schema, urlHistory);
 		}
 	}
 	if (this.missing[baseUrl] === undefined) {
@@ -311,11 +322,12 @@ ValidatorContext.prototype.reset = function () {
 
 ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, schemaPathParts, dataPointerPath) {
 	var topLevel;
-	if (schema['$ref'] !== undefined) {
-		schema = this.getSchema(schema['$ref']);
-		if (!schema) {
-			return null;
-		}
+	schema = this.resolveRefs(schema);
+	if (!schema) {
+		return null;
+	} else if (schema instanceof ValidationError) {
+		this.errors.push(schema);
+		return schema;
 	}
 
 	if (this.checkRecursive && (typeof data) === 'object') {
@@ -1037,6 +1049,8 @@ var ErrorCodes = {
 	ARRAY_ADDITIONAL_ITEMS: 403,
 	// Format errors
 	FORMAT_CUSTOM: 500,
+	// Schema structure
+	CIRCULAR_REFERENCE: 500,
 	// Non-standard validation options
 	UNKNOWN_PROPERTY: 1000
 };
@@ -1070,6 +1084,9 @@ var ErrorMessagesDefault = {
 	ARRAY_ADDITIONAL_ITEMS: "Additional items not allowed",
 	// Format errors
 	FORMAT_CUSTOM: "Format validation failed ({message})",
+	// Schema structure
+	CIRCULAR_REFERENCE: "Circular $refs: {urls}",
+	// Non-standard validation options
 	UNKNOWN_PROPERTY: "Unknown property (not in schema)"
 };
 

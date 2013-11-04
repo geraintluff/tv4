@@ -28,6 +28,8 @@ var ErrorCodes = {
 	ARRAY_ADDITIONAL_ITEMS: 403,
 	// Format errors
 	FORMAT_CUSTOM: 500,
+	// Schema structure
+	CIRCULAR_REFERENCE: 500,
 	// Non-standard validation options
 	UNKNOWN_PROPERTY: 1000
 };
@@ -61,6 +63,9 @@ var ErrorMessagesDefault = {
 	ARRAY_ADDITIONAL_ITEMS: "Additional items not allowed",
 	// Format errors
 	FORMAT_CUSTOM: "Format validation failed ({message})",
+	// Schema structure
+	CIRCULAR_REFERENCE: "Circular $refs: {urls}",
+	// Non-standard validation options
 	UNKNOWN_PROPERTY: "Unknown property (not in schema)"
 };
 
