@@ -840,7 +840,6 @@ ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema, 
 						oldUnknownPropertyPaths[unknownKey] = true;
 					}
 				}
-				console.log("Continuing");
 				// We need to continue looping so we catch all the property definitions, but we don't want to return an error
 				errorAtEnd = false;
 				continue;
