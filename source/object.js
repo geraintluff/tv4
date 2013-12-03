@@ -48,7 +48,9 @@ ValidatorContext.prototype.validateObjectRequiredProperties = function validateO
 
 ValidatorContext.prototype.validateObjectProperties = function validateObjectProperties(data, schema, dataPointerPath) {
 	var error;
-	for (var key in data) {
+	var dataKeys = Object.keys(data);
+	for (var i = 0; i < dataKeys.length; i++) {
+		var key = dataKeys[i];
 		var keyPointerPath = dataPointerPath + "/" + key.replace(/~/g, '~0').replace(/\//g, '~1');
 		var foundMatch = false;
 		if (schema.properties !== undefined && schema.properties[key] !== undefined) {
@@ -58,7 +60,9 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 			}
 		}
 		if (schema.patternProperties !== undefined) {
-			for (var patternKey in schema.patternProperties) {
+			var patternKeys = Object.keys(schema.patternProperties);
+			for (var j = 0; j < patternKeys.length; j++) {
+				var patternKey = patternKeys[j];
 				var regexp = new RegExp(patternKey);
 				if (regexp.test(key)) {
 					foundMatch = true;
@@ -100,7 +104,9 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 ValidatorContext.prototype.validateObjectDependencies = function validateObjectDependencies(data, schema, dataPointerPath) {
 	var error;
 	if (schema.dependencies !== undefined) {
-		for (var depKey in schema.dependencies) {
+		var depKeys = Object.keys(schema.dependencies);
+		for (var i = 0; i < depKeys.length; i++) {
+			var depKey = depKeys[i];
 			if (data[depKey] !== undefined) {
 				var dep = schema.dependencies[depKey];
 				if (typeof dep === "string") {
@@ -111,8 +117,8 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 						}
 					}
 				} else if (Array.isArray(dep)) {
-					for (var i = 0; i < dep.length; i++) {
-						var requiredKey = dep[i];
+					for (var j = 0; j < dep.length; j++) {
+						var requiredKey = dep[j];
 						if (data[requiredKey] === undefined) {
 							error = this.createError(ErrorCodes.OBJECT_DEPENDENCY_KEY, {key: depKey, missing: requiredKey}).prefixWith(null, "" + i).prefixWith(null, depKey).prefixWith(null, "dependencies");
 							if (this.handleError(error)) {

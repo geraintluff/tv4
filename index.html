@@ -111,11 +111,11 @@
     }
 </script>
 <div id="main">
-<h1>Tiny Validator (for v4 JSON Schema)</h1>
+<h1 id="tiny-validator-for-v4-json-schema-">Tiny Validator (for v4 JSON Schema)</h1>
 <p><a href="http://travis-ci.org/geraintluff/tv4"><img src="https://secure.travis-ci.org/geraintluff/tv4.png?branch=master" alt="Build Status"></a> <a href="https://gemnasium.com/geraintluff/tv4"><img src="https://gemnasium.com/geraintluff/tv4.png" alt="Dependency Status"></a> <a href="http://badge.fury.io/js/tv4"><img src="https://badge.fury.io/js/tv4.png" alt="NPM version"></a></p>
 <p>Use <a href="http://json-schema.org/">json-schema</a> <a href="http://json-schema.org/latest/json-schema-core.html">draft v4</a> to validate simple values and complex objects using a rich <a href="http://json-schema.org/latest/json-schema-validation.html">validation vocabulary</a> (<a href="http://json-schema.org/examples.html">examples</a>).</p>
 <p>There is support for <code>$ref</code> with JSON Pointer fragment paths (<code>other-schema.json#/properties/myKey</code>).</p>
-<h2>Usage 1: Simple validation</h2>
+<h2 id="usage-1-simple-validation">Usage 1: Simple validation</h2>
 <pre><code class="lang-javascript">var valid = tv4.validate(data, schema);</code></pre>
 <p>If validation returns <code>false</code>, then an explanation of why validation failed can be found in <code>tv4.error</code>.</p>
 <p>The error object will look something like:</p>
@@ -129,7 +129,7 @@
 <p>To enable external schema to be referenced, you use:</p>
 <pre><code class="lang-javascript">tv4.addSchema(url, schema);</code></pre>
 <p>If schemas are referenced (<code>$ref</code>) but not known, then validation will return <code>true</code> and the missing schema(s) will be listed in <code>tv4.missing</code>. For more info see the API documentation below.</p>
-<h2>Usage 2: Multi-threaded validation</h2>
+<h2 id="usage-2-multi-threaded-validation">Usage 2: Multi-threaded validation</h2>
 <p>Storing the error and missing schemas does not work well in multi-threaded environments, so there is an alternative syntax:</p>
 <pre><code class="lang-javascript">var result = tv4.validateResult(data, schema);</code></pre>
 <p>The result will look something like:</p>
@@ -138,7 +138,7 @@
     &quot;error&quot;: {...},
     &quot;missing&quot;: [...]
 }</code></pre>
-<h2>Usage 3: Multiple errors</h2>
+<h2 id="usage-3-multiple-errors">Usage 3: Multiple errors</h2>
 <p>Normally, <code>tv4</code> stops when it encounters the first validation error.  However, you can collect an array of validation errors using:</p>
 <pre><code class="lang-javascript">var result = tv4.validateMultiple(data, schema);</code></pre>
 <p>The result will look something like:</p>
@@ -150,12 +150,12 @@
     ],
     &quot;missing&quot;: [...]
 }</code></pre>
-<h2>Asynchronous validation</h2>
+<h2 id="asynchronous-validation">Asynchronous validation</h2>
 <p>Support for asynchronous validation (where missing schemas are fetched) can be added by including an extra JavaScript file.  Currently, the only version requires jQuery (<code>tv4.async-jquery.js</code>), but the code is very short and should be fairly easy to modify for other libraries (such as MooTools).</p>
 <p>Usage:</p>
 <pre><code class="lang-javascript">tv4.validate(data, schema, function (isValid, validationError) { ... });</code></pre>
 <p><code>validationFailure</code> is simply taken from <code>tv4.error</code>.</p>
-<h2>Cyclical JavaScript objects</h2>
+<h2 id="cyclical-javascript-objects">Cyclical JavaScript objects</h2>
 <p>While they don&#39;t occur in proper JSON, JavaScript does support self-referencing objects. Any of the above calls support an optional final argument, checkRecursive. If true, tv4 will handle self-referencing objects properly - this slows down validation slightly, but that&#39;s better than a hanging script.</p>
 <p>Consider this data, notice how both <code>a</code> and <code>b</code> refer to each other:</p>
 <pre><code class="lang-javascript">var a = {};
@@ -172,9 +172,9 @@ tv4.validate(a, schema, asynchronousFunction, true);
 
 tv4.validateResult(data, aSchema, true); 
 tv4.validateMultiple(data, aSchema, true);</code></pre>
-<h2>API</h2>
+<h2 id="api">API</h2>
 <p>There are additional api commands available for more complex use-cases:</p>
-<h5>addSchema(uri, schema)</h5>
+<h5 id="addschema-uri-schema-">addSchema(uri, schema)</h5>
 <p>Pre-register a schema for reference by other schema and synchronous validation.</p>
 <pre><code class="lang-js">tv4.addSchema(&#39;http://example.com/schema&#39;, { ... });</code></pre>
 <ul>
@@ -183,18 +183,18 @@ tv4.validateMultiple(data, aSchema, true);</code></pre>
 </ul>
 <p>Schemas that have their <code>id</code> property set can be added directly.</p>
 <pre><code class="lang-js">tv4.addSchema({ ... });</code></pre>
-<h5>getSchema(uri)</h5>
+<h5 id="getschema-uri-">getSchema(uri)</h5>
 <p>Return a schema from the cache.</p>
 <ul>
 <li><code>uri</code> the uri of the schema (may contain a <code>#</code> fragment)</li>
 </ul>
 <pre><code class="lang-js">var schema = tv4.getSchema(&#39;http://example.com/schema&#39;);</code></pre>
-<h5>getSchemaMap()</h5>
+<h5 id="getschemamap-">getSchemaMap()</h5>
 <p>Return a shallow copy of the schema cache, mapping schema document URIs to schema objects.</p>
 <pre><code>var map = tv4.getSchemaMap();
 
 var schema = map[uri];</code></pre>
-<h5>getSchemaUris(filter)</h5>
+<h5 id="getschemauris-filter-">getSchemaUris(filter)</h5>
 <p>Return an Array with known schema document URIs.</p>
 <ul>
 <li><code>filter</code> optional RegExp to filter URIs</li>
@@ -203,7 +203,7 @@ var schema = map[uri];</code></pre>
 
 // optional filter using a RegExp
 var arr = tv4.getSchemaUris(/^https?://example.com/);</code></pre>
-<h5>getMissingUris(filter)</h5>
+<h5 id="getmissinguris-filter-">getMissingUris(filter)</h5>
 <p>Return an Array with schema document URIs that are used as <code>$ref</code> in known schemas but which currently have no associated schema data.</p>
 <p>Use this in combination with <code>tv4.addSchema(uri, schema)</code> to preload the cache for complete synchronous validation with.</p>
 <ul>
@@ -213,22 +213,22 @@ var arr = tv4.getSchemaUris(/^https?://example.com/);</code></pre>
 
 // optional filter using a RegExp
 var arr = tv4.getMissingUris(/^https?://example.com/);</code></pre>
-<h5>dropSchemas()</h5>
+<h5 id="dropschemas-">dropSchemas()</h5>
 <p>Drop all known schema document URIs from the cache.</p>
 <pre><code>tv4.dropSchemas();</code></pre>
-<h5>freshApi()</h5>
+<h5 id="freshapi-">freshApi()</h5>
 <p>Return a new tv4 instance with no shared state.</p>
 <pre><code>var otherTV4 = tv4.freshApi();</code></pre>
-<h5>reset()</h5>
+<h5 id="reset-">reset()</h5>
 <p>Manually reset validation status from the simple <code>tv4.validate(data, schema)</code>. Although tv4 will self reset on each validation there are some implementation scenarios where this is useful.</p>
 <pre><code>tv4.reset();</code></pre>
-<h5>language(code)</h5>
+<h5 id="language-code-">language(code)</h5>
 <p>Select the language map used for reporting.</p>
 <ul>
 <li><code>code</code> is a language code, like <code>&#39;en&#39;</code> or <code>&#39;en-gb&#39;</code></li>
 </ul>
 <pre><code>tv4.language(&#39;en-gb&#39;);</code></pre>
-<h5>addLanguage(code, map)</h5>
+<h5 id="addlanguage-code-map-">addLanguage(code, map)</h5>
 <p>Add a new language map for selection by <code>tv4.language(code)</code></p>
 <ul>
 <li><code>code</code> is new language code</li>
@@ -238,8 +238,8 @@ var arr = tv4.getMissingUris(/^https?://example.com/);</code></pre>
 
 // select for use
 tv4.language(&#39;fr&#39;)</code></pre>
-<h5>addFormat(format, validationFunction)</h5>
-<p>Add a custom format validator.</p>
+<h5 id="addformat-format-validationfunction-">addFormat(format, validationFunction)</h5>
+<p>Add a custom format validator. (There are no built-in format validators.)</p>
 <ul>
 <li><code>format</code> is a string, corresponding to the <code>&quot;format&quot;</code> value in schemas.</li>
 <li><code>validationFunction</code> is a function that either returns:<ul>
@@ -259,8 +259,8 @@ tv4.language(&#39;fr&#39;)</code></pre>
     &#39;my-format&#39;: function () {...},
     &#39;other-format&#39;: function () {...}
 });</code></pre>
-<h2>Demos</h2>
-<h3>Basic usage</h3>
+<h2 id="demos">Demos</h2>
+<h3 id="basic-usage">Basic usage</h3>
 <div class="content inline-demo" markdown="1" data-demo="demo1">
 <pre class="code" id="demo1">
 var schema = {
@@ -277,7 +277,7 @@ alert(&quot;data 2 error: &quot; + JSON.stringify(tv4.error, null, 4));
 </pre>
 </div>
 
-<h3>Use of <code>$ref</code></h3>
+<h3 id="use-of-code-ref-code-">Use of <code>$ref</code></h3>
 <div class="content inline-demo" markdown="1" data-demo="demo2">
 <pre class="code" id="demo2">
 var schema = {
@@ -292,7 +292,7 @@ alert(&quot;data 2: &quot; + tv4.validate(data2, schema)); // false
 </pre>
 </div>
 
-<h3>Missing schema</h3>
+<h3 id="missing-schema">Missing schema</h3>
 <div class="content inline-demo" markdown="1" data-demo="demo3">
 <pre class="code" id="demo3">
 var schema = {
@@ -306,7 +306,7 @@ alert(&quot;Missing schemas: &quot; + JSON.stringify(tv4.missing));
 </pre>
 </div>
 
-<h3>Referencing remote schema</h3>
+<h3 id="referencing-remote-schema">Referencing remote schema</h3>
 <div class="content inline-demo" markdown="1" data-demo="demo4">
 <pre class="code" id="demo4">
 tv4.addSchema(&quot;<a href="http://example.com/schema">http://example.com/schema</a>&quot;, {
@@ -326,23 +326,23 @@ alert(&quot;data 2: &quot; + tv4.validate(data2, schema)); // false
 </pre>
 </div>
 
-<h2>Supported platforms</h2>
+<h2 id="supported-platforms">Supported platforms</h2>
 <ul>
 <li>Node.js</li>
 <li>All modern browsers</li>
 <li>IE &gt;= 7</li>
 </ul>
-<h2>Installation</h2>
+<h2 id="installation">Installation</h2>
 <p>You can manually download <a href="https://raw.github.com/geraintluff/tv4/master/tv4.js"><code>tv4.js</code></a> or the minified <a href="https://raw.github.com/geraintluff/tv4/master/tv4.min.js"><code>tv4.min.js</code></a> and include it in your html to create the global <code>tv4</code> variable.</p>
 <p>Alternately use it as a CommonJS module:</p>
 <pre><code class="lang-js">var tv4 = require(&#39;tv4&#39;);</code></pre>
-<h4>npm</h4>
+<h4 id="npm">npm</h4>
 <pre><code>$ npm install tv4</code></pre>
-<h4>bower</h4>
+<h4 id="bower">bower</h4>
 <pre><code>$ bower install tv4</code></pre>
-<h4>component.io</h4>
+<h4 id="component-io">component.io</h4>
 <pre><code>$ component install geraintluff/tv4</code></pre>
-<h2>Build and test</h2>
+<h2 id="build-and-test">Build and test</h2>
 <p>You can rebuild and run the node and browser tests using node.js and <a href="http://http://gruntjs.com/">grunt</a>:</p>
 <p>Make sure you have the global grunt cli command:</p>
 <pre><code>$ npm install grunt-cli -g</code></pre>
@@ -351,14 +351,14 @@ alert(&quot;data 2: &quot; + tv4.validate(data2, schema)); // false
 <p>Rebuild and run the tests:</p>
 <pre><code>$ grunt</code></pre>
 <p>It will run a build and display one Spec-style report for the node.js and two Dot-style reports for both the plain and minified browser tests (via phantomJS). You can also use your own browser to manually run the suites by opening <a href="http://geraintluff.github.io/tv4/test/index.html"><code>test/index.html</code></a> and <a href="http://geraintluff.github.io/tv4/test/index-min.html"><code>test/index-min.html</code></a>.</p>
-<h2>Contributing</h2>
+<h2 id="contributing">Contributing</h2>
 <p>Pull-requests for fixes and expansions are welcome. Edit the partial files in <code>/source</code> and add your tests in a suitable suite or folder under <code>/test/tests</code> and run <code>grunt</code> to rebuild and run the test suite. Try to maintain an idiomatic coding style and add tests for any new features. It is recommend to discuss big changes in an Issue.</p>
-<h2>Packages using tv4</h2>
+<h2 id="packages-using-tv4">Packages using tv4</h2>
 <ul>
 <li><a href="http://chaijs.com/plugins/chai-json-schema">chai-json-schema</a> is a <a href="http://chaijs.com">Chai Assertion Library</a> plugin to assert values against json-schema.</li>
 <li><a href="http://www.github.com/Bartvds/grunt-tv4">grunt-tv4</a> is a plugin for <a href="http://http://gruntjs.com/">Grunt</a> that uses tv4 to bulk validate json files.</li>
 </ul>
-<h2>License</h2>
+<h2 id="license">License</h2>
 <p>The code is available as &quot;public domain&quot;, meaning that it is completely free to use, without any restrictions at all.  Read the full license <a href="http://geraintluff.github.com/tv4/LICENSE.txt">here</a>.</p>
 <p>It&#39;s also available under an <a href="http://jsonary.com/LICENSE.txt">MIT license</a>.</p>
 

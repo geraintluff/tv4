@@ -46,11 +46,15 @@ ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema, 
 			this.errors = this.errors.slice(0, startErrorCount);
 
 			if (this.trackUnknownProperties) {
-				for (var knownKey in this.knownPropertyPaths) {
+				var knownKeys = Object.keys(this.knownPropertyPaths);
+				for (var j = 0; j < knownKeys.length; j++) {
+					var knownKey = knownKeys[j];
 					oldKnownPropertyPaths[knownKey] = true;
 					delete oldUnknownPropertyPaths[knownKey];
 				}
-				for (var unknownKey in this.unknownPropertyPaths) {
+				var unknownKeys = Object.keys(this.unknownPropertyPaths);
+				for (j = 0; j < unknownKeys.length; j++) {
+					var unknownKey = unknownKeys[j];
 					if (!oldKnownPropertyPaths[unknownKey]) {
 						oldUnknownPropertyPaths[unknownKey] = true;
 					}
@@ -107,11 +111,15 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema, 
 				return this.createError(ErrorCodes.ONE_OF_MULTIPLE, {index1: validIndex, index2: i}, "", "/oneOf");
 			}
 			if (this.trackUnknownProperties) {
-				for (var knownKey in this.knownPropertyPaths) {
+				var knownKeys = Object.keys(this.knownPropertyPaths);
+				for (var j = 0; j < knownKeys.length; j++) {
+					var knownKey = knownKeys[j];
 					oldKnownPropertyPaths[knownKey] = true;
 					delete oldUnknownPropertyPaths[knownKey];
 				}
-				for (var unknownKey in this.unknownPropertyPaths) {
+				var unknownKeys = Object.keys(this.unknownPropertyPaths);
+				for (j = 0; j < unknownKeys.length; j++) {
+					var unknownKey = unknownKeys[j];
 					if (!oldKnownPropertyPaths[unknownKey]) {
 						oldUnknownPropertyPaths[unknownKey] = true;
 					}
