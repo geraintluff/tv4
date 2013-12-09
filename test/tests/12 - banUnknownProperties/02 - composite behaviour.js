@@ -1,4 +1,4 @@
-describe("Registering custom validator", function () {
+describe("Ban unknown properties 02", function () {
 	it("Do not track property definitions from \"not\"", function () {
 		var schema = {
 			"not": {
