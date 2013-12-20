@@ -155,8 +155,17 @@
 <p>Usage:</p>
 <pre><code class="lang-javascript">tv4.validate(data, schema, function (isValid, validationError) { ... });</code></pre>
 <p><code>validationFailure</code> is simply taken from <code>tv4.error</code>.</p>
-<h2 id="cyclical-javascript-objects">Cyclical JavaScript objects</h2>
-<p>While they don&#39;t occur in proper JSON, JavaScript does support self-referencing objects. Any of the above calls support an optional final argument, checkRecursive. If true, tv4 will handle self-referencing objects properly - this slows down validation slightly, but that&#39;s better than a hanging script.</p>
+<h2 id="options">Options</h2>
+<p>You can use several options to change tv4&#39;s behavior when validating objects. Pass in an object to set these options for any of the regular validation methods:</p>
+<pre><code class="lang-javascript">tv4.validate(data, schema, {checkRecursive: true});
+var result = tv4.validateResult(data, schema, {checkRecursive: true});
+var multiple = tv4.validateMultiple(data, schema, {checkRecursive: true});</code></pre>
+<p>For backwards compatibility, you can also pass in two booleans to set the <code>checkRecursive</code> and <code>banUnknownProperties</code> options; this method signature is deprecated:</p>
+<pre><code class="lang-javascript">// Set checkRecursive to false (the default) and banUnknownProperties to true
+tv4.validate(data, schema, false, true);</code></pre>
+<p>The following sections describe the validation options.</p>
+<h3 id="cyclical-javascript-objects">Cyclical JavaScript objects</h3>
+<p>While they don&#39;t occur in proper JSON, JavaScript does support self-referencing objects. Any of the above calls support a checkRecursive option. If true, tv4 will handle self-referencing objects properly - this slows down validation slightly, but that&#39;s better than a hanging script.</p>
 <p>Consider this data, notice how both <code>a</code> and <code>b</code> refer to each other:</p>
 <pre><code class="lang-javascript">var a = {};
 var b = { a: a };
@@ -165,13 +174,37 @@ var aSchema = { properties: { b: { $ref: &#39;bSchema&#39; }}};
 var bSchema = { properties: { a: { $ref: &#39;aSchema&#39; }}};
 tv4.addSchema(&#39;aSchema&#39;, aSchema);
 tv4.addSchema(&#39;bSchema&#39;, bSchema);</code></pre>
-<p>If the final checkRecursive argument were missing, this would throw a &quot;too much recursion&quot; error. </p>
-<p>To enable supprot for this pass <code>true</code> as additional argument to any of the regular validation methods: </p>
-<pre><code class="lang-javascript">tv4.validate(a, aSchema, true);
-tv4.validate(a, schema, asynchronousFunction, true);
+<p>By default, this causes the validation methods to throw a &quot;too much recursion&quot; error.</p>
+<p>To enable support for self-referencing objects, set the checkRecursive option to <code>true</code>:</p>
+<pre><code class="lang-javascript">tv4.validate(a, aSchema, {checkRecursive: true});
+tv4.validate(a, schema, asynchronousFunction, {checkRecursive: true});
 
-tv4.validateResult(data, aSchema, true); 
-tv4.validateMultiple(data, aSchema, true);</code></pre>
+tv4.validateResult(a, aSchema, {checkRecursive: true});
+tv4.validateMultiple(a, aSchema, {checkRecursive: true});</code></pre>
+<h3 id="properties-not-defined-in-the-schema">Properties not defined in the schema</h3>
+<p>An object&#39;s schema may include an additionalProperties setting. When additionalProperties is set to <code>false</code>, objects will fail validation if they include properties that are not defined in the schema.</p>
+<p>You can enforce this behavior for all object schema by setting tv4&#39;s banUnknownProperties option to <code>true</code>:</p>
+<pre><code class="lang-javascript">tv4.validate(data, schema, {banUnknownProperties: true});
+tv4.validate(data, schema, asynchronousFunction, {banUnknownProperties: true});
+
+tv4.validateResult(data, schema, {banUnknownProperties: true});
+tv4.validateMultiple(data, schema, {banUnknownProperties: true});</code></pre>
+<h3 id="inherited-properties">Inherited properties</h3>
+<p>By default, tv4 does not validate an object&#39;s inherited properties, which are ignored when you convert an object to JSON. This behavior differs from tv4 1.0.11 and earlier, which always validated inherited properties.</p>
+<p>To validate inherited properties, set tv4&#39;s checkInheritedProperties option to <code>true</code>:</p>
+<pre><code class="lang-javascript">tv4.validate(data, schema, {checkInheritedProperties: true});
+tv4.validate(data, schema, asynchronousFunction, {checkInheritedProperties: true});
+
+tv4.validateResult(data, schema, {checkInheritedProperties: true});
+tv4.validateMultiple(data, schema, {checkInheritedProperties: true});</code></pre>
+<h3 id="non-enumerable-properties">Non-enumerable properties</h3>
+<p>By default, tv4 does not validate an object&#39;s own non-enumerable properties, which are ignored when you convert an object to JSON. This behavior differs from tv4 1.0.11 and earlier, which always validated an object&#39;s own non-enumerable properties.</p>
+<p>To validate an object&#39;s own non-enumerable properties, set tv4&#39;s checkNonEnumerableProperties option to <code>true</code>:</p>
+<pre><code class="lang-javascript">tv4.validate(data, schema, {checkNonEnumerableProperties: true});
+tv4.validate(data, schema, asynchronousFunction, {checkNonEnumerableProperties: true});
+
+tv4.validateResult(data, schema, {checkNonEnumerableProperties: true});
+tv4.validateMultiple(data, schema, {checkNonEnumerableProperties: true});</code></pre>
 <h2 id="api">API</h2>
 <p>There are additional api commands available for more complex use-cases:</p>
 <h5 id="addschema-uri-schema-">addSchema(uri, schema)</h5>
