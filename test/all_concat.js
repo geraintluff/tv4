@@ -839,6 +839,42 @@ describe("Objects 05", function () {
 		var valid = tv4.validate(data, schema);
 		assert.isFalse(valid);
 	});
+
+	it("additionalProperties inherited property success", function () {
+		function DataMaker(o) {
+			var self = this;
+			Object.keys(o).forEach(function(key) {
+				self[key] = o[key];
+			});
+		}
+		DataMaker.prototype.extraMethod = function() {};
+		var schema = {
+			properties: {
+				foo: {"type": "boolean"}
+			},
+			additionalProperties: false
+		};
+		var data = new DataMaker({foo: true});
+		tv4.normSchema(schema);
+		var valid = tv4.validate(data, schema);
+		assert.isTrue(valid);
+	});
+
+	it("additionalProperties non-enumerable property success", function () {
+		var schema = {
+			properties: {
+				foo: {"type": "boolean"}
+			},
+			additionalProperties: false
+		};
+		var data = {};
+		Object.defineProperty(data, 'hidden', {
+			value: 0
+		});
+		tv4.normSchema(schema);
+		var valid = tv4.validate(data, schema);
+		assert.isTrue(valid);
+	});
 });
 describe("Objects 06", function () {
 
@@ -915,6 +951,56 @@ describe("Objects 06", function () {
 		var valid = tv4.validate(data, schema);
 		assert.isFalse(valid);
 	});
+});
+
+describe("Objects 07", function () {
+
+	// used by multiple tests
+	function DataObject() {}
+	DataObject.prototype.getData = function() {};
+	var data = new DataObject();
+	data.stringKey = "string value";
+	var schema = {
+		properties: {
+			"stringKey": {"type": "string"}
+		},
+		additionalProperties: false
+	};
+
+	it("inherited properties are ignored by default", function () {
+		var valid = tv4.validateResult(data, schema).valid;
+		assert.isTrue(valid);
+	});
+
+	it("inherited properties are validated when checkInheritedProperties is true", function () {
+		var valid = tv4.validateResult(data, schema, {checkInheritedProperties: true}).valid;
+		assert.isFalse(valid);
+	});
+
+});
+
+describe("Objects 08", function () {
+
+	// used by multiple tests
+	var data = {"stringKey": "string value"};
+	Object.defineProperty(data, "extraKey", {value: "extra value"});
+	var schema = {
+		properties: {
+			"stringKey": {"type": "string"}
+		},
+		additionalProperties: false
+	};
+
+	it("non-enumerable properties are ignored by default", function () {
+		var valid = tv4.validateResult(data, schema).valid;
+		assert.isTrue(valid);
+	});
+
+	it("non-enumerable properties are validated when checkNonEnumerableProperties is true", function () {
+		var valid = tv4.validateResult(data, schema, {checkNonEnumerableProperties: true}).valid;
+		assert.isFalse(valid);
+	});
+
 });
 
 describe("Combinators 01", function () {
@@ -1513,6 +1599,56 @@ describe("API 03", function () {
 	});
 });
 
+describe("API 04", function () {
+
+	// used in multiple tests
+	var a = {};
+	var b = { a: a };
+	a.b = b;
+	var aSchema = { properties: { b: { $ref: 'bSchema' }}};
+	/*jshint unused:false */
+	var bSchema = { properties: { a: { $ref: 'aSchema' }}};
+	var data = {"a": a, "beta": true};
+	var options = {
+		checkRecursive: true,
+		banUnknownProperties: true
+	};
+
+	it("validate works correctly with an options object", function () {
+		var isValid = tv4.validate(data, aSchema, options);
+		assert.isFalse(isValid);
+	});
+
+	it("validate works correctly with checkRecursive and banUnknownProperties parameters", function () {
+		var isValid = tv4.validate(data, aSchema, true, true);
+		assert.isFalse(isValid);
+	});
+
+	it("validateResult works correctly with an options object", function () {
+		var result = tv4.validateResult(data, aSchema, options);
+		assert.isObject(result.error);
+		assert.strictEqual(result.error.code, 1000);
+	});
+
+	it("validateResult works correctly with checkRecursive and banUnknownProperties parameters", function () {
+		var result = tv4.validateResult(data, aSchema, true, true);
+		assert.isObject(result.error);
+		assert.strictEqual(result.error.code, 1000);
+	});
+
+	it("validateMultiple works correctly with an options object", function () {
+		var result = tv4.validateMultiple(data, aSchema, options);
+		assert.isArray(result.errors);
+		assert.length(result.errors, 2);
+	});
+
+	it("validateMultiple works correctly with checkRecursive and banUnknownProperties parameters", function () {
+		var result = tv4.validateMultiple(data, aSchema, true, true);
+		assert.isArray(result.errors);
+		assert.length(result.errors, 2);
+	});
+});
+
 describe("Multiple errors 01", function () {
 
 	it("validateMultiple returns array of errors", function () {
@@ -1823,11 +1959,9 @@ describe("Registering custom validator", function () {
 		};
 		
 		var result = tv4.validateMultiple(data, schema, false, true);
-		console.log(result);
 		assert.isTrue(result.valid, "Must be valid");
 
 		var result2 = tv4.validateMultiple(data2, schema, false, true);
-		console.log(result2);
 		assert.isTrue(result2.valid, "Must still validate");
 	});
 });

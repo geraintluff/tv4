@@ -6,14 +6,17 @@ function normSchema(schema, baseUri) {
 		schema.id = baseUri;
 	}
 	if (typeof schema === "object") {
+		var i;
 		if (Array.isArray(schema)) {
-			for (var i = 0; i < schema.length; i++) {
+			for (i = 0; i < schema.length; i++) {
 				normSchema(schema[i], baseUri);
 			}
 		} else if (typeof schema['$ref'] === "string") {
 			schema['$ref'] = resolveUrl(baseUri, schema['$ref']);
 		} else {
-			for (var key in schema) {
+			var schemaKeys = Object.keys(schema);
+			for (i = 0; i < schemaKeys.length; i++) {
+				var key = schemaKeys[i];
 				if (key !== "enum") {
 					normSchema(schema[key], baseUri);
 				}

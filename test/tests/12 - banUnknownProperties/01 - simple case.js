@@ -60,11 +60,9 @@ describe("Registering custom validator", function () {
 		};
 		
 		var result = tv4.validateMultiple(data, schema, false, true);
-		console.log(result);
 		assert.isTrue(result.valid, "Must be valid");
 
 		var result2 = tv4.validateMultiple(data2, schema, false, true);
-		console.log(result2);
 		assert.isTrue(result2.valid, "Must still validate");
 	});
 });

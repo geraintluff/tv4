@@ -109,6 +109,18 @@ function isTrustedUrl(baseUrl, testUrl) {
 	return false;
 }
 
+function makeOptionsObject(opts) {
+	var options = {};
+	// old method signatures accepted checkRecursive and banUnknownProperties
+	if (opts[0] !== undefined) {
+		options.checkRecursive = opts[0];
+	}
+	if (opts[1] !== undefined) {
+		options.banUnknownProperties = opts[1];
+	}
+	return options;
+}
+
 var languages = {};
 function createApi(language) {
 	var globalContext = new ValidatorContext();
@@ -159,14 +171,17 @@ function createApi(language) {
 			}
 			return result;
 		},
-		validate: function (data, schema, checkRecursive, banUnknownProperties) {
-			var context = new ValidatorContext(globalContext, false, languages[currentLanguage], checkRecursive, banUnknownProperties);
+		validate: function (data, schema, options) {
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
+			if (typeof options !== "object" || options === null) {
+				options = makeOptionsObject(Array.prototype.slice.call(arguments, 2));
+			}
+			var context = new ValidatorContext(globalContext, false, languages[currentLanguage], options);
 			context.addSchema("", schema);
 			var error = context.validateAll(data, schema, null, null, "");
-			if (!error && banUnknownProperties) {
+			if (!error && options.banUnknownProperties) {
 				error = context.banUnknownProperties();
 			}
 			this.error = error;
@@ -179,14 +194,17 @@ function createApi(language) {
 			this.validate.apply(result, arguments);
 			return result;
 		},
-		validateMultiple: function (data, schema, checkRecursive, banUnknownProperties) {
-			var context = new ValidatorContext(globalContext, true, languages[currentLanguage], checkRecursive, banUnknownProperties);
+		validateMultiple: function (data, schema, options) {
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
+			if (typeof options !== "object" || options === null) {
+				options = makeOptionsObject(Array.prototype.slice.call(arguments, 2));
+			}
+			var context = new ValidatorContext(globalContext, true, languages[currentLanguage], options);
 			context.addSchema("", schema);
 			context.validateAll(data, schema, null, null, "");
-			if (banUnknownProperties) {
+			if (options.banUnknownProperties) {
 				context.banUnknownProperties();
 			}
 			var result = {};
