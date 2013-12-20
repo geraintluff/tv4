@@ -953,6 +953,56 @@ describe("Objects 06", function () {
 	});
 });
 
+describe("Objects 07", function () {
+
+	// used by multiple tests
+	function DataObject() {}
+	DataObject.prototype.getData = function() {};
+	var data = new DataObject();
+	data.stringKey = "string value";
+	var schema = {
+		properties: {
+			"stringKey": {"type": "string"}
+		},
+		additionalProperties: false
+	};
+
+	it("inherited properties are ignored by default", function () {
+		var valid = tv4.validateResult(data, schema).valid;
+		assert.isTrue(valid);
+	});
+
+	it("inherited properties are validated when checkInheritedProperties is true", function () {
+		var valid = tv4.validateResult(data, schema, {checkInheritedProperties: true}).valid;
+		assert.isFalse(valid);
+	});
+
+});
+
+describe("Objects 08", function () {
+
+	// used by multiple tests
+	var data = {"stringKey": "string value"};
+	Object.defineProperty(data, "extraKey", {value: "extra value"});
+	var schema = {
+		properties: {
+			"stringKey": {"type": "string"}
+		},
+		additionalProperties: false
+	};
+
+	it("non-enumerable properties are ignored by default", function () {
+		var valid = tv4.validateResult(data, schema).valid;
+		assert.isTrue(valid);
+	});
+
+	it("non-enumerable properties are validated when checkNonEnumerableProperties is true", function () {
+		var valid = tv4.validateResult(data, schema, {checkNonEnumerableProperties: true}).valid;
+		assert.isFalse(valid);
+	});
+
+});
+
 describe("Combinators 01", function () {
 
 	it("allOf success", function () {

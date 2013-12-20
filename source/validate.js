@@ -19,6 +19,12 @@ var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorM
 		this.knownPropertyPaths = {};
 		this.unknownPropertyPaths = {};
 	}
+	if (options.checkInheritedProperties) {
+		this.checkInheritedProperties = true;
+	}
+	if (options.checkNonEnumerableProperties) {
+		this.checkNonEnumerableProperties = true;
+	}
 	this.errorMessages = errorMessages;
 };
 ValidatorContext.prototype.createError = function (code, messageParams, dataPath, schemaPath, subErrors) {
