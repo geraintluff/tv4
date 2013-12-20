@@ -1,4 +1,4 @@
-var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages, checkRecursive, trackUnknownProperties) {
+var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages, options) {
 	this.missing = [];
 	this.missingMap = {};
 	this.formatValidators = parent ? Object.create(parent.formatValidators) : {};
@@ -6,14 +6,15 @@ var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorM
 	this.collectMultiple = collectMultiple;
 	this.errors = [];
 	this.handleError = collectMultiple ? this.collectError : this.returnError;
-	if (checkRecursive) {
+	options = options || {};
+	if (options.checkRecursive) {
 		this.checkRecursive = true;
 		this.scanned = [];
 		this.scannedFrozen = [];
 		this.scannedFrozenSchemas = [];
 		this.key = 'tv4_validation_id';
 	}
-	if (trackUnknownProperties) {
+	if (options.banUnknownProperties) {
 		this.trackUnknownProperties = true;
 		this.knownPropertyPaths = {};
 		this.unknownPropertyPaths = {};
@@ -48,13 +49,15 @@ ValidatorContext.prototype.prefixErrors = function (startIndex, dataPath, schema
 	return this;
 };
 ValidatorContext.prototype.banUnknownProperties = function () {
-	var unknownPaths = Object.keys(this.unknownPropertyPaths);
-	for (var i = 0; i < unknownPaths.length; i++) {
-		var unknownPath = unknownPaths[i];
-		var error = this.createError(ErrorCodes.UNKNOWN_PROPERTY, {path: unknownPath}, unknownPath, "");
-		var result = this.handleError(error);
-		if (result) {
-			return result;
+	if (this.trackUnknownProperties) {
+		var unknownPaths = Object.keys(this.unknownPropertyPaths);
+		for (var i = 0; i < unknownPaths.length; i++) {
+			var unknownPath = unknownPaths[i];
+			var error = this.createError(ErrorCodes.UNKNOWN_PROPERTY, {path: unknownPath}, unknownPath, "");
+			var result = this.handleError(error);
+			if (result) {
+				return result;
+			}
 		}
 	}
 	return null;
