@@ -132,7 +132,7 @@ var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorM
 		this.scanned = [];
 		this.scannedFrozen = [];
 		this.scannedFrozenSchemas = [];
-		this.key = 'tv4_validation_id';
+		this.validatedSchemasKey = 'tv4_validation_id';
 	}
 	if (trackUnknownProperties) {
 		this.trackUnknownProperties = true;
@@ -332,7 +332,7 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 
 	if (this.checkRecursive && (typeof data) === 'object') {
 		topLevel = !this.scanned.length;
-		if (data[this.key] && data[this.key].indexOf(schema) !== -1) { return null; }
+		if (data[this.validatedSchemasKey] && data[this.validatedSchemasKey].indexOf(schema) !== -1) { return null; }
 		var frozenIndex;
 		if (Object.isFrozen(data)) {
 			frozenIndex = this.scannedFrozen.indexOf(data);
@@ -347,18 +347,18 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 			}
 			this.scannedFrozenSchemas[frozenIndex].push(schema);
 		} else {
-			if (!data[this.key]) {
+			if (!data[this.validatedSchemasKey]) {
 				try {
-					Object.defineProperty(data, this.key, {
+					Object.defineProperty(data, this.validatedSchemasKey, {
 						value: [],
 						configurable: true
 					});
 				} catch (e) {
 					//IE 7/8 workaround
-					data[this.key] = [];
+					data[this.validatedSchemasKey] = [];
 				}
 			}
-			data[this.key].push(schema);
+			data[this.validatedSchemasKey].push(schema);
 		}
 	}
 
@@ -375,7 +375,7 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 	if (topLevel) {
 		while (this.scanned.length) {
 			var item = this.scanned.pop();
-			delete item[this.key];
+			delete item[this.validatedSchemasKey];
 		}
 		this.scannedFrozen = [];
 		this.scannedFrozenSchemas = [];
