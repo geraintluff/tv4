@@ -89,4 +89,32 @@ describe("Issue 86", function () {
 		assert.isTrue(simpleResult, 'validate() should return valid');
 		assert.isTrue(multipleResult.valid, 'validateMultiple() should return valid');
 	});
+
+	it("Second example", function () {
+		var schema = {
+			"allOf": [
+				{
+					"oneOf": [
+						{"$ref": "#/definitions/option1"},
+						{"$ref": "#/definitions/option2"},
+					]
+				},
+				{
+					"not": {"$ref": "#/definitions/option2"}
+				}
+			],
+			"definitions": {
+				"option1": {
+					"allOf": [{"type": "string"}]
+				},
+				"option2": {
+					"allOf": [{"type": "number"}]
+				}
+			}
+		};
+		
+		var simpleResult = tv4.validate("test", schema, true);
+		
+		assert.isTrue(simpleResult, "validate() should return valid");
+	});
 });
