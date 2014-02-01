@@ -132,7 +132,9 @@ var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorM
 		this.scanned = [];
 		this.scannedFrozen = [];
 		this.scannedFrozenSchemas = [];
+		this.scannedFrozenValidationErrors = [];
 		this.validatedSchemasKey = 'tv4_validation_id';
+		this.validationErrorsKey = 'tv4_validation_errors_id';
 	}
 	if (trackUnknownProperties) {
 		this.trackUnknownProperties = true;
@@ -330,13 +332,26 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 		return schema;
 	}
 
+	var startErrorCount = this.errors.length;
+	var frozenIndex, scannedFrozenSchemaIndex = null, scannedSchemasIndex = null;
 	if (this.checkRecursive && (typeof data) === 'object') {
 		topLevel = !this.scanned.length;
-		if (data[this.validatedSchemasKey] && data[this.validatedSchemasKey].indexOf(schema) !== -1) { return null; }
-		var frozenIndex;
+		if (data[this.validatedSchemasKey]) {
+			var schemaIndex = data[this.validatedSchemasKey].indexOf(schema);
+			if (schemaIndex !== -1) {
+				this.errors = this.errors.concat(data[this.validationErrorsKey][schemaIndex]);
+				return null;
+			}
+		}
 		if (Object.isFrozen(data)) {
 			frozenIndex = this.scannedFrozen.indexOf(data);
-			if (frozenIndex !== -1 && this.scannedFrozenSchemas[frozenIndex].indexOf(schema) !== -1) { return null; }
+			if (frozenIndex !== -1) {
+				var frozenSchemaIndex = this.scannedFrozenSchemas[frozenIndex].indexOf(schema);
+				if (frozenSchemaIndex !== -1) {
+					this.errors = this.errors.concat(this.scannedFrozenValidationErrors[frozenIndex][frozenSchemaIndex]);
+					return null;
+				}
+			}
 		}
 		this.scanned.push(data);
 		if (Object.isFrozen(data)) {
@@ -345,7 +360,9 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 				this.scannedFrozen.push(data);
 				this.scannedFrozenSchemas.push([]);
 			}
-			this.scannedFrozenSchemas[frozenIndex].push(schema);
+			scannedFrozenSchemaIndex = this.scannedFrozenSchemas[frozenIndex].length;
+			this.scannedFrozenSchemas[frozenIndex][scannedFrozenSchemaIndex] = schema;
+			this.scannedFrozenValidationErrors[frozenIndex][scannedFrozenSchemaIndex] = [];
 		} else {
 			if (!data[this.validatedSchemasKey]) {
 				try {
@@ -353,12 +370,19 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 						value: [],
 						configurable: true
 					});
+					Object.defineProperty(data, this.validationErrorsKey, {
+						value: [],
+						configurable: true
+					});
 				} catch (e) {
 					//IE 7/8 workaround
 					data[this.validatedSchemasKey] = [];
+					data[this.validationErrorsKey] = [];
 				}
 			}
-			data[this.validatedSchemasKey].push(schema);
+			scannedSchemasIndex = data[this.validatedSchemasKey].length;
+			data[this.validatedSchemasKey][scannedSchemasIndex] = schema;
+			data[this.validationErrorsKey][scannedSchemasIndex] = [];
 		}
 	}
 
@@ -390,6 +414,12 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 			}
 			this.prefixErrors(errorCount, dataPart, schemaPart);
 		}
+	}
+	
+	if (scannedFrozenSchemaIndex !== null) {
+		this.scannedFrozenValidationErrors[frozenIndex][scannedFrozenSchemaIndex] = this.errors.slice(startErrorCount);
+	} else if (scannedSchemasIndex !== null) {
+		data[this.validationErrorsKey][scannedSchemasIndex] = this.errors.slice(startErrorCount);
 	}
 
 	return this.handleError(error);
