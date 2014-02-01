@@ -241,14 +241,14 @@ ValidatorContext.prototype.getSchema = function (url, urlHistory) {
 	}
 };
 ValidatorContext.prototype.searchSchemas = function (schema, url) {
-	if (typeof schema.id === "string") {
-		if (isTrustedUrl(url, schema.id)) {
-			if (this.schemas[schema.id] === undefined) {
-				this.schemas[schema.id] = schema;
+	if (schema && typeof schema === "object") {
+		if (typeof schema.id === "string") {
+			if (isTrustedUrl(url, schema.id)) {
+				if (this.schemas[schema.id] === undefined) {
+					this.schemas[schema.id] = schema;
+				}
 			}
 		}
-	}
-	if (typeof schema === "object") {
 		for (var key in schema) {
 			if (key !== "enum") {
 				if (typeof schema[key] === "object") {
@@ -1025,13 +1025,13 @@ function getDocumentUri(uri) {
 	return uri.split('#')[0];
 }
 function normSchema(schema, baseUri) {
-	if (baseUri === undefined) {
-		baseUri = schema.id;
-	} else if (typeof schema.id === "string") {
-		baseUri = resolveUrl(baseUri, schema.id);
-		schema.id = baseUri;
-	}
-	if (typeof schema === "object") {
+	if (schema && typeof schema === "object") {
+		if (baseUri === undefined) {
+			baseUri = schema.id;
+		} else if (typeof schema.id === "string") {
+			baseUri = resolveUrl(baseUri, schema.id);
+			schema.id = baseUri;
+		}
 		if (Array.isArray(schema)) {
 			for (var i = 0; i < schema.length; i++) {
 				normSchema(schema[i], baseUri);

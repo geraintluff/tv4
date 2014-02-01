@@ -1970,6 +1970,13 @@ describe("Issue 32", function () {
 		//this.assert(expectedMultipleErrorResult.errors.length == 1, 'validateMultiple should have exactly one error');
 	});
 });
+describe("Issue 67", function () {
+
+	it("Example from GitHub issue #67", function () {
+		// Make sure null values don't trip up the normalisation
+		tv4.validate(null, {default: null});
+	});
+});
 describe("Issue 86", function () {
 
 	it("Example from GitHub issue #86", function () {
