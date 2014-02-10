@@ -5,6 +5,7 @@ var ErrorCodes = {
 	ONE_OF_MISSING: 11,
 	ONE_OF_MULTIPLE: 12,
 	NOT_PASSED: 13,
+	REQUIRED_EMPTY: 14,
 	// Numeric errors
 	NUMBER_MULTIPLE_OF: 100,
 	NUMBER_MINIMUM: 101,
@@ -40,6 +41,7 @@ var ErrorMessagesDefault = {
 	ONE_OF_MISSING: "Data does not match any schemas from \"oneOf\"",
 	ONE_OF_MULTIPLE: "Data is valid against more than one schema from \"oneOf\": indices {index1} and {index2}",
 	NOT_PASSED: "Data matches schema from \"not\"",
+	REQUIRED_EMPTY: "Require array does not have enough items",
 	// Numeric errors
 	NUMBER_MULTIPLE_OF: "Value {value} is not a multiple of {multipleOf}",
 	NUMBER_MINIMUM: "Value {value} is less than minimum {minimum}",
