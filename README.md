@@ -84,7 +84,7 @@ tv4.validate(data, schema, function (isValid, validationError) { ... });
 
 ## Cyclical JavaScript objects
 
-While they don't occur in proper JSON, JavaScript does support self-referencing objects. Any of the above calls support an optional final argument, checkRecursive. If true, tv4 will handle self-referencing objects properly - this slows down validation slightly, but that's better than a hanging script.
+While they don't occur in proper JSON, JavaScript does support self-referencing objects. Any of the above calls support an optional third argument: `checkRecursive`. If true, tv4 will handle self-referencing objects properly - this slows down validation slightly, but that's better than a hanging script.
 
 Consider this data, notice how both `a` and `b` refer to each other:
 
@@ -98,16 +98,26 @@ tv4.addSchema('aSchema', aSchema);
 tv4.addSchema('bSchema', bSchema);
 ```
 
-If the final checkRecursive argument were missing, this would throw a "too much recursion" error. 
+If the `checkRecursive` argument were missing, this would throw a "too much recursion" error. 
 
-To enable supprot for this pass `true` as additional argument to any of the regular validation methods: 
+To enable support for this, pass `true` as additional argument to any of the regular validation methods: 
 
 ```javascript
 tv4.validate(a, aSchema, true);
-tv4.validate(a, schema, asynchronousFunction, true);
-
 tv4.validateResult(data, aSchema, true); 
 tv4.validateMultiple(data, aSchema, true);
+```
+
+## The `banUnknownProperties` flag
+
+Sometimes, it is desirable to flag all unknown properties as an error.  This is especially useful during development, to catch typos and the like, even when extra custom-defined properties are allowed.
+
+As such, tv4 implements ["ban unknown properties" mode](https://github.com/json-schema/json-schema/wiki/ban-unknown-properties-mode-\(v5-proposal\)), enabled by a fourth-argument flag:
+
+```javascript
+tv4.validate(data, schema, checkRecursive, true);
+tv4.validateResult(data, schema, checkRecursive, true);
+tv4.validateMultiple(data, schema, checkRecursive, true);
 ```
 
 ## API
