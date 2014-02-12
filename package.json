@@ -56,6 +56,6 @@
   },
   "scripts": {
     "test": "grunt test",
-    "prepublish": "grunt pre_publish"
+    "prepublish": "grunt prepublish"
   }
 }
