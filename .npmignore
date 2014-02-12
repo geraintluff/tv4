@@ -12,6 +12,7 @@ Gruntfile.js
 /node_modules
 /tests
 /test
+/build
 /*.tgz
 /*.php
 /*.min.js
