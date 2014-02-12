@@ -20,7 +20,7 @@ describe("$ref 05", function () {
 		var data = [0, false];
 		var valid = tv4.validate(data, schema);
 		assert.isFalse(valid, 'inline addressing invalid 0, false');
-		assert.deepEqual(tv4.error, error, 'errors equal');
+		assert.propertyValues(tv4.error, error, 'errors equal');
 	});
 
 	it("don't trust non sub-paths", function () {

@@ -86,6 +86,6 @@ describe("$ref 03", function () {
 			dataPath: '/0',
 			schemaPath: '/items/type',
 			subErrors: null };
-		assert.deepEqual(tv4.error, error);
+		assert.propertyValues(tv4.error, error);
 	});
 });
