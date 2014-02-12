@@ -16,6 +16,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-mocha');
 	grunt.loadNpmTasks('grunt-component');
 	grunt.loadNpmTasks('grunt-push-release');
+	grunt.loadNpmTasks('grunt-regex-replace');
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
@@ -58,6 +59,19 @@ module.exports = function (grunt) {
 			},
 			tests: ['test/tests/**/*.js', 'test/all_*.js'],
 			output: ['./tv4.js']
+		},
+		'regex-replace': {
+			unmap: {
+				src: ['tv4.js', 'tv4.min.js'],
+				actions: [
+					{
+						name: 'map',
+						search: '\r?\n?\\\/\\\/[@#] sourceMappingURL=.*',
+						replace: '',
+						flags: 'g'
+					}
+				]
+			}
 		},
 		concat_sourcemap: {
 			options: {
@@ -153,6 +167,7 @@ module.exports = function (grunt) {
 
 	// main cli commands
 	grunt.registerTask('default', ['test']);
+	grunt.registerTask('prepublish', ['regex-replace:unmap']);
 	grunt.registerTask('products', ['uglify:tv4', 'component:build', 'markdown']);
 	grunt.registerTask('build', ['clean', 'concat_sourcemap', 'jshint', 'products', 'copy:test_deps']);
 	grunt.registerTask('test', ['build', 'mochaTest', 'mocha']);
