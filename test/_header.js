@@ -123,6 +123,16 @@ assert.notOwnPropertyVal = function (object, property, value, message) {
 	assert.notOwnProperty(object, property, message);
 	assert.notStrictEqual(object[property], value, message);
 };
+assert.propertyValues = function (object, properties, value, message) {
+	assert.isObject(object, message);
+	assert.isObject(properties, message);
+	//copy properties
+	var props = {};
+	for (var name in properties) {
+		props[name] = object[name];
+	}
+	assert.deepEqual(props, properties, message);
+};
 //import when fix is pushed
 assert.notOk = function (value, message) {
 	if (!!value) {

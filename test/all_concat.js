@@ -123,6 +123,16 @@ assert.notOwnPropertyVal = function (object, property, value, message) {
 	assert.notOwnProperty(object, property, message);
 	assert.notStrictEqual(object[property], value, message);
 };
+assert.propertyValues = function (object, properties, value, message) {
+	assert.isObject(object, message);
+	assert.isObject(properties, message);
+	//copy properties
+	var props = {};
+	for (var name in properties) {
+		props[name] = object[name];
+	}
+	assert.deepEqual(props, properties, message);
+};
 //import when fix is pushed
 assert.notOk = function (value, message) {
 	if (!!value) {
@@ -219,6 +229,39 @@ describe("Core 03", function () {
 			assert.isTrue(tv4.valid, "reset to valid");
 			assert.length(tv4.missing, 0, "reset to 0 missing");
 		});
+	});
+});
+
+describe("Core 04", function () {
+
+	var schema = {
+		"type": "string"
+	};
+
+	it("ValidationError is Error subtype", function () {
+		var res = tv4.validateResult(123, schema);
+		assert.isObject(res);
+		assert.isObject(res.error);
+		assert.isInstanceOf(res.error, Error);
+		assert.isString(res.error.stack);
+	});
+
+	it("ValidationError has own stack trace", function () {
+		function errorA() {
+			var res = tv4.validateResult(123, schema);
+			assert.isFalse(res.valid);
+			assert.isString(res.error.stack);
+			assert.ok(res.error.stack.indexOf('errorA') > -1, 'has own stack trace A');
+		}
+
+		function errorB() {
+			var res = tv4.validateResult(123, schema);
+			assert.isFalse(res.valid);
+			assert.isString(res.error.stack);
+			assert.ok(res.error.stack.indexOf('errorB') > -1, 'has own stack trace B');
+		}
+		errorA();
+		errorB();
 	});
 });
 
@@ -1224,7 +1267,7 @@ describe("$ref 03", function () {
 			dataPath: '/0',
 			schemaPath: '/items/type',
 			subErrors: null };
-		assert.deepEqual(tv4.error, error);
+		assert.propertyValues(tv4.error, error);
 	});
 });
 describe("$ref 04", function () {
@@ -1290,7 +1333,7 @@ describe("$ref 05", function () {
 		var data = [0, false];
 		var valid = tv4.validate(data, schema);
 		assert.isFalse(valid, 'inline addressing invalid 0, false');
-		assert.deepEqual(tv4.error, error, 'errors equal');
+		assert.propertyValues(tv4.error, error, 'errors equal');
 	});
 
 	it("don't trust non sub-paths", function () {
@@ -1761,7 +1804,7 @@ describe("Registering custom validator", function () {
 	});
 });
 
-describe("Registering custom validator", function () {
+describe("Ban unknown properties 01", function () {
 	it("Additional argument to ban additional properties", function () {
 		var schema = {
 			properties: {
@@ -1823,16 +1866,14 @@ describe("Registering custom validator", function () {
 		};
 		
 		var result = tv4.validateMultiple(data, schema, false, true);
-		console.log(result);
 		assert.isTrue(result.valid, "Must be valid");
 
 		var result2 = tv4.validateMultiple(data2, schema, false, true);
-		console.log(result2);
 		assert.isTrue(result2.valid, "Must still validate");
 	});
 });
 
-describe("Registering custom validator", function () {
+describe("Ban unknown properties 02", function () {
 	it("Do not track property definitions from \"not\"", function () {
 		var schema = {
 			"not": {
