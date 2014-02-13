@@ -1120,16 +1120,31 @@ var ErrorMessagesDefault = {
 };
 
 function ValidationError(code, message, dataPath, schemaPath, subErrors) {
+	Error.call(this);
 	if (code === undefined) {
 		throw new Error ("No code supplied for error: "+ message);
 	}
-	this.code = code;
 	this.message = message;
+	this.code = code;
 	this.dataPath = dataPath || "";
 	this.schemaPath = schemaPath || "";
 	this.subErrors = subErrors || null;
+
+	var err = new Error(this.message);
+	this.stack = err.stack || err.stacktrace;
+	if (!this.stack) {
+		try {
+			throw err;
+		}
+		catch(err) {
+			this.stack = err.stack || err.stacktrace;
+		}
+	}
 }
-ValidationError.prototype = new Error();
+ValidationError.prototype = Object.create(Error.prototype);
+ValidationError.prototype.constructor = ValidationError;
+ValidationError.prototype.name = 'ValidationError';
+
 ValidationError.prototype.prefixWith = function (dataPrefix, schemaPrefix) {
 	if (dataPrefix !== null) {
 		dataPrefix = dataPrefix.replace(/~/g, "~0").replace(/\//g, "~1");
