@@ -144,7 +144,7 @@ ValidatorContext.prototype.searchSchemas = function (schema, url) {
 };
 ValidatorContext.prototype.addSchema = function (url, schema) {
 	//overload
-	if (typeof schema === 'undefined') {
+	if (typeof url !== 'string' || typeof schema === 'undefined') {
 		if (typeof url === 'object' && typeof url.id === 'string') {
 			schema = url;
 			url = schema.id;
