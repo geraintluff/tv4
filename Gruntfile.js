@@ -49,7 +49,8 @@ module.exports = function (grunt) {
 		},
 		clean: {
 			tests: ['tmp', 'test/all_concat.js'],
-			build: ['tv4.js', 'tv4.min.js', '*js.map', 'test/all_concat.js', 'test/all_concat.js.map']
+			maps: ['*.js.map'],
+			build: ['tv4.js', 'tv4.min.js', '*.js.map', 'test/all_concat.js', 'test/all_concat.js.map']
 		},
 		jshint: {
 			//lint for mistakes
@@ -174,7 +175,7 @@ module.exports = function (grunt) {
 
 	grunt.registerTask('build', ['core', 'cleanup']);
 	grunt.registerTask('test', ['core', 'mochaTest', 'mocha', 'cleanup']);
-	grunt.registerTask('cleanup', ['regex-replace:unmap']);
+	grunt.registerTask('cleanup', ['regex-replace:unmap', 'clean:maps']);
 
 	grunt.registerTask('dev', ['clean', 'concat_sourcemap', 'jshint', 'mochaTest']);
 };
