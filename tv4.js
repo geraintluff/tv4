@@ -1079,7 +1079,7 @@ var ErrorCodes = {
 	// Format errors
 	FORMAT_CUSTOM: 500,
 	// Schema structure
-	CIRCULAR_REFERENCE: 500,
+	CIRCULAR_REFERENCE: 600,
 	// Non-standard validation options
 	UNKNOWN_PROPERTY: 1000
 };
@@ -1309,5 +1309,3 @@ else {
 }
 
 })(this);
-
-//@ sourceMappingURL=tv4.js.map

@@ -167,10 +167,14 @@ module.exports = function (grunt) {
 
 	// main cli commands
 	grunt.registerTask('default', ['test']);
-	grunt.registerTask('prepublish', ['regex-replace:unmap']);
+	grunt.registerTask('prepublish', ['cleanup']);
+
 	grunt.registerTask('products', ['uglify:tv4', 'component:build', 'markdown']);
-	grunt.registerTask('build', ['clean', 'concat_sourcemap', 'jshint', 'products', 'copy:test_deps']);
-	grunt.registerTask('test', ['build', 'mochaTest', 'mocha']);
+	grunt.registerTask('core', ['clean', 'concat_sourcemap', 'jshint', 'products', 'copy:test_deps']);
+
+	grunt.registerTask('build', ['core', 'cleanup']);
+	grunt.registerTask('test', ['core', 'mochaTest', 'mocha', 'cleanup']);
+	grunt.registerTask('cleanup', ['regex-replace:unmap']);
 
 	grunt.registerTask('dev', ['clean', 'concat_sourcemap', 'jshint', 'mochaTest']);
 };

@@ -9,6 +9,8 @@ npm-debug.log
 
 /*.tgz
 
+/*.js.map
+
 build
 components
 
