@@ -8,7 +8,7 @@ describe("Fill dataPath for \"required\" (GitHub Issue #103)", function () {
 		var result = tv4.validateMultiple(data, schema, false, true);
 		console.log(result);
 		assert.isFalse(result.valid, "Must not be valid");
-		assert.deepEqual(result.errors[0].dataPath, '');
+		assert.deepEqual(result.errors[0].dataPath, '/A');
 	});
 
 	it("Filled for second-level properties", function () {
@@ -23,6 +23,6 @@ describe("Fill dataPath for \"required\" (GitHub Issue #103)", function () {
 		
 		var result = tv4.validateMultiple(data, schema, false, true);
 		assert.isFalse(result.valid, "Must not be valid");
-		assert.deepEqual(result.errors[0].dataPath, '/foo');
+		assert.deepEqual(result.errors[0].dataPath, '/foo/bar');
 	});
 });
