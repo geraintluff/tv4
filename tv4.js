@@ -713,12 +713,13 @@ ValidatorContext.prototype.validateObjectMinMaxProperties = function validateObj
 	return null;
 };
 
-ValidatorContext.prototype.validateObjectRequiredProperties = function validateObjectRequiredProperties(data, schema) {
+ValidatorContext.prototype.validateObjectRequiredProperties = function validateObjectRequiredProperties(data, schema, dataPointerPath) {
 	if (schema.required !== undefined) {
 		for (var i = 0; i < schema.required.length; i++) {
 			var key = schema.required[i];
+			var keyPointerPath = dataPointerPath + "/" + key.replace(/~/g, '~0').replace(/\//g, '~1');
 			if (data[key] === undefined) {
-				var error = this.createError(ErrorCodes.OBJECT_REQUIRED, {key: key}).prefixWith(null, "" + i).prefixWith(null, "required");
+				var error = this.createError(ErrorCodes.OBJECT_REQUIRED, {key: key}, keyPointerPath).prefixWith(null, "" + i).prefixWith(null, "required");
 				if (this.handleError(error)) {
 					return error;
 				}
