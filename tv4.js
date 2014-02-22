@@ -334,7 +334,7 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 
 	var startErrorCount = this.errors.length;
 	var frozenIndex, scannedFrozenSchemaIndex = null, scannedSchemasIndex = null;
-	if (this.checkRecursive && (typeof data) === 'object') {
+	if (this.checkRecursive && data && typeof data === 'object') {
 		topLevel = !this.scanned.length;
 		if (data[this.validatedSchemasKey]) {
 			var schemaIndex = data[this.validatedSchemasKey].indexOf(schema);
@@ -1309,5 +1309,3 @@ else {
 }
 
 })(this);
-
-//@ sourceMappingURL=tv4.js.map
