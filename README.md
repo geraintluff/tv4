@@ -262,6 +262,32 @@ tv4.addFormat({
 });
 ````
 
+##### defineKeyword(keyword, validationFunction)
+
+Add a custom keyword validator.
+
+* `keyword` is a string, corresponding to a schema keyword
+* `validationFunction` is a function that either returns:
+  * `null` (meaning no error)
+  * an error string (explaining the reason for failure)
+  * an error object (containing some of: `code`/`message`/`dataPath`/`schemaPath`)
+
+````
+tv4.defineKeyword('my-custom-keyword', function (data, value, schema) {
+	assert(schema['my-custom-keyword'] === value);
+	
+	return "Failure";
+});
+````
+
+##### defineError(codeName, codeNumber, defaultMessage)
+
+Defines a custom error code.
+
+* `codeName` is a string, all-caps underscore separated, e.g. `"MY_CUSTOM_ERROR"`
+* `codeNumber` is an integer, which will be stored in `tv4.ErrorCodes` (e.g. `tv4.ErrorCodes.MY_CUSTOM_ERROR`)
+* `defaultMessage` is an error message to use (assuming translations have not been provided for this code)
+
 ## Demos
 
 ### Basic usage
