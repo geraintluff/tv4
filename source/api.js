@@ -34,6 +34,10 @@ var ErrorCodes = {
 	// Non-standard validation options
 	UNKNOWN_PROPERTY: 1000
 };
+var ErrorCodeLookup = {};
+for (var key in ErrorCodes) {
+	ErrorCodeLookup[ErrorCodes[key]] = key;
+}
 var ErrorMessagesDefault = {
 	INVALID_TYPE: "invalid type: {type} (expected {expected})",
 	ENUM_MISMATCH: "No enum match for: {value}",
@@ -241,9 +245,13 @@ function createApi(language) {
 				throw new Error('Code number must be an integer > 10000');
 			}
 			if (typeof ErrorCodes[codeName] !== 'undefined') {
-				throw new Error('Error already defined: ' + codeName);
+				throw new Error('Error already defined: ' + codeName + ' as ' + ErrorCodes[codeName]);
+			}
+			if (typeof ErrorCodeLookup[codeNumber] !== 'undefined') {
+				throw new Error('Error code already used: ' + ErrorCodeLookup[codeNumber] + ' as ' + codeNumber);
 			}
 			ErrorCodes[codeName] = codeNumber;
+			ErrorCodeLookup[codeNumber] = codeName;
 			ErrorMessagesDefault[codeName] = ErrorMessagesDefault[codeNumber] = defaultMessage;
 			for (var langCode in languages) {
 				var language = languages[langCode];

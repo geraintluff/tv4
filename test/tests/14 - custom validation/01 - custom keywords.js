@@ -45,4 +45,11 @@ describe("Register custom keyword", function () {
 			tv4.defineError('doesnotmatchpattern', 10002, "{value}: {data}");
 		});
 	});
+	
+	it("can't defined the same code twice", function () {
+		assert.throws(function () {
+			tv4.defineError('CUSTOM_ONE', 10005, "{value}: {data}");
+			tv4.defineError('CUSTOM_TWO', 10005, "{value}: {data}");
+		});
+	});
 });

@@ -278,7 +278,7 @@ tv4.language(&#39;fr&#39;)</code></pre>
     if (simpleFailure()) {
         return &quot;Failure&quot;;
     } else if (detailedFailure()) {
-        return {code: tv4.ErrorCodes.MY_CUSTOM_CODE, message: {param1: &#39;a&#39;, param2: &#39;b&#39;}};
+        return {code: tv4.errorCodes.MY_CUSTOM_CODE, message: {param1: &#39;a&#39;, param2: &#39;b&#39;}};
     } else {
         return null;
     }
@@ -289,7 +289,7 @@ tv4.language(&#39;fr&#39;)</code></pre>
 <p>Defines a custom error code.</p>
 <ul>
 <li><code>codeName</code> is a string, all-caps underscore separated, e.g. <code>&quot;MY_CUSTOM_ERROR&quot;</code></li>
-<li><code>codeNumber</code> is an integer &gt; 10000, which will be stored in <code>tv4.ErrorCodes</code> (e.g. <code>tv4.ErrorCodes.MY_CUSTOM_ERROR</code>)</li>
+<li><code>codeNumber</code> is an integer &gt; 10000, which will be stored in <code>tv4.errorCodes</code> (e.g. <code>tv4.errorCodes.MY_CUSTOM_ERROR</code>)</li>
 <li><code>defaultMessage</code> is an error message template to use (assuming translations have not been provided for this code)</li>
 </ul>
 <p>An example of <code>defaultMessage</code> might be: <code>&quot;Incorrect moon (expected {expected}, got {actual}&quot;</code>).  This is filled out if a custom keyword returns a object <code>message</code> (see above).  Translations will be used, if associated with the correct code name/number.</p>
