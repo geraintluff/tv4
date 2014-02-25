@@ -344,7 +344,7 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 
 	var startErrorCount = this.errors.length;
 	var frozenIndex, scannedFrozenSchemaIndex = null, scannedSchemasIndex = null;
-	if (this.checkRecursive && (typeof data) === 'object') {
+	if (this.checkRecursive && data && typeof data === 'object') {
 		topLevel = !this.scanned.length;
 		if (data[this.validatedSchemasKey]) {
 			var schemaIndex = data[this.validatedSchemasKey].indexOf(schema);
@@ -1071,9 +1071,10 @@ function normSchema(schema, baseUri) {
 			for (var i = 0; i < schema.length; i++) {
 				normSchema(schema[i], baseUri);
 			}
-		} else if (typeof schema['$ref'] === "string") {
-			schema['$ref'] = resolveUrl(baseUri, schema['$ref']);
 		} else {
+			if (typeof schema['$ref'] === "string") {
+				schema['$ref'] = resolveUrl(baseUri, schema['$ref']);
+			}
 			for (var key in schema) {
 				if (key !== "enum") {
 					normSchema(schema[key], baseUri);

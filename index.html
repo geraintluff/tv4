@@ -263,6 +263,29 @@ tv4.language(&#39;fr&#39;)</code></pre>
     &#39;my-format&#39;: function () {...},
     &#39;other-format&#39;: function () {...}
 });</code></pre>
+<h5 id="definekeyword-keyword-validationfunction-">defineKeyword(keyword, validationFunction)</h5>
+<p>Add a custom keyword validator.</p>
+<ul>
+<li><code>keyword</code> is a string, corresponding to a schema keyword</li>
+<li><code>validationFunction</code> is a function that either returns:<ul>
+<li><code>null</code> (meaning no error)</li>
+<li>an error string (explaining the reason for failure)</li>
+<li>an error object (containing some of: <code>code</code>/<code>message</code>/<code>dataPath</code>/<code>schemaPath</code>)</li>
+</ul>
+</li>
+</ul>
+<pre><code>tv4.defineKeyword(&#39;my-custom-keyword&#39;, function (data, value, schema) {
+    assert(schema[&#39;my-custom-keyword&#39;] === value);
+
+    return &quot;Failure&quot;;
+});</code></pre>
+<h5 id="defineerror-codename-codenumber-defaultmessage-">defineError(codeName, codeNumber, defaultMessage)</h5>
+<p>Defines a custom error code.</p>
+<ul>
+<li><code>codeName</code> is a string, all-caps underscore separated, e.g. <code>&quot;MY_CUSTOM_ERROR&quot;</code></li>
+<li><code>codeNumber</code> is an integer, which will be stored in <code>tv4.ErrorCodes</code> (e.g. <code>tv4.ErrorCodes.MY_CUSTOM_ERROR</code>)</li>
+<li><code>defaultMessage</code> is an error message to use (assuming translations have not been provided for this code)</li>
+</ul>
 <h2 id="demos">Demos</h2>
 <h3 id="basic-usage">Basic usage</h3>
 <div class="content inline-demo" markdown="1" data-demo="demo1">
