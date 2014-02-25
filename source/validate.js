@@ -21,6 +21,16 @@ var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorM
 		this.unknownPropertyPaths = {};
 	}
 	this.errorMessages = errorMessages;
+	this.definedKeywords = {};
+	if (parent) {
+		for (var key in parent.definedKeywords) {
+			this.definedKeywords[key] = parent.definedKeywords[key].slice(0);
+		}
+	}
+};
+ValidatorContext.prototype.defineKeyword = function (keyword, keywordFunction) {
+	this.definedKeywords[keyword] = this.definedKeywords[keyword] || [];
+	this.definedKeywords[keyword].push(keywordFunction);
 };
 ValidatorContext.prototype.createError = function (code, messageParams, dataPath, schemaPath, subErrors) {
 	var messageTemplate = this.errorMessages[code] || ErrorMessagesDefault[code];
@@ -273,6 +283,7 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 		|| this.validateObject(data, schema, dataPointerPath)
 		|| this.validateCombinations(data, schema, dataPointerPath)
 		|| this.validateFormat(data, schema, dataPointerPath)
+		|| this.validateDefinedKeywords(data, schema, dataPointerPath)
 		|| null;
 
 	if (topLevel) {
@@ -312,6 +323,30 @@ ValidatorContext.prototype.validateFormat = function (data, schema) {
 		return this.createError(ErrorCodes.FORMAT_CUSTOM, {message: errorMessage}).prefixWith(null, "format");
 	} else if (errorMessage && typeof errorMessage === 'object') {
 		return this.createError(ErrorCodes.FORMAT_CUSTOM, {message: errorMessage.message || "?"}, errorMessage.dataPath || null, errorMessage.schemaPath || "/format");
+	}
+	return null;
+};
+ValidatorContext.prototype.validateDefinedKeywords = function (data, schema) {
+	for (var key in this.definedKeywords) {
+		var validationFunctions = this.definedKeywords[key];
+		for (var i = 0; i < validationFunctions.length; i++) {
+			var func = validationFunctions[i];
+			var result = func(data, schema[key], schema);
+			if (typeof result === 'string' || typeof result === 'number') {
+				return this.createError(ErrorCodes.KEYWORD_CUSTOM, {key: key, message: result}).prefixWith(null, "format");
+			} else if (result && typeof result === 'object') {
+				var code = result.code || ErrorCodes.KEYWORD_CUSTOM;
+				if (typeof code === 'string') {
+					if (!ErrorCodes[code]) {
+						throw new Error('Undefined error code (use defineError): ' + code);
+					}
+					code = ErrorCodes[code];
+				}
+				var messageParams = (typeof result.message === 'object') ? result.message : {key: key, message: result.message || "?"};
+				var schemaPath = result.schemaPath ||( "/" + key.replace(/~/g, '~0').replace(/\//g, '~1'));
+				return this.createError(code, messageParams, result.dataPath || null, schemaPath);
+			}
+		}
 	}
 	return null;
 };

@@ -26,8 +26,9 @@ var ErrorCodes = {
 	ARRAY_LENGTH_LONG: 401,
 	ARRAY_UNIQUE: 402,
 	ARRAY_ADDITIONAL_ITEMS: 403,
-	// Format errors
+	// Custom/user-defined errors
 	FORMAT_CUSTOM: 500,
+	KEYWORD_CUSTOM: 501,
 	// Schema structure
 	CIRCULAR_REFERENCE: 600,
 	// Non-standard validation options
@@ -63,6 +64,7 @@ var ErrorMessagesDefault = {
 	ARRAY_ADDITIONAL_ITEMS: "Additional items not allowed",
 	// Format errors
 	FORMAT_CUSTOM: "Format validation failed ({message})",
+	KEYWORD_CUSTOM: "Custom keyword failed: {key} ({message})",
 	// Schema structure
 	CIRCULAR_REFERENCE: "Circular $refs: {urls}",
 	// Non-standard validation options
@@ -227,6 +229,28 @@ function createApi(language) {
 		},
 		dropSchemas: function () {
 			globalContext.dropSchemas.apply(globalContext, arguments);
+		},
+		defineKeyword: function () {
+			globalContext.defineKeyword.apply(globalContext, arguments);
+		},
+		defineError: function (codeName, codeNumber, defaultMessage) {
+			if (typeof codeName !== 'string') {
+				throw new Error('Code name must be a string');
+			}
+			if (typeof codeNumber !== 'number' || codeNumber%1 !== 0) {
+				throw new Error('Code number must be an integer');
+			}
+			if (typeof ErrorCodes[codeName] !== 'undefined') {
+				throw new Error('Error already defined: ' + codeName);
+			}
+			ErrorCodes[codeName] = codeNumber;
+			ErrorMessagesDefault[codeName] = ErrorMessagesDefault[codeNumber] = defaultMessage;
+			for (var langCode in languages) {
+				var language = languages[langCode];
+				if (language[codeName]) {
+					language[codeNumber] = language[codeNumber] || language[codeName];
+				}
+			}
 		},
 		reset: function () {
 			globalContext.reset();
