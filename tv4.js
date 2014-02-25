@@ -1150,7 +1150,7 @@ var ErrorMessagesDefault = {
 	ARRAY_ADDITIONAL_ITEMS: "Additional items not allowed",
 	// Format errors
 	FORMAT_CUSTOM: "Format validation failed ({message})",
-	KEYWORD_CUSTOM: "Custom keyword failed: {key} ({message})",
+	KEYWORD_CUSTOM: "Keyword failed: {key} ({message})",
 	// Schema structure
 	CIRCULAR_REFERENCE: "Circular $refs: {urls}",
 	// Non-standard validation options
@@ -1320,11 +1320,11 @@ function createApi(language) {
 			globalContext.defineKeyword.apply(globalContext, arguments);
 		},
 		defineError: function (codeName, codeNumber, defaultMessage) {
-			if (typeof codeName !== 'string') {
-				throw new Error('Code name must be a string');
+			if (typeof codeName !== 'string' || !/^[A-Z]+(_[A-Z]+)*$/.test(codeName)) {
+				throw new Error('Code name must be a string in UPPER_CASE_WITH_UNDERSCORES');
 			}
-			if (typeof codeNumber !== 'number' || codeNumber%1 !== 0) {
-				throw new Error('Code number must be an integer');
+			if (typeof codeNumber !== 'number' || codeNumber%1 !== 0 || codeNumber < 10000) {
+				throw new Error('Code number must be an integer > 10000');
 			}
 			if (typeof ErrorCodes[codeName] !== 'undefined') {
 				throw new Error('Error already defined: ' + codeName);

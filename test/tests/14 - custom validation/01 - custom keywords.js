@@ -11,7 +11,7 @@ describe("Register custom keyword", function () {
 		
 		var result = tv4.validateMultiple(data, schema, false, true);
 		assert.isFalse(result.valid, "Must not be valid");
-		assert.deepEqual(result.errors[0].message, 'Custom keyword failed: customKeyword (Custom failure)');
+		assert.deepEqual(result.errors[0].message, 'Keyword failed: customKeyword (Custom failure)');
 	});
 
 	it("custom error code", function () {
@@ -32,5 +32,17 @@ describe("Register custom keyword", function () {
 		assert.isFalse(result.valid, "Must not be valid");
 		assert.deepEqual(result.errors[0].message, 'A: test test test');
 		assert.deepEqual(result.errors[0].code, 123456789);
+	});
+	
+	it("restrict custom error codes", function () {
+		assert.throws(function () {
+			tv4.defineError('CUSTOM_KEYWORD_BLAH', 9999, "{value}: {data}");
+		});
+	});
+	
+	it("restrict custom error names", function () {
+		assert.throws(function () {
+			tv4.defineError('doesnotmatchpattern', 10002, "{value}: {data}");
+		});
 	});
 });

@@ -274,19 +274,29 @@ Add a custom keyword validator.
 
 ````
 tv4.defineKeyword('my-custom-keyword', function (data, value, schema) {
-	assert(schema['my-custom-keyword'] === value);
-	
-	return "Failure";
+	if (simpleFailure()) {
+		return "Failure";
+	} else if (detailedFailure()) {
+		return {code: tv4.ErrorCodes.MY_CUSTOM_CODE, message: {param1: 'a', param2: 'b'}};
+	} else {
+		return null;
+	}
 });
 ````
+
+`schema` is the schema upon which the keyword is defined.  In the above example, `value === schema['my-custom-keyword']`.
+
+If an object is returned from the custom validator, and its `message` is a string, then that is used as the message result.  If `message` is an object, then that is used to populate the (localisable) error template.
 
 ##### defineError(codeName, codeNumber, defaultMessage)
 
 Defines a custom error code.
 
 * `codeName` is a string, all-caps underscore separated, e.g. `"MY_CUSTOM_ERROR"`
-* `codeNumber` is an integer, which will be stored in `tv4.ErrorCodes` (e.g. `tv4.ErrorCodes.MY_CUSTOM_ERROR`)
-* `defaultMessage` is an error message to use (assuming translations have not been provided for this code)
+* `codeNumber` is an integer > 10000, which will be stored in `tv4.ErrorCodes` (e.g. `tv4.ErrorCodes.MY_CUSTOM_ERROR`)
+* `defaultMessage` is an error message template to use (assuming translations have not been provided for this code)
+
+An example of `defaultMessage` might be: `"Incorrect moon (expected {expected}, got {actual}"`).  This is filled out if a custom keyword returns a object `message` (see above).  Translations will be used, if associated with the correct code name/number.
 
 ## Demos
 
