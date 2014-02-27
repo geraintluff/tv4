@@ -6,7 +6,6 @@ describe("Fill dataPath for \"required\" (GitHub Issue #103)", function () {
 		var data = {};
 		
 		var result = tv4.validateMultiple(data, schema, false, true);
-		console.log(result);
 		assert.isFalse(result.valid, "Must not be valid");
 		assert.deepEqual(result.errors[0].dataPath, '');
 	});

@@ -263,6 +263,36 @@ tv4.language(&#39;fr&#39;)</code></pre>
     &#39;my-format&#39;: function () {...},
     &#39;other-format&#39;: function () {...}
 });</code></pre>
+<h5 id="definekeyword-keyword-validationfunction-">defineKeyword(keyword, validationFunction)</h5>
+<p>Add a custom keyword validator.</p>
+<ul>
+<li><code>keyword</code> is a string, corresponding to a schema keyword</li>
+<li><code>validationFunction</code> is a function that either returns:<ul>
+<li><code>null</code> (meaning no error)</li>
+<li>an error string (explaining the reason for failure)</li>
+<li>an error object (containing some of: <code>code</code>/<code>message</code>/<code>dataPath</code>/<code>schemaPath</code>)</li>
+</ul>
+</li>
+</ul>
+<pre><code>tv4.defineKeyword(&#39;my-custom-keyword&#39;, function (data, value, schema) {
+    if (simpleFailure()) {
+        return &quot;Failure&quot;;
+    } else if (detailedFailure()) {
+        return {code: tv4.errorCodes.MY_CUSTOM_CODE, message: {param1: &#39;a&#39;, param2: &#39;b&#39;}};
+    } else {
+        return null;
+    }
+});</code></pre>
+<p><code>schema</code> is the schema upon which the keyword is defined.  In the above example, <code>value === schema[&#39;my-custom-keyword&#39;]</code>.</p>
+<p>If an object is returned from the custom validator, and its <code>message</code> is a string, then that is used as the message result.  If <code>message</code> is an object, then that is used to populate the (localisable) error template.</p>
+<h5 id="defineerror-codename-codenumber-defaultmessage-">defineError(codeName, codeNumber, defaultMessage)</h5>
+<p>Defines a custom error code.</p>
+<ul>
+<li><code>codeName</code> is a string, all-caps underscore separated, e.g. <code>&quot;MY_CUSTOM_ERROR&quot;</code></li>
+<li><code>codeNumber</code> is an integer &gt; 10000, which will be stored in <code>tv4.errorCodes</code> (e.g. <code>tv4.errorCodes.MY_CUSTOM_ERROR</code>)</li>
+<li><code>defaultMessage</code> is an error message template to use (assuming translations have not been provided for this code)</li>
+</ul>
+<p>An example of <code>defaultMessage</code> might be: <code>&quot;Incorrect moon (expected {expected}, got {actual}&quot;</code>).  This is filled out if a custom keyword returns a object <code>message</code> (see above).  Translations will be used, if associated with the correct code name/number.</p>
 <h2 id="demos">Demos</h2>
 <h3 id="basic-usage">Basic usage</h3>
 <div class="content inline-demo" markdown="1" data-demo="demo1">
