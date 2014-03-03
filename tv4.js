@@ -142,6 +142,12 @@ var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorM
 		this.knownPropertyPaths = {};
 		this.unknownPropertyPaths = {};
 	}
+	if (options.checkInheritedProperties) {
+		this.checkInheritedProperties = true;
+	}
+	if (options.checkNonEnumerableProperties) {
+		this.checkNonEnumerableProperties = true;
+	}
 	this.errorMessages = errorMessages;
 };
 ValidatorContext.prototype.createError = function (code, messageParams, dataPath, schemaPath, subErrors) {
@@ -743,9 +749,30 @@ ValidatorContext.prototype.validateObjectRequiredProperties = function validateO
 	return null;
 };
 
+function findProperties(obj, checkInheritedProperties, checkNonEnumerableProperties) {
+	// Start with the object's own enumerable properties
+	var properties = Object.keys(obj);
+	if (checkInheritedProperties) {
+		for (var key in obj) {
+			if (properties.indexOf(key) === -1) {
+				properties.push(key);
+			}
+		}
+	}
+	// Object.getOwnPropertyNames is not available in IE 8 and below (and cannot be polyfilled)
+	if (checkNonEnumerableProperties && Object.getOwnPropertyNames) {
+		Object.getOwnPropertyNames(obj).forEach(function (name) {
+			if (properties.indexOf(name) === -1) {
+				properties.push(name);
+			}
+		});
+	}
+	return properties;
+}
+
 ValidatorContext.prototype.validateObjectProperties = function validateObjectProperties(data, schema, dataPointerPath) {
 	var error;
-	var dataKeys = Object.keys(data);
+	var dataKeys = findProperties(data, this.checkInheritedProperties, this.checkNonEnumerableProperties);
 	for (var i = 0; i < dataKeys.length; i++) {
 		var key = dataKeys[i];
 		var keyPointerPath = dataPointerPath + "/" + key.replace(/~/g, '~0').replace(/\//g, '~1');
