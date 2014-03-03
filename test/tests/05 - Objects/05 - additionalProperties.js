@@ -59,4 +59,40 @@ describe("Objects 05", function () {
 		var valid = tv4.validate(data, schema);
 		assert.isFalse(valid);
 	});
+
+	it("additionalProperties inherited property success", function () {
+		function DataMaker(o) {
+			var self = this;
+			Object.keys(o).forEach(function(key) {
+				self[key] = o[key];
+			});
+		}
+		DataMaker.prototype.extraMethod = function() {};
+		var schema = {
+			properties: {
+				foo: {"type": "boolean"}
+			},
+			additionalProperties: false
+		};
+		var data = new DataMaker({foo: true});
+		tv4.normSchema(schema);
+		var valid = tv4.validate(data, schema);
+		assert.isTrue(valid);
+	});
+
+	it("additionalProperties non-enumerable property success", function () {
+		var schema = {
+			properties: {
+				foo: {"type": "boolean"}
+			},
+			additionalProperties: false
+		};
+		var data = {};
+		Object.defineProperty(data, 'hidden', {
+			value: 0
+		});
+		tv4.normSchema(schema);
+		var valid = tv4.validate(data, schema);
+		assert.isTrue(valid);
+	});
 });
