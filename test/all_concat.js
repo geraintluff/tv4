@@ -1659,25 +1659,23 @@ describe("API 04", function () {
 
 	it("validate works correctly with an options object", function () {
 		var isValid = tv4.validate(data, aSchema, options);
-		assert.strictEqual(isValid, false);
+		assert.isFalse(isValid);
 	});
 
 	it("validate works correctly with checkRecursive and banUnknownProperties parameters", function () {
 		var isValid = tv4.validate(data, aSchema, true, true);
-		assert.strictEqual(isValid, false);
+		assert.isFalse(isValid);
 	});
 
 	it("validateResult works correctly with an options object", function () {
 		var result = tv4.validateResult(data, aSchema, options);
 		assert.isObject(result.error);
-		assert.notStrictEqual(result.error, null);
 		assert.strictEqual(result.error.code, 1000);
 	});
 
 	it("validateResult works correctly with checkRecursive and banUnknownProperties parameters", function () {
 		var result = tv4.validateResult(data, aSchema, true, true);
 		assert.isObject(result.error);
-		assert.notStrictEqual(result.error, null);
 		assert.strictEqual(result.error.code, 1000);
 	});
 
