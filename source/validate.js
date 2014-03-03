@@ -50,7 +50,9 @@ ValidatorContext.prototype.prefixErrors = function (startIndex, dataPath, schema
 	return this;
 };
 ValidatorContext.prototype.banUnknownProperties = function () {
-	for (var unknownPath in this.unknownPropertyPaths) {
+	var unknownPaths = Object.keys(this.unknownPropertyPaths);
+	for (var i = 0; i < unknownPaths.length; i++) {
+		var unknownPath = unknownPaths[i];
 		var error = this.createError(ErrorCodes.UNKNOWN_PROPERTY, {path: unknownPath}, unknownPath, "");
 		var result = this.handleError(error);
 		if (result) {
@@ -62,7 +64,9 @@ ValidatorContext.prototype.banUnknownProperties = function () {
 
 ValidatorContext.prototype.addFormat = function (format, validator) {
 	if (typeof format === 'object') {
-		for (var key in format) {
+		var formatKeys = Object.keys(format);
+		for (var i = 0; i < formatKeys.length; i++) {
+			var key = formatKeys[i];
 			this.addFormat(key, format[key]);
 		}
 		return this;
@@ -128,7 +132,9 @@ ValidatorContext.prototype.searchSchemas = function (schema, url) {
 				}
 			}
 		}
-		for (var key in schema) {
+		var schemaKeys = Object.keys(schema);
+		for (var i = 0; i < schemaKeys.length; i++) {
+			var key = schemaKeys[i];
 			if (key !== "enum") {
 				if (typeof schema[key] === "object") {
 					this.searchSchemas(schema[key], url);
@@ -165,7 +171,9 @@ ValidatorContext.prototype.addSchema = function (url, schema) {
 
 ValidatorContext.prototype.getSchemaMap = function () {
 	var map = {};
-	for (var key in this.schemas) {
+	var schemaKeys = Object.keys(this.schemas);
+	for (var i = 0; i < schemaKeys.length; i++) {
+		var key = schemaKeys[i];
 		map[key] = this.schemas[key];
 	}
 	return map;
@@ -173,7 +181,9 @@ ValidatorContext.prototype.getSchemaMap = function () {
 
 ValidatorContext.prototype.getSchemaUris = function (filterRegExp) {
 	var list = [];
-	for (var key in this.schemas) {
+	var schemaKeys = Object.keys(this.schemas);
+	for (var i = 0; i < schemaKeys.length; i++) {
+		var key = schemaKeys[i];
 		if (!filterRegExp || filterRegExp.test(key)) {
 			list.push(key);
 		}
@@ -183,7 +193,9 @@ ValidatorContext.prototype.getSchemaUris = function (filterRegExp) {
 
 ValidatorContext.prototype.getMissingUris = function (filterRegExp) {
 	var list = [];
-	for (var key in this.missingMap) {
+	var missingKeys = Object.keys(this.missingMap);
+	for (var i = 0; i < missingKeys.length; i++) {
+		var key = missingKeys[i];
 		if (!filterRegExp || filterRegExp.test(key)) {
 			list.push(key);
 		}
