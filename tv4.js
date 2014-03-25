@@ -119,7 +119,7 @@ if (!Object.isFrozen) {
 		}
 	};
 }
-var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages, checkRecursive, trackUnknownProperties) {
+var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages, options) {
 	this.missing = [];
 	this.missingMap = {};
 	this.formatValidators = parent ? Object.create(parent.formatValidators) : {};
@@ -127,7 +127,8 @@ var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorM
 	this.collectMultiple = collectMultiple;
 	this.errors = [];
 	this.handleError = collectMultiple ? this.collectError : this.returnError;
-	if (checkRecursive) {
+	options = options || {};
+	if (options.checkRecursive) {
 		this.checkRecursive = true;
 		this.scanned = [];
 		this.scannedFrozen = [];
@@ -136,10 +137,16 @@ var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorM
 		this.validatedSchemasKey = 'tv4_validation_id';
 		this.validationErrorsKey = 'tv4_validation_errors_id';
 	}
-	if (trackUnknownProperties) {
+	if (options.banUnknownProperties) {
 		this.trackUnknownProperties = true;
 		this.knownPropertyPaths = {};
 		this.unknownPropertyPaths = {};
+	}
+	if (options.checkInheritedProperties) {
+		this.checkInheritedProperties = true;
+	}
+	if (options.checkNonEnumerableProperties) {
+		this.checkNonEnumerableProperties = true;
 	}
 	this.errorMessages = errorMessages;
 };
@@ -171,11 +178,15 @@ ValidatorContext.prototype.prefixErrors = function (startIndex, dataPath, schema
 	return this;
 };
 ValidatorContext.prototype.banUnknownProperties = function () {
-	for (var unknownPath in this.unknownPropertyPaths) {
-		var error = this.createError(ErrorCodes.UNKNOWN_PROPERTY, {path: unknownPath}, unknownPath, "");
-		var result = this.handleError(error);
-		if (result) {
-			return result;
+	if (this.trackUnknownProperties) {
+		var unknownPaths = Object.keys(this.unknownPropertyPaths);
+		for (var i = 0; i < unknownPaths.length; i++) {
+			var unknownPath = unknownPaths[i];
+			var error = this.createError(ErrorCodes.UNKNOWN_PROPERTY, {path: unknownPath}, unknownPath, "");
+			var result = this.handleError(error);
+			if (result) {
+				return result;
+			}
 		}
 	}
 	return null;
@@ -183,7 +194,9 @@ ValidatorContext.prototype.banUnknownProperties = function () {
 
 ValidatorContext.prototype.addFormat = function (format, validator) {
 	if (typeof format === 'object') {
-		for (var key in format) {
+		var formatKeys = Object.keys(format);
+		for (var i = 0; i < formatKeys.length; i++) {
+			var key = formatKeys[i];
 			this.addFormat(key, format[key]);
 		}
 		return this;
@@ -249,7 +262,9 @@ ValidatorContext.prototype.searchSchemas = function (schema, url) {
 				}
 			}
 		}
-		for (var key in schema) {
+		var schemaKeys = Object.keys(schema);
+		for (var i = 0; i < schemaKeys.length; i++) {
+			var key = schemaKeys[i];
 			if (key !== "enum") {
 				if (typeof schema[key] === "object") {
 					this.searchSchemas(schema[key], url);
@@ -286,7 +301,9 @@ ValidatorContext.prototype.addSchema = function (url, schema) {
 
 ValidatorContext.prototype.getSchemaMap = function () {
 	var map = {};
-	for (var key in this.schemas) {
+	var schemaKeys = Object.keys(this.schemas);
+	for (var i = 0; i < schemaKeys.length; i++) {
+		var key = schemaKeys[i];
 		map[key] = this.schemas[key];
 	}
 	return map;
@@ -294,7 +311,9 @@ ValidatorContext.prototype.getSchemaMap = function () {
 
 ValidatorContext.prototype.getSchemaUris = function (filterRegExp) {
 	var list = [];
-	for (var key in this.schemas) {
+	var schemaKeys = Object.keys(this.schemas);
+	for (var i = 0; i < schemaKeys.length; i++) {
+		var key = schemaKeys[i];
 		if (!filterRegExp || filterRegExp.test(key)) {
 			list.push(key);
 		}
@@ -304,7 +323,9 @@ ValidatorContext.prototype.getSchemaUris = function (filterRegExp) {
 
 ValidatorContext.prototype.getMissingUris = function (filterRegExp) {
 	var list = [];
-	for (var key in this.missingMap) {
+	var missingKeys = Object.keys(this.missingMap);
+	for (var i = 0; i < missingKeys.length; i++) {
+		var key = missingKeys[i];
 		if (!filterRegExp || filterRegExp.test(key)) {
 			list.push(key);
 		}
@@ -728,9 +749,32 @@ ValidatorContext.prototype.validateObjectRequiredProperties = function validateO
 	return null;
 };
 
+function findProperties(obj, checkInheritedProperties, checkNonEnumerableProperties) {
+	// Start with the object's own enumerable properties
+	var properties = Object.keys(obj);
+	if (checkInheritedProperties) {
+		for (var key in obj) {
+			if (properties.indexOf(key) === -1) {
+				properties.push(key);
+			}
+		}
+	}
+	// Object.getOwnPropertyNames is not available in IE 8 and below (and cannot be polyfilled)
+	if (checkNonEnumerableProperties && Object.getOwnPropertyNames) {
+		Object.getOwnPropertyNames(obj).forEach(function (name) {
+			if (properties.indexOf(name) === -1) {
+				properties.push(name);
+			}
+		});
+	}
+	return properties;
+}
+
 ValidatorContext.prototype.validateObjectProperties = function validateObjectProperties(data, schema, dataPointerPath) {
 	var error;
-	for (var key in data) {
+	var dataKeys = findProperties(data, this.checkInheritedProperties, this.checkNonEnumerableProperties);
+	for (var i = 0; i < dataKeys.length; i++) {
+		var key = dataKeys[i];
 		var keyPointerPath = dataPointerPath + "/" + key.replace(/~/g, '~0').replace(/\//g, '~1');
 		var foundMatch = false;
 		if (schema.properties !== undefined && schema.properties[key] !== undefined) {
@@ -740,7 +784,9 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 			}
 		}
 		if (schema.patternProperties !== undefined) {
-			for (var patternKey in schema.patternProperties) {
+			var patternKeys = Object.keys(schema.patternProperties);
+			for (var j = 0; j < patternKeys.length; j++) {
+				var patternKey = patternKeys[j];
 				var regexp = new RegExp(patternKey);
 				if (regexp.test(key)) {
 					foundMatch = true;
@@ -782,7 +828,9 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 ValidatorContext.prototype.validateObjectDependencies = function validateObjectDependencies(data, schema, dataPointerPath) {
 	var error;
 	if (schema.dependencies !== undefined) {
-		for (var depKey in schema.dependencies) {
+		var depKeys = Object.keys(schema.dependencies);
+		for (var i = 0; i < depKeys.length; i++) {
+			var depKey = depKeys[i];
 			if (data[depKey] !== undefined) {
 				var dep = schema.dependencies[depKey];
 				if (typeof dep === "string") {
@@ -793,8 +841,8 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 						}
 					}
 				} else if (Array.isArray(dep)) {
-					for (var i = 0; i < dep.length; i++) {
-						var requiredKey = dep[i];
+					for (var j = 0; j < dep.length; j++) {
+						var requiredKey = dep[j];
 						if (data[requiredKey] === undefined) {
 							error = this.createError(ErrorCodes.OBJECT_DEPENDENCY_KEY, {key: depKey, missing: requiredKey}).prefixWith(null, "" + i).prefixWith(null, depKey).prefixWith(null, "dependencies");
 							if (this.handleError(error)) {
@@ -861,11 +909,15 @@ ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema, 
 			this.errors = this.errors.slice(0, startErrorCount);
 
 			if (this.trackUnknownProperties) {
-				for (var knownKey in this.knownPropertyPaths) {
+				var knownKeys = Object.keys(this.knownPropertyPaths);
+				for (var j = 0; j < knownKeys.length; j++) {
+					var knownKey = knownKeys[j];
 					oldKnownPropertyPaths[knownKey] = true;
 					delete oldUnknownPropertyPaths[knownKey];
 				}
-				for (var unknownKey in this.unknownPropertyPaths) {
+				var unknownKeys = Object.keys(this.unknownPropertyPaths);
+				for (j = 0; j < unknownKeys.length; j++) {
+					var unknownKey = unknownKeys[j];
 					if (!oldKnownPropertyPaths[unknownKey]) {
 						oldUnknownPropertyPaths[unknownKey] = true;
 					}
@@ -922,11 +974,15 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema, 
 				return this.createError(ErrorCodes.ONE_OF_MULTIPLE, {index1: validIndex, index2: i}, "", "/oneOf");
 			}
 			if (this.trackUnknownProperties) {
-				for (var knownKey in this.knownPropertyPaths) {
+				var knownKeys = Object.keys(this.knownPropertyPaths);
+				for (var j = 0; j < knownKeys.length; j++) {
+					var knownKey = knownKeys[j];
 					oldKnownPropertyPaths[knownKey] = true;
 					delete oldUnknownPropertyPaths[knownKey];
 				}
-				for (var unknownKey in this.unknownPropertyPaths) {
+				var unknownKeys = Object.keys(this.unknownPropertyPaths);
+				for (j = 0; j < unknownKeys.length; j++) {
+					var unknownKey = unknownKeys[j];
 					if (!oldKnownPropertyPaths[unknownKey]) {
 						oldUnknownPropertyPaths[unknownKey] = true;
 					}
@@ -1026,6 +1082,7 @@ function getDocumentUri(uri) {
 }
 function normSchema(schema, baseUri) {
 	if (schema && typeof schema === "object") {
+		var i;
 		if (baseUri === undefined) {
 			baseUri = schema.id;
 		} else if (typeof schema.id === "string") {
@@ -1033,13 +1090,15 @@ function normSchema(schema, baseUri) {
 			schema.id = baseUri;
 		}
 		if (Array.isArray(schema)) {
-			for (var i = 0; i < schema.length; i++) {
+			for (i = 0; i < schema.length; i++) {
 				normSchema(schema[i], baseUri);
 			}
 		} else if (typeof schema['$ref'] === "string") {
 			schema['$ref'] = resolveUrl(baseUri, schema['$ref']);
 		} else {
-			for (var key in schema) {
+			var schemaKeys = Object.keys(schema);
+			for (i = 0; i < schemaKeys.length; i++) {
+				var key = schemaKeys[i];
 				if (key !== "enum") {
 					normSchema(schema[key], baseUri);
 				}
@@ -1174,6 +1233,18 @@ function isTrustedUrl(baseUrl, testUrl) {
 	return false;
 }
 
+function makeOptionsObject(opts) {
+	var options = {};
+	// old method signatures accepted checkRecursive and banUnknownProperties
+	if (opts[0] !== undefined) {
+		options.checkRecursive = opts[0];
+	}
+	if (opts[1] !== undefined) {
+		options.banUnknownProperties = opts[1];
+	}
+	return options;
+}
+
 var languages = {};
 function createApi(language) {
 	var globalContext = new ValidatorContext();
@@ -1224,14 +1295,17 @@ function createApi(language) {
 			}
 			return result;
 		},
-		validate: function (data, schema, checkRecursive, banUnknownProperties) {
-			var context = new ValidatorContext(globalContext, false, languages[currentLanguage], checkRecursive, banUnknownProperties);
+		validate: function (data, schema, options) {
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
+			if (typeof options !== "object" || options === null) {
+				options = makeOptionsObject(Array.prototype.slice.call(arguments, 2));
+			}
+			var context = new ValidatorContext(globalContext, false, languages[currentLanguage], options);
 			context.addSchema("", schema);
 			var error = context.validateAll(data, schema, null, null, "");
-			if (!error && banUnknownProperties) {
+			if (!error && options.banUnknownProperties) {
 				error = context.banUnknownProperties();
 			}
 			this.error = error;
@@ -1244,14 +1318,17 @@ function createApi(language) {
 			this.validate.apply(result, arguments);
 			return result;
 		},
-		validateMultiple: function (data, schema, checkRecursive, banUnknownProperties) {
-			var context = new ValidatorContext(globalContext, true, languages[currentLanguage], checkRecursive, banUnknownProperties);
+		validateMultiple: function (data, schema, options) {
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
+			if (typeof options !== "object" || options === null) {
+				options = makeOptionsObject(Array.prototype.slice.call(arguments, 2));
+			}
+			var context = new ValidatorContext(globalContext, true, languages[currentLanguage], options);
 			context.addSchema("", schema);
 			context.validateAll(data, schema, null, null, "");
-			if (banUnknownProperties) {
+			if (options.banUnknownProperties) {
 				context.banUnknownProperties();
 			}
 			var result = {};
