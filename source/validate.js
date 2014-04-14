@@ -113,11 +113,18 @@ ValidatorContext.prototype.getSchema = function (url, urlHistory) {
 		var parts = pointerPath.split("/").slice(1);
 		for (var i = 0; i < parts.length; i++) {
 			var component = parts[i].replace(/~1/g, "/").replace(/~0/g, "~");
+			if (typeof schema['$ref'] === 'string') {
+				schema = this.getSchema(schema['$ref'], urlHistory);
+				if (schema === undefined) {
+					break;
+				}
+			}
 			if (schema[component] === undefined) {
 				schema = undefined;
 				break;
+			} else {
+				schema = schema[component];
 			}
-			schema = schema[component];
 		}
 		if (schema !== undefined) {
 			return this.resolveRefs(schema, urlHistory);
