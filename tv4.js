@@ -121,6 +121,7 @@ if (!Object.isFrozen) {
 }
 var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages, checkRecursive, trackUnknownProperties) {
 	this.missing = [];
+	this.missingUrl = [];
 	this.missingMap = {};
 	this.formatValidators = parent ? Object.create(parent.formatValidators) : {};
 	this.schemas = parent ? Object.create(parent.schemas) : {};
@@ -249,6 +250,10 @@ ValidatorContext.prototype.getSchema = function (url, urlHistory) {
 		this.missing[baseUrl] = baseUrl;
 		this.missingMap[baseUrl] = baseUrl;
 	}
+	if (this.missingUrl[url] === undefined) {
+		this.missingUrl.push(url);
+		this.missingUrl[url] = url;
+	}
 };
 ValidatorContext.prototype.searchSchemas = function (schema, url) {
 	if (schema && typeof schema === "object") {
@@ -328,6 +333,7 @@ ValidatorContext.prototype.dropSchemas = function () {
 };
 ValidatorContext.prototype.reset = function () {
 	this.missing = [];
+	this.missingUrl = [];
 	this.missingMap = {};
 	this.errors = [];
 };
@@ -426,7 +432,7 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 			this.prefixErrors(errorCount, dataPart, schemaPart);
 		}
 	}
-	
+
 	if (scannedFrozenSchemaIndex !== null) {
 		this.scannedFrozenValidationErrors[frozenIndex][scannedFrozenSchemaIndex] = this.errors.slice(startErrorCount);
 	} else if (scannedSchemasIndex !== null) {
@@ -1278,6 +1284,7 @@ function createApi(language) {
 			}
 			this.error = error;
 			this.missing = context.missing;
+			this.missingUrl = context.missingUrl;
 			this.valid = (error === null);
 			return this.valid;
 		},
@@ -1299,6 +1306,7 @@ function createApi(language) {
 			var result = {};
 			result.errors = context.errors;
 			result.missing = context.missing;
+			this.missingUrl = context.missingUrl;
 			result.valid = (result.errors.length === 0);
 			return result;
 		},
@@ -1350,6 +1358,7 @@ function createApi(language) {
 			globalContext.reset();
 			this.error = null;
 			this.missing = [];
+			this.missingUrl = [];
 			this.valid = true;
 		},
 		missing: [],

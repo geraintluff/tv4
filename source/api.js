@@ -192,6 +192,7 @@ function createApi(language) {
 			}
 			this.error = error;
 			this.missing = context.missing;
+			this.missingUrl = context.missingUrl;
 			this.valid = (error === null);
 			return this.valid;
 		},
@@ -213,6 +214,7 @@ function createApi(language) {
 			var result = {};
 			result.errors = context.errors;
 			result.missing = context.missing;
+			this.missingUrl = context.missingUrl;
 			result.valid = (result.errors.length === 0);
 			return result;
 		},
@@ -264,6 +266,7 @@ function createApi(language) {
 			globalContext.reset();
 			this.error = null;
 			this.missing = [];
+			this.missingUrl = [];
 			this.valid = true;
 		},
 		missing: [],
