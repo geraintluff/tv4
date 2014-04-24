@@ -855,7 +855,6 @@ ValidatorContext.prototype.validateObjectItems = function validateArrayItems(dat
 	}
 	var error, k;
 	for (var k in data) {
-		console.log('validating', data[k]);
 		if (error = this.validateAll(data[k], schema.items, [k], ["items"], dataPointerPath + "/" + k)) {
 			return error;
 		}		
