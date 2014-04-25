@@ -15,10 +15,19 @@
                 mocha.run();
             }
         };
-        describe("tv4 amd loading", function(){
-            it("should load tv4 using require", function(done){
-                require(['../tv4'], function(tv4){
+
+        describe("tv4 amd loading", function () {
+            it("should load tv4 using require", function (done) {
+                require(['../tv4'], function (tv4) {
                     proclaim.isDefined(tv4);
+                    var schema = {
+                        properties: {
+                            intKey: {"type": "integer"},
+                            stringKey: {"type": "string"}
+                        }
+                    };
+                    proclaim.isTrue(tv4.validate({intKey: 1, stringKey: "one"}, schema));
+                    proclaim.isFalse(tv4.validate({intKey: false, stringKey: "one"}, schema));
                     done();
                 });
             });
