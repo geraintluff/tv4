@@ -6,8 +6,18 @@ This code is released into the "public domain" by its author(s).  Anybody may us
 
 If you find a bug or make an improvement, it would be courteous to let the author know, but it is not compulsory.
 */
-(function (global) {
-'use strict';
+(function (global, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define([], factory);
+  } else if (typeof module !== 'undefined' && module.exports){
+    // CommonJS. Define export.
+    module.exports = factory();
+  } else {
+    // Browser globals
+    global.tv4 = factory();
+  }
+}(this, function () {
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FObject%2Fkeys
 if (!Object.keys) {
@@ -1369,11 +1379,6 @@ tv4.addLanguage('en-gb', ErrorMessagesDefault);
 //legacy property
 tv4.tv4 = tv4;
 
-if (typeof module !== 'undefined' && module.exports){
-	module.exports = tv4;
-}
-else {
-	global.tv4 = tv4;
-}
+return tv4; // used by _header.js to globalise.
 
-})(this);
+}));
