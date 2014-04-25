@@ -24,7 +24,7 @@
 		"helper": true,
 		"tv4": true,
 		"assert": true,
-    "define": true,
-    "require": true
+		"define": true,
+		"require": true
 	}
 }
