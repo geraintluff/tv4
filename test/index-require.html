@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>tv4</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="./deps/mocha.css"/>
+    <script src="./deps/jquery.js"></script>
+    <script src="./deps/mocha.js"></script>
+    <script src="./deps/proclaim.js"></script>
+    <script src="../node_modules/requirejs/require.js"></script>
+    <script>
+        mocha.setup('bdd');
+        window.onload = function () {
+            if (navigator.userAgent.indexOf('PhantomJS') < 0) {
+                mocha.run();
+            }
+        };
+
+        describe("tv4 amd loading", function () {
+            it("should load tv4 using require", function (done) {
+                require(['../tv4'], function (tv4) {
+                    proclaim.isDefined(tv4);
+                    var schema = {
+                        properties: {
+                            intKey: {"type": "integer"},
+                            stringKey: {"type": "string"}
+                        }
+                    };
+                    proclaim.isTrue(tv4.validate({intKey: 1, stringKey: "one"}, schema));
+                    proclaim.isFalse(tv4.validate({intKey: false, stringKey: "one"}, schema));
+                    done();
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="mocha"></div>
+</body>
+</html>

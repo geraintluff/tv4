@@ -382,6 +382,14 @@ Alternately use it as a CommonJS module:
 var tv4 = require('tv4');
 ````
 
+or as an AMD module (e.g. with requirejs):
+
+```js
+require('tv4', function(tv4){
+  //use tv4 here
+});
+```
+
 #### npm
 
 ````

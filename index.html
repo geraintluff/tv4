@@ -370,6 +370,10 @@ alert(&quot;data 2: &quot; + tv4.validate(data2, schema)); // false
 <p>You can manually download <a href="https://raw.github.com/geraintluff/tv4/master/tv4.js"><code>tv4.js</code></a> or the minified <a href="https://raw.github.com/geraintluff/tv4/master/tv4.min.js"><code>tv4.min.js</code></a> and include it in your html to create the global <code>tv4</code> variable.</p>
 <p>Alternately use it as a CommonJS module:</p>
 <pre><code class="lang-js">var tv4 = require(&#39;tv4&#39;);</code></pre>
+<p>or as an AMD module (e.g. with requirejs):</p>
+<pre><code class="lang-js">require(&#39;tv4&#39;, function(tv4){
+  //use tv4 here
+});</code></pre>
 <h4 id="npm">npm</h4>
 <pre><code>$ npm install tv4</code></pre>
 <h4 id="bower">bower</h4>

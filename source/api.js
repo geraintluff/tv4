@@ -283,9 +283,4 @@ tv4.addLanguage('en-gb', ErrorMessagesDefault);
 //legacy property
 tv4.tv4 = tv4;
 
-if (typeof module !== 'undefined' && module.exports){
-	module.exports = tv4;
-}
-else {
-	global.tv4 = tv4;
-}
+return tv4; // used by _header.js to globalise.

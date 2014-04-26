@@ -23,6 +23,8 @@
 		"afterEach": true,
 		"helper": true,
 		"tv4": true,
-		"assert": true
+		"assert": true,
+		"define": true,
+		"require": true
 	}
 }
