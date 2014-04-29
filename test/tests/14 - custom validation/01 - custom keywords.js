@@ -52,4 +52,31 @@ describe("Register custom keyword", function () {
 			tv4.defineError('CUSTOM_TWO', 10005, "{value}: {data}");
 		});
 	});
+	
+	it("function only called when keyword present", function () {
+		var schema = {
+			"type": "object",
+			"properties": {
+				"aStringValue": {
+					"type": "string",
+					"my-custom-keyword": "something"
+				},
+				"aBooleanValue": {
+					"type": "boolean"
+				}
+			}
+		};
+		var data = {
+			"aStringValue": "a string",
+			"aBooleanValue": true
+		};
+		
+		var callCount = 0;
+		tv4.defineKeyword('my-custom-keyword', function () {
+			callCount++;
+		});
+		
+		tv4.validateMultiple(data, schema, false, true);
+		assert.deepEqual(callCount, 1, "custom function must be called exactly once");
+	});
 });

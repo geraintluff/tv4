@@ -328,6 +328,9 @@ ValidatorContext.prototype.validateFormat = function (data, schema) {
 };
 ValidatorContext.prototype.validateDefinedKeywords = function (data, schema) {
 	for (var key in this.definedKeywords) {
+		if (typeof schema[key] === 'undefined') {
+			continue;
+		}
 		var validationFunctions = this.definedKeywords[key];
 		for (var i = 0; i < validationFunctions.length; i++) {
 			var func = validationFunctions[i];
