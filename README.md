@@ -238,7 +238,7 @@ tv4.language('fr')
 
 ##### addFormat(format, validationFunction)
 
-Add a custom format validator. (There are no built-in format validators.)
+Add a custom format validator. (There are no built-in format validators. Several common ones can be found [here](https://github.com/ikr/tv4-formats) though)
 
 * `format` is a string, corresponding to the `"format"` value in schemas.
 * `validationFunction` is a function that either returns:
