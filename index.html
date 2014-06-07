@@ -112,7 +112,7 @@
 </script>
 <div id="main">
 <h1 id="tiny-validator-for-v4-json-schema-">Tiny Validator (for v4 JSON Schema)</h1>
-<p><a href="http://travis-ci.org/geraintluff/tv4"><img src="https://secure.travis-ci.org/geraintluff/tv4.png?branch=master" alt="Build Status"></a> <a href="https://gemnasium.com/geraintluff/tv4"><img src="https://gemnasium.com/geraintluff/tv4.png" alt="Dependency Status"></a> <a href="http://badge.fury.io/js/tv4"><img src="https://badge.fury.io/js/tv4.png" alt="NPM version"></a></p>
+<p><a href="http://travis-ci.org/geraintluff/tv4"><img src="https://secure.travis-ci.org/geraintluff/tv4.svg?branch=master" alt="Build Status"></a> <a href="https://gemnasium.com/geraintluff/tv4"><img src="https://gemnasium.com/geraintluff/tv4.svg" alt="Dependency Status"></a> <a href="http://badge.fury.io/js/tv4"><img src="https://badge.fury.io/js/tv4.svg" alt="NPM version"></a></p>
 <p>Use <a href="http://json-schema.org/">json-schema</a> <a href="http://json-schema.org/latest/json-schema-core.html">draft v4</a> to validate simple values and complex objects using a rich <a href="http://json-schema.org/latest/json-schema-validation.html">validation vocabulary</a> (<a href="http://json-schema.org/examples.html">examples</a>).</p>
 <p>There is support for <code>$ref</code> with JSON Pointer fragment paths (<code>other-schema.json#/properties/myKey</code>).</p>
 <h2 id="usage-1-simple-validation">Usage 1: Simple validation</h2>
@@ -243,7 +243,7 @@ var arr = tv4.getMissingUris(/^https?://example.com/);</code></pre>
 // select for use
 tv4.language(&#39;fr&#39;)</code></pre>
 <h5 id="addformat-format-validationfunction-">addFormat(format, validationFunction)</h5>
-<p>Add a custom format validator. (There are no built-in format validators.)</p>
+<p>Add a custom format validator. (There are no built-in format validators. Several common ones can be found <a href="https://github.com/ikr/tv4-formats">here</a> though)</p>
 <ul>
 <li><code>format</code> is a string, corresponding to the <code>&quot;format&quot;</code> value in schemas.</li>
 <li><code>validationFunction</code> is a function that either returns:<ul>
