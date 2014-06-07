@@ -163,7 +163,7 @@ ValidatorContext.prototype.addSchema = function (url, schema) {
 			return;
 		}
 	}
-	if (url = getDocumentUri(url) + "#") {
+	if (url === getDocumentUri(url) + "#") {
 		// Remove empty fragment
 		url = getDocumentUri(url);
 	}
