@@ -6,9 +6,8 @@ describe("Load language file", function () {
 	}
 	else {
 		it("commonjs language: de", function () {
-			var lang = require('../lang/de');
+			var tv4 = require('../lang/de');
 
-			tv4.addLanguage('de', lang);
 			tv4.language('de');
 
 			var schema = {

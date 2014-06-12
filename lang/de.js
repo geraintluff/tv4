@@ -31,10 +31,15 @@
 
 	if (typeof define === 'function' && define.amd) {
 		// AMD. Register as an anonymous module.
-		define([], lang);
+		define(['../tv4'], function(tv4) {
+			tv4.addLanguage('de', lang);
+			return tv4;
+		});
 	} else if (typeof module !== 'undefined' && module.exports){
 		// CommonJS. Define export.
-		module.exports = lang;
+		var tv4 = require('../tv4');
+		tv4.addLanguage('de', lang);
+		module.exports = tv4;
 	} else {
 		// Browser globals
 		global.tv4.addLanguage('de', lang);
