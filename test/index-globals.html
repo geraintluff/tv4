@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>tv4</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="./deps/mocha.css"/>
+    <script src="./deps/jquery.js"></script>
+    <script src="./deps/mocha.js"></script>
+    <script src="./deps/proclaim.js"></script>
+    <script src="../tv4.js"></script>
+    <script src="../lang/de.js"></script>
+    <script>
+        mocha.setup('bdd');
+        window.onload = function () {
+            if (navigator.userAgent.indexOf('PhantomJS') < 0) {
+                mocha.run();
+            }
+        };
+
+        describe("tv4 globals", function () {
+            it("should have global tv4", function () {
+                proclaim.isDefined(tv4);
+                var schema = {
+                    properties: {
+                        intKey: {"type": "integer"},
+                        stringKey: {"type": "string"}
+                    }
+                };
+                proclaim.isTrue(tv4.validate({intKey: 1, stringKey: "one"}, schema));
+                proclaim.isFalse(tv4.validate({intKey: false, stringKey: "one"}, schema));
+            });
+            it("should have german language added to global", function () {
+                proclaim.isDefined(tv4);
+
+                tv4 = tv4.freshApi();
+
+                tv4.language('de');
+
+                var schema = {
+                    properties: {
+                        intKey: {"type": "integer"}
+                    }
+                };
+                var res = tv4.validateResult({intKey: 'bad'}, schema);
+                proclaim.isFalse(res.valid);
+                proclaim.equal(res.error.message, 'Ungültiger Typ: string (erwartet wurde: integer)');
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="mocha"></div>
+</body>
+</html>

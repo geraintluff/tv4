@@ -31,6 +31,23 @@
                     done();
                 });
             });
+            it("should load german language as AMD module", function (done) {
+                require(['../lang/de'], function (tv4) {
+                    proclaim.isDefined(tv4);
+
+                    tv4.language('de');
+
+                    var schema = {
+                        properties: {
+                            intKey: {"type": "integer"}
+                        }
+                    };
+                    var res = tv4.validateResult({intKey: 'bad'}, schema);
+                    proclaim.isFalse(res.valid);
+                    proclaim.equal(res.error.message, 'Ungültiger Typ: string (erwartet wurde: integer)');
+                    done();
+                });
+            });
         });
     </script>
 </head>
