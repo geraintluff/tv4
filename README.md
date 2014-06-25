@@ -20,7 +20,7 @@ The error object will look something like:
     "code": 0,
     "message": "Invalid type: string",
     "dataPath": "/intKey",
-    "schemaKey": "/properties/intKey/type"
+    "schemaPath": "/properties/intKey/type"
 }
 ```
 
