@@ -1,6 +1,6 @@
 {
   "name": "tv4",
-  "version": "1.0.18",
+  "version": "1.1.0",
   "author": "Geraint Luff",
   "description": "A public domain JSON Schema validator for JavaScript",
   "keywords": [
