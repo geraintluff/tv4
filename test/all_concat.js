@@ -1979,7 +1979,7 @@ describe("Fill dataPath for \"required\" (GitHub Issue #103)", function () {
 });
 
 describe("Valid schemaPath for \"oneOf\" (GitHub Issue #117)", function () {
-    it("valid schemaPath in error (enum)", function () {
+    it("valid schemaPath in error (simple types)", function () {
         var data = {};
         var schema = {
             "oneOf": [
@@ -1994,7 +1994,7 @@ describe("Valid schemaPath for \"oneOf\" (GitHub Issue #117)", function () {
         assert.equal(suberr[1].schemaPath, '/oneOf/1/type');
     });
     
-    it("valid schemaPath in error (properties)", function () {
+    it("valid schemaPath in error (required properties)", function () {
         /* Test case provided on GitHub Issue #117 */
         var data = {};
         var schema = {
