@@ -118,7 +118,7 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema, 
 				}
 			}
 		} else if (error) {
-			errors.push(error.prefixWith(null, "" + i).prefixWith(null, "oneOf"));
+			errors.push(error);
 		}
 	}
 	if (this.trackUnknownProperties) {
