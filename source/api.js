@@ -75,12 +75,13 @@ var ErrorMessagesDefault = {
 	UNKNOWN_PROPERTY: "Unknown property (not in schema)"
 };
 
-function ValidationError(code, message, dataPath, schemaPath, subErrors) {
+function ValidationError(code, message, params, dataPath, schemaPath, subErrors) {
 	Error.call(this);
 	if (code === undefined) {
 		throw new Error ("No code supplied for error: "+ message);
 	}
 	this.message = message;
+	this.params = params;
 	this.code = code;
 	this.dataPath = dataPath || "";
 	this.schemaPath = schemaPath || "";

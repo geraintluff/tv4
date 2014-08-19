@@ -35,14 +35,14 @@ ValidatorContext.prototype.defineKeyword = function (keyword, keywordFunction) {
 ValidatorContext.prototype.createError = function (code, messageParams, dataPath, schemaPath, subErrors) {
 	var messageTemplate = this.errorMessages[code] || ErrorMessagesDefault[code];
 	if (typeof messageTemplate !== 'string') {
-		return new ValidationError(code, "Unknown error code " + code + ": " + JSON.stringify(messageParams), dataPath, schemaPath, subErrors);
+		return new ValidationError(code, "Unknown error code " + code + ": " + JSON.stringify(messageParams), messageParams, dataPath, schemaPath, subErrors);
 	}
 	// Adapted from Crockford's supplant()
 	var message = messageTemplate.replace(/\{([^{}]*)\}/g, function (whole, varName) {
 		var subValue = messageParams[varName];
 		return typeof subValue === 'string' || typeof subValue === 'number' ? subValue : whole;
 	});
-	return new ValidationError(code, message, dataPath, schemaPath, subErrors);
+	return new ValidationError(code, message, messageParams, dataPath, schemaPath, subErrors);
 };
 ValidatorContext.prototype.returnError = function (error) {
 	return error;
@@ -306,7 +306,7 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 			this.prefixErrors(errorCount, dataPart, schemaPart);
 		}
 	}
-	
+
 	if (scannedFrozenSchemaIndex !== null) {
 		this.scannedFrozenValidationErrors[frozenIndex][scannedFrozenSchemaIndex] = this.errors.slice(startErrorCount);
 	} else if (scannedSchemasIndex !== null) {
