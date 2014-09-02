@@ -1,6 +1,6 @@
 {
   "name": "tv4",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "Geraint Luff",
   "description": "A public domain JSON Schema validator for JavaScript",
   "keywords": [
@@ -16,7 +16,7 @@
       "web": "https://github.com/geraintluff/"
     }
   ],
-  "main": "tv4.js",
+  "main": "tv4.min.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/geraintluff/tv4.git"
@@ -47,10 +47,10 @@
     "grunt-concat-sourcemap": "~0.2",
     "source-map-support": "~0.1",
     "grunt-markdown": "~0.3.0",
-    "grunt-component": "~0.1.4",
     "grunt-push-release": "~0.1.1",
     "grunt-regex-replace": "~0.2.5",
-    "requirejs": "~2.1.11"
+    "requirejs": "~2.1.11",
+    "grunt-component-io": "~0.1.0"
   },
   "engines": {
     "node": ">= 0.8.0"

@@ -82,7 +82,7 @@ describe("$ref 03", function () {
 
 		var error = {
 			code: 0,
-			message: 'invalid type: number (expected boolean)',
+			message: 'Invalid type: number (expected boolean)',
 			dataPath: '/0',
 			schemaPath: '/items/type',
 			subErrors: null };

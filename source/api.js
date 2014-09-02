@@ -39,7 +39,7 @@ for (var key in ErrorCodes) {
 	ErrorCodeLookup[ErrorCodes[key]] = key;
 }
 var ErrorMessagesDefault = {
-	INVALID_TYPE: "invalid type: {type} (expected {expected})",
+	INVALID_TYPE: "Invalid type: {type} (expected {expected})",
 	ENUM_MISMATCH: "No enum match for: {value}",
 	ANY_OF_MISSING: "Data does not match any schemas from \"anyOf\"",
 	ONE_OF_MISSING: "Data does not match any schemas from \"oneOf\"",

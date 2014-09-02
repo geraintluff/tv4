@@ -14,7 +14,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-mocha-test');
 	grunt.loadNpmTasks('grunt-markdown');
 	grunt.loadNpmTasks('grunt-mocha');
-	grunt.loadNpmTasks('grunt-component');
+	grunt.loadNpmTasks('grunt-component-io');
 	grunt.loadNpmTasks('grunt-push-release');
 	grunt.loadNpmTasks('grunt-regex-replace');
 
@@ -110,15 +110,10 @@ module.exports = function (grunt) {
 			}
 		},
 		component: {
-			build: {
-				options: {
-					action: 'build', // can be omitted (build = default)
-					args: {
-						//standalone: '$',
-						dev: true
-					}
-				}
-			}
+			options: {
+				out: 'build/'
+			},
+			main: ['tv4.js', 'lang/**/*.js']
 		},
 		uglify: {
 			tv4: {
@@ -172,7 +167,7 @@ module.exports = function (grunt) {
 	grunt.registerTask('default', ['test']);
 	grunt.registerTask('prepublish', ['cleanup']);
 
-	grunt.registerTask('products', ['uglify:tv4', 'component:build', 'markdown']);
+	grunt.registerTask('products', ['uglify:tv4', 'component', 'markdown']);
 	grunt.registerTask('core', ['clean', 'concat_sourcemap', 'jshint', 'products', 'copy:test_deps']);
 
 	grunt.registerTask('build', ['core', 'cleanup']);

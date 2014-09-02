@@ -1,5 +1,5 @@
 describe("Load language file", function () {
-	if (!process || !require) {
+	if (typeof process !== 'object' || typeof require !== 'function') {
 		it.skip("commonjs language", function () {
 			// dummy
 		});
