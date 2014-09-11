@@ -41,7 +41,7 @@ ValidatorContext.prototype.validateMinMax = function validateMinMax(data, schema
 	return null;
 };
 
-ValidatorContext.prototype.validateNaN = function validateNaN(data, schema) {
+ValidatorContext.prototype.validateNaN = function validateNaN(data) {
 	if (typeof data !== "number") {
 		return null;
 	}
