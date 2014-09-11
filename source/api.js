@@ -11,6 +11,7 @@ var ErrorCodes = {
 	NUMBER_MINIMUM_EXCLUSIVE: 102,
 	NUMBER_MAXIMUM: 103,
 	NUMBER_MAXIMUM_EXCLUSIVE: 104,
+	NUMBER_NOT_A_NUMBER: 105,
 	// String errors
 	STRING_LENGTH_SHORT: 200,
 	STRING_LENGTH_LONG: 201,
@@ -51,6 +52,7 @@ var ErrorMessagesDefault = {
 	NUMBER_MINIMUM_EXCLUSIVE: "Value {value} is equal to exclusive minimum {minimum}",
 	NUMBER_MAXIMUM: "Value {value} is greater than maximum {maximum}",
 	NUMBER_MAXIMUM_EXCLUSIVE: "Value {value} is equal to exclusive maximum {maximum}",
+	NUMBER_NOT_A_NUMBER: "Value {value} is not a valid number",
 	// String errors
 	STRING_LENGTH_SHORT: "String is too short ({length} chars), minimum {minimum}",
 	STRING_LENGTH_LONG: "String is too long ({length} chars), maximum {maximum}",

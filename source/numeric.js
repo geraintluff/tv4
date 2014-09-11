@@ -1,6 +1,7 @@
 ValidatorContext.prototype.validateNumeric = function validateNumeric(data, schema, dataPointerPath) {
 	return this.validateMultipleOf(data, schema, dataPointerPath)
 		|| this.validateMinMax(data, schema, dataPointerPath)
+		|| this.validateNaN(data, schema, dataPointerPath)
 		|| null;
 };
 
@@ -36,6 +37,16 @@ ValidatorContext.prototype.validateMinMax = function validateMinMax(data, schema
 		if (schema.exclusiveMaximum && data === schema.maximum) {
 			return this.createError(ErrorCodes.NUMBER_MAXIMUM_EXCLUSIVE, {value: data, maximum: schema.maximum}).prefixWith(null, "exclusiveMaximum");
 		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateNaN = function validateNaN(data, schema) {
+	if (typeof data !== "number") {
+		return null;
+	}
+	if (isNaN(data) === true) {
+		return this.createError(ErrorCodes.NUMBER_NOT_A_NUMBER, {value: data}).prefixWith(null, "type");
 	}
 	return null;
 };
