@@ -41,11 +41,11 @@ ValidatorContext.prototype.validateMinMax = function validateMinMax(data, schema
 	return null;
 };
 
-ValidatorContext.prototype.validateNaN = function validateNaN(data, schema) {
+ValidatorContext.prototype.validateNaN = function validateNaN(data) {
 	if (typeof data !== "number") {
 		return null;
 	}
-	if (isNaN(data) === true) {
+	if (isNaN(data) === true || data === Infinity || data === -Infinity) {
 		return this.createError(ErrorCodes.NUMBER_NOT_A_NUMBER, {value: data}).prefixWith(null, "type");
 	}
 	return null;
