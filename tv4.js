@@ -273,7 +273,7 @@ function uriTemplateSubstitution(spec) {
 	subFunction.varNames = varNames;
 	return {
 		prefix: prefix,
-		substitution: subFunction,
+		substitution: subFunction
 	};
 }
 
