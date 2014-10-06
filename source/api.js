@@ -189,6 +189,9 @@ function createApi(language) {
 				schema = {"$ref": schema};
 			}
 			context.addSchema("", schema);
+			if (schema.$schema) {
+				context.addSchema(schema.$schema, schema);
+			}
 			var error = context.validateAll(data, schema, null, null, "");
 			if (!error && banUnknownProperties) {
 				error = context.banUnknownProperties();

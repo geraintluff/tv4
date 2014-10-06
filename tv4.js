@@ -273,7 +273,7 @@ function uriTemplateSubstitution(spec) {
 	subFunction.varNames = varNames;
 	return {
 		prefix: prefix,
-		substitution: subFunction
+		substitution: subFunction,
 	};
 }
 
@@ -742,6 +742,12 @@ ValidatorContext.prototype.validateType = function validateType(data, schema) {
 
 	for (var i = 0; i < allowedTypes.length; i++) {
 		var type = allowedTypes[i];
+		if (type.$ref){
+			var refSchema = this.resolveRefs(type);
+			if (refSchema){
+				type = refSchema.type;
+			}
+		}
 		if (type === dataType || (type === "integer" && dataType === "number" && (data % 1 === 0))) {
 			return null;
 		}
@@ -765,6 +771,7 @@ ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
 ValidatorContext.prototype.validateNumeric = function validateNumeric(data, schema, dataPointerPath) {
 	return this.validateMultipleOf(data, schema, dataPointerPath)
 		|| this.validateMinMax(data, schema, dataPointerPath)
+		|| this.validateNaN(data, schema, dataPointerPath)
 		|| null;
 };
 
@@ -800,6 +807,16 @@ ValidatorContext.prototype.validateMinMax = function validateMinMax(data, schema
 		if (schema.exclusiveMaximum && data === schema.maximum) {
 			return this.createError(ErrorCodes.NUMBER_MAXIMUM_EXCLUSIVE, {value: data, maximum: schema.maximum}).prefixWith(null, "exclusiveMaximum");
 		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateNaN = function validateNaN(data) {
+	if (typeof data !== "number") {
+		return null;
+	}
+	if (isNaN(data) === true || data === Infinity || data === -Infinity) {
+		return this.createError(ErrorCodes.NUMBER_NOT_A_NUMBER, {value: data}).prefixWith(null, "type");
 	}
 	return null;
 };
@@ -1327,6 +1344,7 @@ var ErrorCodes = {
 	NUMBER_MINIMUM_EXCLUSIVE: 102,
 	NUMBER_MAXIMUM: 103,
 	NUMBER_MAXIMUM_EXCLUSIVE: 104,
+	NUMBER_NOT_A_NUMBER: 105,
 	// String errors
 	STRING_LENGTH_SHORT: 200,
 	STRING_LENGTH_LONG: 201,
@@ -1367,6 +1385,7 @@ var ErrorMessagesDefault = {
 	NUMBER_MINIMUM_EXCLUSIVE: "Value {value} is equal to exclusive minimum {minimum}",
 	NUMBER_MAXIMUM: "Value {value} is greater than maximum {maximum}",
 	NUMBER_MAXIMUM_EXCLUSIVE: "Value {value} is equal to exclusive maximum {maximum}",
+	NUMBER_NOT_A_NUMBER: "Value {value} is not a valid number",
 	// String errors
 	STRING_LENGTH_SHORT: "String is too short ({length} chars), minimum {minimum}",
 	STRING_LENGTH_LONG: "String is too long ({length} chars), maximum {maximum}",
@@ -1503,6 +1522,9 @@ function createApi(language) {
 				schema = {"$ref": schema};
 			}
 			context.addSchema("", schema);
+			if (schema.$schema) {
+				context.addSchema(schema.$schema, schema);
+			}
 			var error = context.validateAll(data, schema, null, null, "");
 			if (!error && banUnknownProperties) {
 				error = context.banUnknownProperties();
