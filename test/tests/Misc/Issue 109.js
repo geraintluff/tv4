@@ -16,6 +16,6 @@ describe("Issue 109", function () {
 		
 		var result = tv4.validateMultiple(data, schema, true, true);
 		
-		assert.isFalse(result.valid, 'validateMultiple() should return valid');
+		assert.isFalse(result.valid, 'validateMultiple() should return invalid');
 	});
 });
