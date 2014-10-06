@@ -37,4 +37,52 @@ describe("$ref 04", function () {
 
 		//this.assert(tv4.missing.length == 0, "should have no missing schemas");
 	});
+
+	it("should resolve $ref to a nested schema", function () {
+		
+		var metaSchema = {
+			"$schema": "http://json-schema.org/draft-03/schema#",
+			"id": "http://json-schema.org/draft-03/schema#",
+			"type": "object",
+			
+			"properties": {
+				"type": {
+					"type": [ "string", "array" ],
+					"items": {
+						"type": [ "string", { "$ref": "#" } ]
+					},
+					"uniqueItems": true,
+					"default": "any"
+				},
+				
+				"properties": {
+					"type": "object",
+					"additionalProperties": { "$ref": "#" },
+					"default": {}
+				},
+				
+				"items": {
+					"type": [ { "$ref": "#" }, "array" ],
+					"items": { "$ref": "#" },
+					"default": {}
+				},
+			}
+		};
+
+		var schema = {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"id": {"type": "integer"},
+					"value": {"type": "string"}
+				}
+			}
+		};
+
+		var valid = tv4.validate(schema, metaSchema);
+		console.log("tv4.error: ", tv4.error);
+		assert.isTrue(valid);
+	});
+
 });

@@ -15,7 +15,8 @@
   "main": "tv4.js",
   "scripts": [
     "tv4.js",
-    "lang/de.js"
+    "lang/de.js",
+    "lang/no-nb.js"
   ],
   "styles": [],
   "files": []

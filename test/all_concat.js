@@ -476,6 +476,60 @@ describe("Numberic 02", function () {
 	});
 });
 
+describe("Numeric 03", function () {
+
+	it("NaN failure", function() {
+		var data = NaN;
+		var schema = {};
+		var valid = tv4.validate(data, schema);
+		assert.isFalse(valid);
+	});
+	
+	it("Infinity failure", function() {
+		var data = Infinity;
+		var schema = {};
+		var valid = tv4.validate(data, schema);
+		assert.isFalse(valid);
+	});
+	
+	it("-Infinity failure", function() {
+		var data = -Infinity;
+		var schema = {};
+		var valid = tv4.validate(data, schema);
+		assert.isFalse(valid);
+	});
+	
+	it("string to number failure", function() {
+		var data = Number('foo');
+		var schema = {};
+		var valid = tv4.validate(data, schema);
+		assert.isFalse(valid);
+	});
+	
+	it("string to number success", function() {
+		var data = Number('123');
+		var schema = {};
+		var valid = tv4.validate(data, schema);
+		assert.isTrue(valid);
+	});
+	
+	it("max value success", function() {
+		var data = Number.MAX_VALUE;
+		var schema = {};
+		var valid = tv4.validate(data, schema);
+		assert.isTrue(valid);
+	});
+	
+	/* Travis reports: Bad number '1.798e+308' (which is a good thing, as it should be Infinity)
+	it("big number failure", function() {
+		var data = 1.798e+308;
+		var schema = {};
+		var valid = tv4.validate(data, schema);
+		assert.isFalse(valid);
+	});
+	*/
+});
+
 describe("Strings 01", function () {
 
 	it("no length constraints", function () {
@@ -1309,6 +1363,54 @@ describe("$ref 04", function () {
 
 		//this.assert(tv4.missing.length == 0, "should have no missing schemas");
 	});
+
+	it("should resolve $ref to a nested schema", function () {
+		
+		var metaSchema = {
+			"$schema": "http://json-schema.org/draft-03/schema#",
+			"id": "http://json-schema.org/draft-03/schema#",
+			"type": "object",
+			
+			"properties": {
+				"type": {
+					"type": [ "string", "array" ],
+					"items": {
+						"type": [ "string", { "$ref": "#" } ]
+					},
+					"uniqueItems": true,
+					"default": "any"
+				},
+				
+				"properties": {
+					"type": "object",
+					"additionalProperties": { "$ref": "#" },
+					"default": {}
+				},
+				
+				"items": {
+					"type": [ { "$ref": "#" }, "array" ],
+					"items": { "$ref": "#" },
+					"default": {}
+				},
+			}
+		};
+
+		var schema = {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"id": {"type": "integer"},
+					"value": {"type": "string"}
+				}
+			}
+		};
+
+		var valid = tv4.validate(schema, metaSchema);
+		console.log("tv4.error: ", tv4.error);
+		assert.isTrue(valid);
+	});
+
 });
 
 describe("$ref 05", function () {

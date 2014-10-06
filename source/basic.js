@@ -26,6 +26,12 @@ ValidatorContext.prototype.validateType = function validateType(data, schema) {
 
 	for (var i = 0; i < allowedTypes.length; i++) {
 		var type = allowedTypes[i];
+		if (type.$ref){
+			var refSchema = this.resolveRefs(type);
+			if (refSchema){
+				type = refSchema.type;
+			}
+		}
 		if (type === dataType || (type === "integer" && dataType === "number" && (data % 1 === 0))) {
 			return null;
 		}
