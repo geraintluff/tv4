@@ -1523,6 +1523,15 @@ function createApi(language) {
 			this.error = error;
 			this.missing = context.missing;
 			this.valid = (error === null);
+
+			this.toString = function () {
+				if (this.error) {
+					return this.error.message;
+				} else {
+					return 'Object passed schema validation';
+				}
+			};
+
 			return this.valid;
 		},
 		validateResult: function () {
