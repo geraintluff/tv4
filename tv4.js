@@ -775,9 +775,11 @@ ValidatorContext.prototype.validateMultipleOf = function validateMultipleOf(data
 		return null;
 	}
 	if (typeof data === "number") {
-		if (data % multipleOf !== 0) {
-			return this.createError(ErrorCodes.NUMBER_MULTIPLE_OF, {value: data, multipleOf: multipleOf});
-		}
+        	var CLOSE_ENOUGH = Math.pow(2, -51);
+       		var remainder = (data/multipleOf)%1;
+        	if (!(remainder <= CLOSE_ENOUGH || remainder >= 1- CLOSE_ENOUGH)) {
+            		return this.createError(ErrorCodes.NUMBER_MULTIPLE_OF, {value: data, multipleOf: multipleOf});
+        	};
 	}
 	return null;
 };
