@@ -434,7 +434,7 @@ It will run a build and display one Spec-style report for the node.js and two Do
 
 Pull-requests for fixes and expansions are welcome. Edit the partial files in `/source` and add your tests in a suitable suite or folder under `/test/tests` and run `grunt` to rebuild and run the test suite. Try to maintain an idiomatic coding style and add tests for any new features. It is recommend to discuss big changes in an Issue.
 
-Do you speak another language? Tiny Validator needs internationalization, contribute language files to `/lang`.
+Do you speak another language? `tv4` needs internationalisation - please contribute language files to `/lang`!
 
 ## Packages using tv4
 

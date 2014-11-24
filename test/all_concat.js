@@ -401,20 +401,34 @@ describe("Any types 01", function () {
 	});
 });
 
-describe("Numberic 01", function () {
+describe("Numeric - multipleOf", function () {
 
-	it("multipleOf", function () {
+	it("pass", function () {
 		var data = 5;
 		var schema = {"multipleOf": 2.5};
 		var valid = tv4.validate(data, schema);
 		assert.isTrue(valid);
 	});
 
-	it("multipleOf failure", function () {
+	it("fail", function () {
 		var data = 5;
 		var schema = {"multipleOf": 0.75};
 		var valid = tv4.validate(data, schema);
 		assert.isFalse(valid);
+	});
+
+	it("floating-point pass 6.6/2.2", function () {
+		var data = 6.6;
+		var schema = {"multipleOf": 2.2};
+		var valid = tv4.validate(data, schema);
+		assert.isTrue(valid);
+	});
+
+	it("floating-point pass 6.6666/2.2222", function () {
+		var data = 6.6666;
+		var schema = {"multipleOf": 2.2222};
+		var valid = tv4.validate(data, schema);
+		assert.isTrue(valid);
 	});
 });
 describe("Numberic 02", function () {
@@ -1793,6 +1807,21 @@ describe("Recursive objects 01", function () {
 		tv4.validate(itemA, aSchema, function () {}, true);
 		tv4.validateResult(itemA, aSchema, true);
 		tv4.validateMultiple(itemA, aSchema, true);
+	});
+});
+
+// We don't handle this in general (atm), but some users have had particular problems with things added to the Array prototype
+describe("Recursive schemas", function () {
+	it("due to extra Array.prototype entries", function () {
+		var testSchema = {
+			items: []
+		};
+		Array.prototype._testSchema = testSchema;
+		
+		// Failure mode will be a RangeError (stack size limit)
+		tv4.addSchema('testSchema', testSchema);
+		
+		delete Array.prototype._testSchema;
 	});
 });
 
