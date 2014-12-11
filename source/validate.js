@@ -331,7 +331,7 @@ ValidatorContext.prototype.validateFormat = function (data, schema) {
 	}
 	return null;
 };
-ValidatorContext.prototype.validateDefinedKeywords = function (data, schema) {
+ValidatorContext.prototype.validateDefinedKeywords = function (data, schema, dataPointerPath) {
 	for (var key in this.definedKeywords) {
 		if (typeof schema[key] === 'undefined') {
 			continue;
@@ -339,7 +339,7 @@ ValidatorContext.prototype.validateDefinedKeywords = function (data, schema) {
 		var validationFunctions = this.definedKeywords[key];
 		for (var i = 0; i < validationFunctions.length; i++) {
 			var func = validationFunctions[i];
-			var result = func(data, schema[key], schema);
+			var result = func(data, schema[key], schema, dataPointerPath);
 			if (typeof result === 'string' || typeof result === 'number') {
 				return this.createError(ErrorCodes.KEYWORD_CUSTOM, {key: key, message: result}).prefixWith(null, "format");
 			} else if (result && typeof result === 'object') {
