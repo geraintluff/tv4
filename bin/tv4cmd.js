@@ -38,7 +38,10 @@ function getFile (file, callback) {
 
 function validate (schema, json, out) {
 	getFile(schema, function (err, res) {
-		if (err) throw err;
+		if (err) {
+			console.error(new Error("Couldn't get file " + schema));
+			return;
+		}
 		var sch = res;
 		var sch_ok = tv4.validate(sch, schema_v4);
 		if (! sch_ok) {
@@ -51,7 +54,10 @@ function validate (schema, json, out) {
 		}
 		if (! json) return;
 		getFile(json, function (err, res) {
-			if (err) console.error(err);
+			if (err) {
+				console.error(new Error("Couldn't get file " + json));
+				return;
+			}
 			var data = res;
 			var valid = tv4.validate(data, sch);
 			if (! valid) {
@@ -72,7 +78,7 @@ if (opt.schema) {
 	console.log();
 	console.log("Usage: tv4 <options>");
 	console.log("Where options are:");
-	console.log("  -s, --schema <file>");
+	console.log("  -s, --schema <file>  Required");
 	console.log("  -j, --json <file>");
 	console.log("  -v, --verbose");
 	console.log();
