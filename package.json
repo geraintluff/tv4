@@ -60,6 +60,6 @@
     "prepublish": "grunt prepublish"
   },
   "bin": {
-    "tv4": "bin/tv4cmd.js"
+    "tv4": "./bin/tv4cmd.js"
   }
 }
