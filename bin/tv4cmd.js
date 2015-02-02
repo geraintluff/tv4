@@ -56,6 +56,9 @@ function validate (schema, json, out) {
 			var valid = tv4.validate(data, sch);
 			if (! valid) {
 				console.error(new Error("JSON is not valid."));
+				if (opt.verbose) {
+					console.error(tv4.error.message + ' in path "' + tv4.error.dataPath + '".');
+				}
 			} else if (opt.verbose) {
 				console.log("JSON is valid.");
 			}
