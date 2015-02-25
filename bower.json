@@ -32,7 +32,6 @@
     "node_modules",
     "test",
     "try",
-    "lang",
     "build",
     "dist",
     "doc",
