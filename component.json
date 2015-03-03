@@ -16,9 +16,9 @@
   "scripts": [
     "tv4.js",
     "lang/de.js",
-    "lang/no-nb.js"
-    "lang/pl-PL.js"
-    "lang/pt-PT.js"
+    "lang/no-nb.js",
+    "lang/pl-PL.js",
+    "lang/pt-PT.js",
     "lang/sv-SE.js"
   ],
   "styles": [],
