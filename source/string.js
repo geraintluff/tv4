@@ -22,10 +22,27 @@ ValidatorContext.prototype.validateStringLength = function validateStringLength(
 };
 
 ValidatorContext.prototype.validateStringPattern = function validateStringPattern(data, schema) {
-	if (typeof data !== "string" || schema.pattern === undefined) {
+	if (typeof data !== "string" || (typeof schema.pattern !== "string" && !(schema.pattern instanceof RegExp))) {
 		return null;
 	}
-	var regexp = new RegExp(schema.pattern);
+	var regexp;
+	if (schema.pattern instanceof RegExp) {
+	  regexp = schema.pattern;
+	}
+	else {
+	  var body, flags = '';
+	  // Check for regular expression literals
+	  // @see http://www.ecma-international.org/ecma-262/5.1/#sec-7.8.5
+	  var literal = schema.pattern.match(/^\/(.+)\/([img]*)$/);
+	  if (literal) {
+	    body = literal[1];
+	    flags = literal[2];
+	  }
+	  else {
+	    body = schema.pattern;
+	  }
+	  regexp = new RegExp(body, flags);
+	}
 	if (!regexp.test(data)) {
 		return this.createError(ErrorCodes.STRING_PATTERN, {pattern: schema.pattern}).prefixWith(null, "pattern");
 	}
