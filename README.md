@@ -98,13 +98,13 @@ tv4.addSchema('aSchema', aSchema);
 tv4.addSchema('bSchema', bSchema);
 ```
 
-If the `checkRecursive` argument were missing, this would throw a "too much recursion" error. 
+If the `checkRecursive` argument were missing, this would throw a "too much recursion" error.
 
-To enable support for this, pass `true` as additional argument to any of the regular validation methods: 
+To enable support for this, pass `true` as additional argument to any of the regular validation methods:
 
 ```javascript
 tv4.validate(a, aSchema, true);
-tv4.validateResult(data, aSchema, true); 
+tv4.validateResult(data, aSchema, true);
 tv4.validateMultiple(data, aSchema, true);
 ```
 
@@ -149,6 +149,16 @@ Return a schema from the cache.
 ````js
 var schema = tv4.getSchema('http://example.com/schema');
 ````
+
+##### getDereferencedSchema(uri/schema)
+
+Returns a fully dereferenced schema. All `$ref`s are resolved if they are already registered in tv4 using `addSchema()`.
+
+Can accept the uri of a schema already registered in tv4 or a schema that references schemas already registered in tv4.
+
+```js
+var schema = tv4.getDereferencedSchema('http://example.com/schema');
+```
 
 ##### getSchemaMap()
 

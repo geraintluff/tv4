@@ -228,6 +228,9 @@ function createApi(language) {
 		getSchemaMap: function () {
 			return globalContext.getSchemaMap.apply(globalContext, arguments);
 		},
+		getDereferencedSchema: function () {
+			return globalContext.getDereferencedSchema.apply(globalContext, arguments);
+		},
 		getSchemaUris: function () {
 			return globalContext.getSchemaUris.apply(globalContext, arguments);
 		},

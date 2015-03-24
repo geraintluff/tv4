@@ -129,6 +129,40 @@ ValidatorContext.prototype.getSchema = function (url, urlHistory) {
 		this.missingMap[baseUrl] = baseUrl;
 	}
 };
+
+// Shallow clone a plain object.
+function cloneObject(object) {
+    var clone = {};
+    for (var key in object) {
+        if (object.hasOwnProperty(key)) {
+            clone[key] = object[key];
+        }
+    }
+    return clone;
+}
+
+// Takes a schema and dereferences it.
+ValidatorContext.prototype.derefSchema = function(schema, urlHistory) {
+	if (typeof schema === 'undefined') {
+		return schema;
+	}
+	schema = this.resolveRefs(schema, urlHistory);
+    if (typeof schema === 'object') {
+        for (var key in schema) {
+            schema[key] = this.derefSchema(schema[key], cloneObject(urlHistory));
+        }
+    }
+    return schema;
+};
+
+// Takes either a schema or a url and dereferences it.
+ValidatorContext.prototype.getDereferencedSchema = function (schema) {
+	if (typeof schema === 'string') {
+		schema = this.getSchema(schema);
+	}
+    return this.derefSchema(schema);
+};
+
 ValidatorContext.prototype.searchSchemas = function (schema, url) {
 	if (Array.isArray(schema)) {
 		for (var i = 0; i < schema.length; i++) {
