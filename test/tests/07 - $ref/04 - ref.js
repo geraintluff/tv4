@@ -21,8 +21,19 @@ describe("$ref 04", function () {
 
 	it("internal $ref", function () {
 		var schema = {
+			"definitions": {
+				"list": {
+					"type": "array"
+				},
+				"nestedList": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/list"
+					}
+				}
+			},
 			"type": "array",
-			"items": {"$ref": "#"}
+			"items": {"$ref": "#/definitions/nestedList"}
 		};
 
 		assert.isTrue(tv4.validate([[],[[]]], schema), "List of lists should be valid");

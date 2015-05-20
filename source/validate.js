@@ -79,22 +79,57 @@ ValidatorContext.prototype.addFormat = function (format, validator) {
 	}
 	this.formatValidators[format] = validator;
 };
-ValidatorContext.prototype.resolveRefs = function (schema, urlHistory) {
-	if (schema['$ref'] !== undefined) {
+ValidatorContext.prototype.resolveRefs = function (schema, urlHistory, recursive) {
+	var subSchema;
+
+	if (recursive === true) {
+		recursive = 1;
+	} else if (typeof recursive !== "number") {
+		recursive = 0;
+	} else if (recursive > 0) {
+		recursive -= 1;
+	}
+
+	while (schema && typeof schema['$ref'] === "string") {
 		urlHistory = urlHistory || {};
+
 		if (urlHistory[schema['$ref']]) {
 			return this.createError(ErrorCodes.CIRCULAR_REFERENCE, {urls: Object.keys(urlHistory).join(', ')}, '', '');
 		}
 		urlHistory[schema['$ref']] = true;
-		schema = this.getSchema(schema['$ref'], urlHistory);
+		schema = this.getSchema(schema['$ref'], urlHistory, recursive);
+	}
+
+	if (recursive && Array.isArray(schema)) {
+		for (var i = 0; i < schema.length; i++) {
+			subSchema = this.resolveRefs(schema[i], urlHistory, recursive);
+
+			if (subSchema instanceof ValidationError) {
+				return subSchema;
+			}
+
+			schema[i] = subSchema;
+		}
+	} else if (recursive && typeof schema === "object") {
+		for (var key in schema) {
+			if (key !== "enum") {
+				subSchema = this.resolveRefs(schema[key], urlHistory, recursive);
+
+				if (subSchema instanceof ValidationError) {
+					return subSchema;
+				}
+
+				schema[key] = subSchema;
+			}
+		}
 	}
 	return schema;
 };
-ValidatorContext.prototype.getSchema = function (url, urlHistory) {
+ValidatorContext.prototype.getSchema = function (url, urlHistory, recursive) {
 	var schema;
 	if (this.schemas[url] !== undefined) {
 		schema = this.schemas[url];
-		return this.resolveRefs(schema, urlHistory);
+		return this.resolveRefs(schema, urlHistory, recursive);
 	}
 	var baseUrl = url;
 	var fragment = "";
@@ -106,7 +141,7 @@ ValidatorContext.prototype.getSchema = function (url, urlHistory) {
 		schema = this.schemas[baseUrl];
 		var pointerPath = decodeURIComponent(fragment);
 		if (pointerPath === "") {
-			return this.resolveRefs(schema, urlHistory);
+			return this.resolveRefs(schema, urlHistory, recursive);
 		} else if (pointerPath.charAt(0) !== "/") {
 			return undefined;
 		}
@@ -120,7 +155,7 @@ ValidatorContext.prototype.getSchema = function (url, urlHistory) {
 			schema = schema[component];
 		}
 		if (schema !== undefined) {
-			return this.resolveRefs(schema, urlHistory);
+			return this.resolveRefs(schema, urlHistory, recursive);
 		}
 	}
 	if (this.missing[baseUrl] === undefined) {

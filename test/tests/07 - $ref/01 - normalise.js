@@ -64,5 +64,9 @@ describe("$ref 01", function () {
 		tv4.normSchema(schema);
 		var valid = tv4.validate(data, schema);
 		assert.isFalse(valid);
+
+		data = {"id": 1, "$ref": 1};
+		valid = tv4.validate(data, schema);
+		assert.isTrue(valid);
 	});
 });
