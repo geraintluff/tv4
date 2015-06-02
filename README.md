@@ -298,6 +298,25 @@ Defines a custom error code.
 
 An example of `defaultMessage` might be: `"Incorrect moon (expected {expected}, got {actual}"`).  This is filled out if a custom keyword returns a object `message` (see above).  Translations will be used, if associated with the correct code name/number.
 
+##### ValidatorContext
+
+Create custom validation executor using `ValidatorContext`
+
+````
+var context = new ValidatorContext({}, true);
+context.addSchema('', schema);
+context.validateAll(data, schema, null, null, '');
+if (banUnknownProperties) {
+    context.banUnknownProperties();
+}
+context.errors;  // contains errors
+context.missing; // contains missing schemas
+````
+
+##### ValidationError
+
+Create custom validation error using `ValidationError`
+
 ## Demos
 
 ### Basic usage

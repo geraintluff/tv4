@@ -204,19 +204,24 @@ function createApi(language) {
 			return result;
 		},
 		validateMultiple: function (data, schema, checkRecursive, banUnknownProperties) {
-			var context = new ValidatorContext(globalContext, true, languages[currentLanguage], checkRecursive, banUnknownProperties);
+			var result = {};
+
+			result.context = new ValidatorContext(globalContext, true, languages[currentLanguage], checkRecursive, banUnknownProperties);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
-			context.addSchema("", schema);
-			context.validateAll(data, schema, null, null, "");
+			result.context.addSchema("", schema);
+			result.context.validateAll(data, schema, null, null, "");
+
 			if (banUnknownProperties) {
-				context.banUnknownProperties();
+				result.context.banUnknownProperties();
 			}
-			var result = {};
-			result.errors = context.errors;
-			result.missing = context.missing;
+
+			result.errors = result.context.errors;
+			result.missing = result.context.missing;
 			result.valid = (result.errors.length === 0);
+			delete result.context;
+
 			return result;
 		},
 		addSchema: function () {
@@ -275,7 +280,9 @@ function createApi(language) {
 		normSchema: normSchema,
 		resolveUrl: resolveUrl,
 		getDocumentUri: getDocumentUri,
-		errorCodes: ErrorCodes
+		errorCodes: ErrorCodes,
+		ValidatorContext: ValidatorContext,
+		ValidationError: ValidationError
 	};
 	return api;
 }
