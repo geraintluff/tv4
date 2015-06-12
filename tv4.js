@@ -685,7 +685,7 @@ function recursiveCompare(A, B) {
 	if (A === B) {
 		return true;
 	}
-	if (typeof A === "object" && typeof B === "object") {
+	if (A && B && typeof A === "object" && typeof B === "object") {
 		if (Array.isArray(A) !== Array.isArray(B)) {
 			return false;
 		} else if (Array.isArray(A)) {
