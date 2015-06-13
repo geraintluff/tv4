@@ -164,10 +164,20 @@ ValidatorContext.prototype.getSchema = function (url, urlHistory, recursive) {
 		this.missingMap[baseUrl] = baseUrl;
 	}
 };
-ValidatorContext.prototype.searchSchemas = function (schema, url) {
+ValidatorContext.prototype.searchSchemas = function (schema, url, stack) {
+	if (typeof stack === "undefined") {
+		stack = [schema];
+	} else {
+		if (stack.indexOf(schema) >= 0) {
+			return;
+		}
+
+		stack = stack.slice(0);
+		stack.unshift(schema);
+	}
 	if (Array.isArray(schema)) {
 		for (var i = 0; i < schema.length; i++) {
-			this.searchSchemas(schema[i], url);
+			this.searchSchemas(schema[i], url, stack);
 		}
 	} else if (schema && typeof schema === "object") {
 		if (typeof schema.id === "string") {
@@ -180,7 +190,7 @@ ValidatorContext.prototype.searchSchemas = function (schema, url) {
 		for (var key in schema) {
 			if (key !== "enum") {
 				if (typeof schema[key] === "object") {
-					this.searchSchemas(schema[key], url);
+					this.searchSchemas(schema[key], url, stack);
 				} else if (key === "$ref") {
 					var uri = getDocumentUri(schema[key]);
 					if (uri && this.schemas[uri] === undefined && this.missingMap[uri] === undefined) {

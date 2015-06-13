@@ -59,4 +59,26 @@ describe("$refs to recursive $refs", function () {
 		var result3 = tv4.validateResult("string of text", "http://b.c/d#/properties/id");
 		assert.isFalse(result3.valid, "should be invalid");
 	});
+
+	it("handles self-referencing schema cleanly", function() {
+		var schema1 = {
+			"id": "http://a.b/c",
+			"definitions": {
+				"a": {
+					"type": "object",
+					"properties": {
+						"parent": {
+							"$ref": "http://a.b/c"
+						}
+					}
+				}
+			}
+		};
+
+		schema1['definitions']['b'] = schema1;
+
+		tv4.addSchema(schema1);
+
+		tv4.normSchema(schema1);
+	});
 });
