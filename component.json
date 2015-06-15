@@ -19,7 +19,8 @@
     "lang/no-nb.js",
     "lang/pl-PL.js",
     "lang/pt-PT.js",
-    "lang/sv-SE.js"
+    "lang/sv-SE.js",
+    "lang/zh-CN.js"
   ],
   "styles": [],
   "files": []
