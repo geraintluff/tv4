@@ -16,10 +16,12 @@
   "scripts": [
     "tv4.js",
     "lang/de.js",
-    "lang/no-nb.js",
+    "lang/fr.js",
+    "lang/nb.js",
     "lang/pl-PL.js",
     "lang/pt-PT.js",
-    "lang/sv-SE.js"
+    "lang/sv-SE.js",
+    "lang/zh-CN.js"
   ],
   "styles": [],
   "files": []
