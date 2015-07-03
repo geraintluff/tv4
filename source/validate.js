@@ -33,13 +33,13 @@ ValidatorContext.prototype.defineKeyword = function (keyword, keywordFunction) {
 	this.definedKeywords[keyword].push(keywordFunction);
 };
 ValidatorContext.prototype.createError = function (code, messageParams, dataPath, schemaPath, subErrors) {
-	var messageTemplate = messageParams.message || this.errorMessages[code] || ErrorMessagesDefault[code];
+	var messageTemplate = messageParams.customMessage || this.errorMessages[code] || ErrorMessagesDefault[code];
 	if (typeof messageTemplate !== 'string') {
 		return new ValidationError(code, "Unknown error code " + code + ": " + JSON.stringify(messageParams), messageParams, dataPath, schemaPath, subErrors);
 	}
 	// Adapted from Crockford's supplant()
 	var message = messageTemplate.replace(/\{([^{}]*)\}/g, function (whole, varName) {
-		var subValue = (varName === 'message') ? undefined:messageParams[varName];
+		var subValue = (varName === 'customMessage') ? undefined:messageParams[varName];
 		return typeof subValue === 'string' || typeof subValue === 'number' ? subValue : whole;
 	});
 	return new ValidationError(code, message, messageParams, dataPath, schemaPath, subErrors);
@@ -403,7 +403,7 @@ function recursiveCompare(A, B) {
 function pluck(schema, key, params) {
 	params = params || {};
 	if(schema.messages && schema.messages[key]) {
-		params.message = schema.messages[key];
+		params.customMessage = schema.messages[key];
 	}
 	return params;
 }
