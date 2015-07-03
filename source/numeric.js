@@ -15,7 +15,7 @@ ValidatorContext.prototype.validateMultipleOf = function validateMultipleOf(data
 	if (typeof data === "number") {
 		var remainder = (data/multipleOf)%1;
 		if (remainder >= CLOSE_ENOUGH_LOW && remainder < CLOSE_ENOUGH_HIGH) {
-			return this.createError(ErrorCodes.NUMBER_MULTIPLE_OF, {value: data, multipleOf: multipleOf});
+			return this.createError(ErrorCodes.NUMBER_MULTIPLE_OF, pluck(schema, "multipleOf", {value: data, multipleOf: multipleOf}));
 		}
 	}
 	return null;
@@ -27,18 +27,18 @@ ValidatorContext.prototype.validateMinMax = function validateMinMax(data, schema
 	}
 	if (schema.minimum !== undefined) {
 		if (data < schema.minimum) {
-			return this.createError(ErrorCodes.NUMBER_MINIMUM, {value: data, minimum: schema.minimum}).prefixWith(null, "minimum");
+			return this.createError(ErrorCodes.NUMBER_MINIMUM, pluck(schema, "minimum", {value: data, minimum: schema.minimum})).prefixWith(null, "minimum");
 		}
 		if (schema.exclusiveMinimum && data === schema.minimum) {
-			return this.createError(ErrorCodes.NUMBER_MINIMUM_EXCLUSIVE, {value: data, minimum: schema.minimum}).prefixWith(null, "exclusiveMinimum");
+			return this.createError(ErrorCodes.NUMBER_MINIMUM_EXCLUSIVE, pluck(schema, "exclusiveMinimum", {value: data, minimum: schema.minimum})).prefixWith(null, "exclusiveMinimum");
 		}
 	}
 	if (schema.maximum !== undefined) {
 		if (data > schema.maximum) {
-			return this.createError(ErrorCodes.NUMBER_MAXIMUM, {value: data, maximum: schema.maximum}).prefixWith(null, "maximum");
+			return this.createError(ErrorCodes.NUMBER_MAXIMUM, pluck(schema, "maximum", {value: data, maximum: schema.maximum})).prefixWith(null, "maximum");
 		}
 		if (schema.exclusiveMaximum && data === schema.maximum) {
-			return this.createError(ErrorCodes.NUMBER_MAXIMUM_EXCLUSIVE, {value: data, maximum: schema.maximum}).prefixWith(null, "exclusiveMaximum");
+			return this.createError(ErrorCodes.NUMBER_MAXIMUM_EXCLUSIVE, pluck(schema, "exclusiveMaximum", {value: data, maximum: schema.maximum})).prefixWith(null, "exclusiveMaximum");
 		}
 	}
 	return null;

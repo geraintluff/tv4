@@ -73,7 +73,7 @@ ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema, 
 	if (errorAtEnd) {
 		errors = errors.concat(this.errors.slice(startErrorCount));
 		this.errors = this.errors.slice(0, startErrorCount);
-		return this.createError(ErrorCodes.ANY_OF_MISSING, {}, "", "/anyOf", errors);
+		return this.createError(ErrorCodes.ANY_OF_MISSING, pluck(schema, "anyOf", {}), "", "/anyOf", errors);
 	}
 };
 
@@ -104,7 +104,7 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema, 
 				validIndex = i;
 			} else {
 				this.errors = this.errors.slice(0, startErrorCount);
-				return this.createError(ErrorCodes.ONE_OF_MULTIPLE, {index1: validIndex, index2: i}, "", "/oneOf");
+				return this.createError(ErrorCodes.ONE_OF_MULTIPLE, pluck(schema, "oneOf", {index1: validIndex, index2: i}), "", "/oneOf");
 			}
 			if (this.trackUnknownProperties) {
 				for (var knownKey in this.knownPropertyPaths) {
@@ -128,7 +128,7 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema, 
 	if (validIndex === null) {
 		errors = errors.concat(this.errors.slice(startErrorCount));
 		this.errors = this.errors.slice(0, startErrorCount);
-		return this.createError(ErrorCodes.ONE_OF_MISSING, {}, "", "/oneOf", errors);
+		return this.createError(ErrorCodes.ONE_OF_MISSING, pluck(schema, "oneOf", {}), "", "/oneOf", errors);
 	} else {
 		this.errors = this.errors.slice(0, startErrorCount);
 	}
@@ -155,7 +155,7 @@ ValidatorContext.prototype.validateNot = function validateNot(data, schema, data
 		this.knownPropertyPaths = oldKnownPropertyPaths;
 	}
 	if (error === null && notErrors.length === 0) {
-		return this.createError(ErrorCodes.NOT_PASSED, {}, "", "/not");
+		return this.createError(ErrorCodes.NOT_PASSED, pluck(schema, "not", {}), "", "/not");
 	}
 	return null;
 };
