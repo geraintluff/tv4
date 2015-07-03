@@ -12,7 +12,7 @@ ValidatorContext.prototype.validateArrayLength = function validateArrayLength(da
 	var error;
 	if (schema.minItems !== undefined) {
 		if (data.length < schema.minItems) {
-			error = (this.createError(ErrorCodes.ARRAY_LENGTH_SHORT, {length: data.length, minimum: schema.minItems})).prefixWith(null, "minItems");
+			error = (this.createError(ErrorCodes.ARRAY_LENGTH_SHORT, pluck(schema, "minItems", {length: data.length, minimum: schema.minItems}))).prefixWith(null, "minItems");
 			if (this.handleError(error)) {
 				return error;
 			}
@@ -20,7 +20,7 @@ ValidatorContext.prototype.validateArrayLength = function validateArrayLength(da
 	}
 	if (schema.maxItems !== undefined) {
 		if (data.length > schema.maxItems) {
-			error = (this.createError(ErrorCodes.ARRAY_LENGTH_LONG, {length: data.length, maximum: schema.maxItems})).prefixWith(null, "maxItems");
+			error = (this.createError(ErrorCodes.ARRAY_LENGTH_LONG, pluck(schema, "maxItems", {length: data.length, maximum: schema.maxItems}) )).prefixWith(null, "maxItems");
 			if (this.handleError(error)) {
 				return error;
 			}
@@ -34,7 +34,7 @@ ValidatorContext.prototype.validateArrayUniqueItems = function validateArrayUniq
 		for (var i = 0; i < data.length; i++) {
 			for (var j = i + 1; j < data.length; j++) {
 				if (recursiveCompare(data[i], data[j])) {
-					var error = (this.createError(ErrorCodes.ARRAY_UNIQUE, {match1: i, match2: j})).prefixWith(null, "uniqueItems");
+					var error = (this.createError(ErrorCodes.ARRAY_UNIQUE, pluck(schema, "uniqueItems", {match1: i, match2: j}) )).prefixWith(null, "uniqueItems");
 					if (this.handleError(error)) {
 						return error;
 					}
@@ -59,7 +59,7 @@ ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data
 			} else if (schema.additionalItems !== undefined) {
 				if (typeof schema.additionalItems === "boolean") {
 					if (!schema.additionalItems) {
-						error = (this.createError(ErrorCodes.ARRAY_ADDITIONAL_ITEMS, {})).prefixWith("" + i, "additionalItems");
+						error = (this.createError(ErrorCodes.ARRAY_ADDITIONAL_ITEMS, pluck(schema, "additionalItems", {}) )).prefixWith("" + i, "additionalItems");
 						if (this.handleError(error)) {
 							return error;
 						}

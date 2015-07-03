@@ -30,7 +30,7 @@ ValidatorContext.prototype.validateType = function validateType(data, schema) {
 			return null;
 		}
 	}
-	return this.createError(ErrorCodes.INVALID_TYPE, {type: dataType, expected: allowedTypes.join("/")});
+	return this.createError(ErrorCodes.INVALID_TYPE, pluck(schema, "type", {type: dataType, expected: allowedTypes.join("/")}));
 };
 
 ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
@@ -43,5 +43,5 @@ ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
 			return null;
 		}
 	}
-	return this.createError(ErrorCodes.ENUM_MISMATCH, {value: (typeof JSON !== 'undefined') ? JSON.stringify(data) : data});
+	return this.createError(ErrorCodes.ENUM_MISMATCH, pluck(schema, "enum", {value: (typeof JSON !== 'undefined') ? JSON.stringify(data) : data}));
 };

@@ -10,12 +10,12 @@ ValidatorContext.prototype.validateStringLength = function validateStringLength(
 	}
 	if (schema.minLength !== undefined) {
 		if (data.length < schema.minLength) {
-			return this.createError(ErrorCodes.STRING_LENGTH_SHORT, {length: data.length, minimum: schema.minLength}).prefixWith(null, "minLength");
+			return this.createError(ErrorCodes.STRING_LENGTH_SHORT, pluck(schema, "minLength", {length: data.length, minimum: schema.minLength})).prefixWith(null, "minLength");
 		}
 	}
 	if (schema.maxLength !== undefined) {
 		if (data.length > schema.maxLength) {
-			return this.createError(ErrorCodes.STRING_LENGTH_LONG, {length: data.length, maximum: schema.maxLength}).prefixWith(null, "maxLength");
+			return this.createError(ErrorCodes.STRING_LENGTH_LONG, pluck(schema, "maxLength", {length: data.length, maximum: schema.maxLength})).prefixWith(null, "maxLength");
 		}
 	}
 	return null;
@@ -44,7 +44,7 @@ ValidatorContext.prototype.validateStringPattern = function validateStringPatter
 	  regexp = new RegExp(body, flags);
 	}
 	if (!regexp.test(data)) {
-		return this.createError(ErrorCodes.STRING_PATTERN, {pattern: schema.pattern}).prefixWith(null, "pattern");
+		return this.createError(ErrorCodes.STRING_PATTERN, pluck(schema, "pattern", {pattern: schema.pattern})).prefixWith(null, "pattern");
 	}
 	return null;
 };
