@@ -137,13 +137,13 @@ var languages = {};
 function createApi(language) {
 	var globalContext = new ValidatorContext();
 	var currentLanguage;
-	var errorReporter;
+	var customErrorReporter;
 	var api = {
 		setErrorReporter: function (reporter) {
 			if (typeof reporter === 'string') {
 				return this.language(reporter);
 			}
-			errorReporter = reporter;
+			customErrorReporter = reporter;
 			return true;
 		},
 		addFormat: function () {
@@ -158,7 +158,6 @@ function createApi(language) {
 			}
 			if (languages[code]) {
 				currentLanguage = code;
-				this.setErrorReporter(defaultErrorReporter(code));
 				return code; // so you can tell if fall-back has happened
 			}
 			return false;
@@ -193,6 +192,10 @@ function createApi(language) {
 			return result;
 		},
 		validate: function (data, schema, checkRecursive, banUnknownProperties) {
+			var def = defaultErrorReporter(currentLanguage);
+			var errorReporter = customErrorReporter ? function (error, data, schema) {
+				return customErrorReporter(error, data, schema) || def(error, data, schema);
+			} : def;
 			var context = new ValidatorContext(globalContext, false, errorReporter, checkRecursive, banUnknownProperties);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
@@ -200,7 +203,7 @@ function createApi(language) {
 			context.addSchema("", schema);
 			var error = context.validateAll(data, schema, null, null, "");
 			if (!error && banUnknownProperties) {
-				error = context.banUnknownProperties();
+				error = context.banUnknownProperties(data, schema);
 			}
 			this.error = error;
 			this.missing = context.missing;
@@ -213,6 +216,10 @@ function createApi(language) {
 			return result;
 		},
 		validateMultiple: function (data, schema, checkRecursive, banUnknownProperties) {
+			var def = defaultErrorReporter(currentLanguage);
+			var errorReporter = customErrorReporter ? function (error, data, schema) {
+				return customErrorReporter(error, data, schema) || def(error, data, schema);
+			} : def;
 			var context = new ValidatorContext(globalContext, true, errorReporter, checkRecursive, banUnknownProperties);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
@@ -220,7 +227,7 @@ function createApi(language) {
 			context.addSchema("", schema);
 			context.validateAll(data, schema, null, null, "");
 			if (banUnknownProperties) {
-				context.banUnknownProperties();
+				context.banUnknownProperties(data, schema);
 			}
 			var result = {};
 			result.errors = context.errors;

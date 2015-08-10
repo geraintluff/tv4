@@ -35,9 +35,9 @@ ValidatorContext.prototype.defineKeyword = function (keyword, keywordFunction) {
 	this.definedKeywords[keyword] = this.definedKeywords[keyword] || [];
 	this.definedKeywords[keyword].push(keywordFunction);
 };
-ValidatorContext.prototype.createError = function (code, messageParams, dataPath, schemaPath, subErrors) {
+ValidatorContext.prototype.createError = function (code, messageParams, dataPath, schemaPath, subErrors, data, schema) {
 	var error = new ValidationError(code, messageParams, dataPath, schemaPath, subErrors);
-	error.message = this.errorReporter(error);
+	error.message = this.errorReporter(error, data, schema);
 	return error;
 };
 ValidatorContext.prototype.returnError = function (error) {
@@ -55,9 +55,9 @@ ValidatorContext.prototype.prefixErrors = function (startIndex, dataPath, schema
 	}
 	return this;
 };
-ValidatorContext.prototype.banUnknownProperties = function () {
+ValidatorContext.prototype.banUnknownProperties = function (data, schema) {
 	for (var unknownPath in this.unknownPropertyPaths) {
-		var error = this.createError(ErrorCodes.UNKNOWN_PROPERTY, {path: unknownPath}, unknownPath, "");
+		var error = this.createError(ErrorCodes.UNKNOWN_PROPERTY, {path: unknownPath}, unknownPath, "", null, data, schema);
 		var result = this.handleError(error);
 		if (result) {
 			return result;
@@ -79,7 +79,7 @@ ValidatorContext.prototype.resolveRefs = function (schema, urlHistory) {
 	if (schema['$ref'] !== undefined) {
 		urlHistory = urlHistory || {};
 		if (urlHistory[schema['$ref']]) {
-			return this.createError(ErrorCodes.CIRCULAR_REFERENCE, {urls: Object.keys(urlHistory).join(', ')}, '', '');
+			return this.createError(ErrorCodes.CIRCULAR_REFERENCE, {urls: Object.keys(urlHistory).join(', ')}, '', '', null, undefined, schema);
 		}
 		urlHistory[schema['$ref']] = true;
 		schema = this.getSchema(schema['$ref'], urlHistory);
@@ -321,9 +321,9 @@ ValidatorContext.prototype.validateFormat = function (data, schema) {
 	}
 	var errorMessage = this.formatValidators[schema.format].call(null, data, schema);
 	if (typeof errorMessage === 'string' || typeof errorMessage === 'number') {
-		return this.createError(ErrorCodes.FORMAT_CUSTOM, {message: errorMessage}).prefixWith(null, "format");
+		return this.createError(ErrorCodes.FORMAT_CUSTOM, {message: errorMessage}, '', '/format', null, data, schema);
 	} else if (errorMessage && typeof errorMessage === 'object') {
-		return this.createError(ErrorCodes.FORMAT_CUSTOM, {message: errorMessage.message || "?"}, errorMessage.dataPath || null, errorMessage.schemaPath || "/format");
+		return this.createError(ErrorCodes.FORMAT_CUSTOM, {message: errorMessage.message || "?"}, errorMessage.dataPath || '', errorMessage.schemaPath || "/format", null, data, schema);
 	}
 	return null;
 };
@@ -337,7 +337,7 @@ ValidatorContext.prototype.validateDefinedKeywords = function (data, schema, dat
 			var func = validationFunctions[i];
 			var result = func(data, schema[key], schema, dataPointerPath);
 			if (typeof result === 'string' || typeof result === 'number') {
-				return this.createError(ErrorCodes.KEYWORD_CUSTOM, {key: key, message: result}).prefixWith(null, "format");
+				return this.createError(ErrorCodes.KEYWORD_CUSTOM, {key: key, message: result}, '', '', null, data, schema).prefixWith(null, key);
 			} else if (result && typeof result === 'object') {
 				var code = result.code;
 				if (typeof code === 'string') {
@@ -349,8 +349,8 @@ ValidatorContext.prototype.validateDefinedKeywords = function (data, schema, dat
 					code = ErrorCodes.KEYWORD_CUSTOM;
 				}
 				var messageParams = (typeof result.message === 'object') ? result.message : {key: key, message: result.message || "?"};
-				var schemaPath = result.schemaPath ||( "/" + key.replace(/~/g, '~0').replace(/\//g, '~1'));
-				return this.createError(code, messageParams, result.dataPath || null, schemaPath);
+				var schemaPath = result.schemaPath || ("/" + key.replace(/~/g, '~0').replace(/\//g, '~1'));
+				return this.createError(code, messageParams, result.dataPath || null, schemaPath, null, data, schema);
 			}
 		}
 	}
