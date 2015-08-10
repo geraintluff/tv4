@@ -98,13 +98,13 @@ tv4.addSchema('aSchema', aSchema);
 tv4.addSchema('bSchema', bSchema);
 ```
 
-If the `checkRecursive` argument were missing, this would throw a "too much recursion" error. 
+If the `checkRecursive` argument were missing, this would throw a "too much recursion" error.
 
-To enable support for this, pass `true` as additional argument to any of the regular validation methods: 
+To enable support for this, pass `true` as additional argument to any of the regular validation methods:
 
 ```javascript
 tv4.validate(a, aSchema, true);
-tv4.validateResult(data, aSchema, true); 
+tv4.validateResult(data, aSchema, true);
 tv4.validateMultiple(data, aSchema, true);
 ```
 
@@ -212,9 +212,23 @@ Manually reset validation status from the simple `tv4.validate(data, schema)`. A
 tv4.reset();
 ````
 
+##### setErrorReporter(reporter)
+
+Sets a custom error reporter.  This is a function that accepts three arguments, and returns an error message (string):
+
+```
+tv4.setErrorReporter(function (error, data, schema) {
+    return "Error code: " + error.code;
+});
+```
+
+The `error` object already has everything aside from the `.message` property filled in (so you can use `error.params`, `error.dataPath`, `error.schemaPath` etc.).
+
+If nothing is returned (or the empty string), then it falls back to the default error reporter.  To remove a custom error reporter, call `tv4.setErrorReporter(null)`.
+
 ##### language(code)
 
-Select the language map used for reporting.
+Sets the language used by the default error reporter.
 
 * `code` is a language code, like `'en'` or `'en-gb'`
 
@@ -222,9 +236,11 @@ Select the language map used for reporting.
 tv4.language('en-gb');
 ````
 
+If you specify a multi-level language code (e.g. `fr-CH`), then it will fall back to the generic version (`fr`) if needed.
+
 ##### addLanguage(code, map)
 
-Add a new language map for selection by `tv4.language(code)`
+Add a new template-based language map for the default error reporter (used by `tv4.language(code)`)
 
 * `code` is new language code
 * `map` is an object mapping error IDs or constant names (e.g. `103` or `"NUMBER_MAXIMUM"`) to language strings.
@@ -235,6 +251,8 @@ tv4.addLanguage('fr', { ... });
 // select for use
 tv4.language('fr')
 ````
+
+If you register a multi-level language code (e.g. `fr-FR`), then it will also be registered for plain `fr` if that does not already exist.
 
 ##### addFormat(format, validationFunction)
 

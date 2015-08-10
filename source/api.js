@@ -77,12 +77,12 @@ var ErrorMessagesDefault = {
 	UNKNOWN_PROPERTY: "Unknown property (not in schema)"
 };
 
-function ValidationError(code, message, params, dataPath, schemaPath, subErrors) {
+function ValidationError(code, params, dataPath, schemaPath, subErrors) {
 	Error.call(this);
 	if (code === undefined) {
-		throw new Error ("No code supplied for error: "+ message);
+		throw new Error ("No error code supplied: " + schemaPath);
 	}
-	this.message = message;
+	this.message = '';
 	this.params = params;
 	this.code = code;
 	this.dataPath = dataPath || "";
@@ -136,8 +136,16 @@ function isTrustedUrl(baseUrl, testUrl) {
 var languages = {};
 function createApi(language) {
 	var globalContext = new ValidatorContext();
-	var currentLanguage = language || 'en';
+	var currentLanguage;
+	var customErrorReporter;
 	var api = {
+		setErrorReporter: function (reporter) {
+			if (typeof reporter === 'string') {
+				return this.language(reporter);
+			}
+			customErrorReporter = reporter;
+			return true;
+		},
 		addFormat: function () {
 			globalContext.addFormat.apply(globalContext, arguments);
 		},
@@ -184,14 +192,18 @@ function createApi(language) {
 			return result;
 		},
 		validate: function (data, schema, checkRecursive, banUnknownProperties) {
-			var context = new ValidatorContext(globalContext, false, languages[currentLanguage], checkRecursive, banUnknownProperties);
+			var def = defaultErrorReporter(currentLanguage);
+			var errorReporter = customErrorReporter ? function (error, data, schema) {
+				return customErrorReporter(error, data, schema) || def(error, data, schema);
+			} : def;
+			var context = new ValidatorContext(globalContext, false, errorReporter, checkRecursive, banUnknownProperties);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
 			context.addSchema("", schema);
 			var error = context.validateAll(data, schema, null, null, "");
 			if (!error && banUnknownProperties) {
-				error = context.banUnknownProperties();
+				error = context.banUnknownProperties(data, schema);
 			}
 			this.error = error;
 			this.missing = context.missing;
@@ -204,14 +216,18 @@ function createApi(language) {
 			return result;
 		},
 		validateMultiple: function (data, schema, checkRecursive, banUnknownProperties) {
-			var context = new ValidatorContext(globalContext, true, languages[currentLanguage], checkRecursive, banUnknownProperties);
+			var def = defaultErrorReporter(currentLanguage);
+			var errorReporter = customErrorReporter ? function (error, data, schema) {
+				return customErrorReporter(error, data, schema) || def(error, data, schema);
+			} : def;
+			var context = new ValidatorContext(globalContext, true, errorReporter, checkRecursive, banUnknownProperties);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
 			context.addSchema("", schema);
 			context.validateAll(data, schema, null, null, "");
 			if (banUnknownProperties) {
-				context.banUnknownProperties();
+				context.banUnknownProperties(data, schema);
 			}
 			var result = {};
 			result.errors = context.errors;
@@ -277,6 +293,7 @@ function createApi(language) {
 		getDocumentUri: getDocumentUri,
 		errorCodes: ErrorCodes
 	};
+	api.language(language || 'en');
 	return api;
 }
 

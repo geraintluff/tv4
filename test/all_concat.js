@@ -606,6 +606,20 @@ describe("Strings 02", function () {
 		var valid = tv4.validate(data, schema);
 		assert.isFalse(valid);
 	});
+	
+  it("accepts RegExp object", function () {
+    var data = "9test";
+    var schema = {"pattern": /^[0-9][a-zA-Z]*$/};
+    var valid = tv4.validate(data, schema);
+    assert.isTrue(valid);
+  });
+
+  it("accepts RegExp literal", function () {
+    var data = "9TEST";
+    var schema = {"pattern": "/^[0-9][a-z]*$/i"};
+    var valid = tv4.validate(data, schema);
+    assert.isTrue(valid);
+  });
 });
 describe("Arrays 01", function () {
 
@@ -2288,6 +2302,36 @@ describe("Load language file", function () {
 			assert.equal(res.error.message, 'Ungültiger Typ: string (erwartet wurde: integer)');
 		});
 	}
+});
+
+describe("Custom error reporting", function () {
+	it('provides custom message', function () {
+		var api = tv4.freshApi();
+
+		api.setErrorReporter(function (error, data, schema) {
+			assert.deepEqual(data, 5);
+			assert.deepEqual(schema, {minimum: 10});
+			return 'Code: ' + error.code;
+		});
+
+		var res = api.validateResult(5, {minimum: 10});
+		assert.isFalse(res.valid);
+		assert.equal(res.error.message, 'Code: 101');
+	});
+
+	it('falls back to default', function () {
+		var api = tv4.freshApi();
+
+		api.setErrorReporter(function (error, data, schema) {
+			assert.deepEqual(data, 5);
+			assert.deepEqual(schema, {minimum: 10});
+			return null;
+		});
+
+		var res = api.validateResult(5, {minimum: 10});
+		assert.isFalse(res.valid);
+		assert.isString(res.error.message);
+	});
 });
 
 describe("Load language file", function () {

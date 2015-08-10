@@ -165,10 +165,10 @@ var aSchema = { properties: { b: { $ref: &#39;bSchema&#39; }}};
 var bSchema = { properties: { a: { $ref: &#39;aSchema&#39; }}};
 tv4.addSchema(&#39;aSchema&#39;, aSchema);
 tv4.addSchema(&#39;bSchema&#39;, bSchema);</code></pre>
-<p>If the <code>checkRecursive</code> argument were missing, this would throw a &quot;too much recursion&quot; error. </p>
-<p>To enable support for this, pass <code>true</code> as additional argument to any of the regular validation methods: </p>
+<p>If the <code>checkRecursive</code> argument were missing, this would throw a &quot;too much recursion&quot; error.</p>
+<p>To enable support for this, pass <code>true</code> as additional argument to any of the regular validation methods:</p>
 <pre><code class="lang-javascript">tv4.validate(a, aSchema, true);
-tv4.validateResult(data, aSchema, true); 
+tv4.validateResult(data, aSchema, true);
 tv4.validateMultiple(data, aSchema, true);</code></pre>
 <h2 id="the-banunknownproperties-flag">The <code>banUnknownProperties</code> flag</h2>
 <p>Sometimes, it is desirable to flag all unknown properties as an error.  This is especially useful during development, to catch typos and the like, even when extra custom-defined properties are allowed.</p>
@@ -226,14 +226,22 @@ var arr = tv4.getMissingUris(/^https?://example.com/);</code></pre>
 <h5 id="reset-">reset()</h5>
 <p>Manually reset validation status from the simple <code>tv4.validate(data, schema)</code>. Although tv4 will self reset on each validation there are some implementation scenarios where this is useful.</p>
 <pre><code>tv4.reset();</code></pre>
+<h5 id="seterrorreporter-reporter-">setErrorReporter(reporter)</h5>
+<p>Sets a custom error reporter.  This is a function that accepts three arguments, and returns an error message (string):</p>
+<pre><code>tv4.setErrorReporter(function (error, data, schema) {
+    return &quot;Error code: &quot; + error.code;
+});</code></pre>
+<p>The <code>error</code> object already has everything aside from the <code>.message</code> property filled in (so you can use <code>error.params</code>, <code>error.dataPath</code>, <code>error.schemaPath</code> etc.).</p>
+<p>If nothing is returned (or the empty string), then it falls back to the default error reporter.  To remove a custom error reporter, call <code>tv4.setErrorReporter(null)</code>.</p>
 <h5 id="language-code-">language(code)</h5>
-<p>Select the language map used for reporting.</p>
+<p>Sets the language used by the default error reporter.</p>
 <ul>
 <li><code>code</code> is a language code, like <code>&#39;en&#39;</code> or <code>&#39;en-gb&#39;</code></li>
 </ul>
 <pre><code>tv4.language(&#39;en-gb&#39;);</code></pre>
+<p>If you specify a multi-level language code (e.g. <code>fr-CH</code>), then it will fall back to the generic version (<code>fr</code>) if needed.</p>
 <h5 id="addlanguage-code-map-">addLanguage(code, map)</h5>
-<p>Add a new language map for selection by <code>tv4.language(code)</code></p>
+<p>Add a new template-based language map for the default error reporter (used by <code>tv4.language(code)</code>)</p>
 <ul>
 <li><code>code</code> is new language code</li>
 <li><code>map</code> is an object mapping error IDs or constant names (e.g. <code>103</code> or <code>&quot;NUMBER_MAXIMUM&quot;</code>) to language strings.</li>
@@ -242,6 +250,7 @@ var arr = tv4.getMissingUris(/^https?://example.com/);</code></pre>
 
 // select for use
 tv4.language(&#39;fr&#39;)</code></pre>
+<p>If you register a multi-level language code (e.g. <code>fr-FR</code>), then it will also be registered for plain <code>fr</code> if that does not already exist.</p>
 <h5 id="addformat-format-validationfunction-">addFormat(format, validationFunction)</h5>
 <p>Add a custom format validator. (There are no built-in format validators. Several common ones can be found <a href="https://github.com/ikr/tv4-formats">here</a> though)</p>
 <ul>

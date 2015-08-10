@@ -99,6 +99,7 @@ module.exports = function (grunt) {
 					'hypermedia.js',
 					'resolve-uri.js',
 					'normalise-schema.js',
+					'error-reporter.js',
 					'api.js',
 					'_footer.js'
 				],
