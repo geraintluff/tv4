@@ -318,7 +318,7 @@ UriTemplate.prototype = {
 		});
 	}
 };
-var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages, checkRecursive, trackUnknownProperties) {
+var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorReporter, checkRecursive, trackUnknownProperties) {
 	this.missing = [];
 	this.missingMap = {};
 	this.formatValidators = parent ? Object.create(parent.formatValidators) : {};
@@ -340,7 +340,10 @@ var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorM
 		this.knownPropertyPaths = {};
 		this.unknownPropertyPaths = {};
 	}
-	this.errorMessages = errorMessages;
+	this.errorReporter = errorReporter || defaultErrorReporter('en');
+	if (typeof this.errorReporter === 'string') {
+		throw new Error('debug');
+	}
 	this.definedKeywords = {};
 	if (parent) {
 		for (var key in parent.definedKeywords) {
@@ -353,16 +356,9 @@ ValidatorContext.prototype.defineKeyword = function (keyword, keywordFunction) {
 	this.definedKeywords[keyword].push(keywordFunction);
 };
 ValidatorContext.prototype.createError = function (code, messageParams, dataPath, schemaPath, subErrors) {
-	var messageTemplate = this.errorMessages[code] || ErrorMessagesDefault[code];
-	if (typeof messageTemplate !== 'string') {
-		return new ValidationError(code, "Unknown error code " + code + ": " + JSON.stringify(messageParams), messageParams, dataPath, schemaPath, subErrors);
-	}
-	// Adapted from Crockford's supplant()
-	var message = messageTemplate.replace(/\{([^{}]*)\}/g, function (whole, varName) {
-		var subValue = messageParams[varName];
-		return typeof subValue === 'string' || typeof subValue === 'number' ? subValue : whole;
-	});
-	return new ValidationError(code, message, messageParams, dataPath, schemaPath, subErrors);
+	var error = new ValidationError(code, messageParams, dataPath, schemaPath, subErrors);
+	error.message = this.errorReporter(error);
+	return error;
 };
 ValidatorContext.prototype.returnError = function (error) {
 	return error;
@@ -848,10 +844,27 @@ ValidatorContext.prototype.validateStringLength = function validateStringLength(
 };
 
 ValidatorContext.prototype.validateStringPattern = function validateStringPattern(data, schema) {
-	if (typeof data !== "string" || schema.pattern === undefined) {
+	if (typeof data !== "string" || (typeof schema.pattern !== "string" && !(schema.pattern instanceof RegExp))) {
 		return null;
 	}
-	var regexp = new RegExp(schema.pattern);
+	var regexp;
+	if (schema.pattern instanceof RegExp) {
+	  regexp = schema.pattern;
+	}
+	else {
+	  var body, flags = '';
+	  // Check for regular expression literals
+	  // @see http://www.ecma-international.org/ecma-262/5.1/#sec-7.8.5
+	  var literal = schema.pattern.match(/^\/(.+)\/([img]*)$/);
+	  if (literal) {
+	    body = literal[1];
+	    flags = literal[2];
+	  }
+	  else {
+	    body = schema.pattern;
+	  }
+	  regexp = new RegExp(body, flags);
+	}
 	if (!regexp.test(data)) {
 		return this.createError(ErrorCodes.STRING_PATTERN, {pattern: schema.pattern}).prefixWith(null, "pattern");
 	}
@@ -1334,6 +1347,25 @@ function normSchema(schema, baseUri) {
 	}
 }
 
+function defaultErrorReporter(language) {
+	language = language || 'en';
+
+	var errorMessages = languages[language];
+
+	return function (error) {
+		var messageTemplate = errorMessages[error.code] || ErrorMessagesDefault[error.code];
+		if (typeof messageTemplate !== 'string') {
+			return "Unknown error code " + error.code + ": " + JSON.stringify(error.messageParams);
+		}
+		var messageParams = error.params;
+		// Adapted from Crockford's supplant()
+		return messageTemplate.replace(/\{([^{}]*)\}/g, function (whole, varName) {
+			var subValue = messageParams[varName];
+			return typeof subValue === 'string' || typeof subValue === 'number' ? subValue : whole;
+		});
+	};
+}
+
 var ErrorCodes = {
 	INVALID_TYPE: 0,
 	ENUM_MISMATCH: 1,
@@ -1413,12 +1445,12 @@ var ErrorMessagesDefault = {
 	UNKNOWN_PROPERTY: "Unknown property (not in schema)"
 };
 
-function ValidationError(code, message, params, dataPath, schemaPath, subErrors) {
+function ValidationError(code, params, dataPath, schemaPath, subErrors) {
 	Error.call(this);
 	if (code === undefined) {
-		throw new Error ("No code supplied for error: "+ message);
+		throw new Error ("No error code supplied: " + schemaPath);
 	}
-	this.message = message;
+	this.message = '';
 	this.params = params;
 	this.code = code;
 	this.dataPath = dataPath || "";
@@ -1472,8 +1504,16 @@ function isTrustedUrl(baseUrl, testUrl) {
 var languages = {};
 function createApi(language) {
 	var globalContext = new ValidatorContext();
-	var currentLanguage = language || 'en';
+	var currentLanguage;
+	var errorReporter;
 	var api = {
+		setErrorReporter: function (reporter) {
+			if (typeof reporter === 'string') {
+				return this.language(reporter);
+			}
+			errorReporter = reporter;
+			return true;
+		},
 		addFormat: function () {
 			globalContext.addFormat.apply(globalContext, arguments);
 		},
@@ -1486,6 +1526,7 @@ function createApi(language) {
 			}
 			if (languages[code]) {
 				currentLanguage = code;
+				this.setErrorReporter(defaultErrorReporter(code));
 				return code; // so you can tell if fall-back has happened
 			}
 			return false;
@@ -1520,7 +1561,7 @@ function createApi(language) {
 			return result;
 		},
 		validate: function (data, schema, checkRecursive, banUnknownProperties) {
-			var context = new ValidatorContext(globalContext, false, languages[currentLanguage], checkRecursive, banUnknownProperties);
+			var context = new ValidatorContext(globalContext, false, errorReporter, checkRecursive, banUnknownProperties);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
@@ -1540,7 +1581,7 @@ function createApi(language) {
 			return result;
 		},
 		validateMultiple: function (data, schema, checkRecursive, banUnknownProperties) {
-			var context = new ValidatorContext(globalContext, true, languages[currentLanguage], checkRecursive, banUnknownProperties);
+			var context = new ValidatorContext(globalContext, true, errorReporter, checkRecursive, banUnknownProperties);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
@@ -1613,6 +1654,7 @@ function createApi(language) {
 		getDocumentUri: getDocumentUri,
 		errorCodes: ErrorCodes
 	};
+	api.language(language || 'en');
 	return api;
 }
 

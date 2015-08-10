@@ -77,12 +77,12 @@ var ErrorMessagesDefault = {
 	UNKNOWN_PROPERTY: "Unknown property (not in schema)"
 };
 
-function ValidationError(code, message, params, dataPath, schemaPath, subErrors) {
+function ValidationError(code, params, dataPath, schemaPath, subErrors) {
 	Error.call(this);
 	if (code === undefined) {
-		throw new Error ("No code supplied for error: "+ message);
+		throw new Error ("No error code supplied: " + schemaPath);
 	}
-	this.message = message;
+	this.message = '';
 	this.params = params;
 	this.code = code;
 	this.dataPath = dataPath || "";
@@ -136,8 +136,16 @@ function isTrustedUrl(baseUrl, testUrl) {
 var languages = {};
 function createApi(language) {
 	var globalContext = new ValidatorContext();
-	var currentLanguage = language || 'en';
+	var currentLanguage;
+	var errorReporter;
 	var api = {
+		setErrorReporter: function (reporter) {
+			if (typeof reporter === 'string') {
+				return this.language(reporter);
+			}
+			errorReporter = reporter;
+			return true;
+		},
 		addFormat: function () {
 			globalContext.addFormat.apply(globalContext, arguments);
 		},
@@ -150,6 +158,7 @@ function createApi(language) {
 			}
 			if (languages[code]) {
 				currentLanguage = code;
+				this.setErrorReporter(defaultErrorReporter(code));
 				return code; // so you can tell if fall-back has happened
 			}
 			return false;
@@ -184,7 +193,7 @@ function createApi(language) {
 			return result;
 		},
 		validate: function (data, schema, checkRecursive, banUnknownProperties) {
-			var context = new ValidatorContext(globalContext, false, languages[currentLanguage], checkRecursive, banUnknownProperties);
+			var context = new ValidatorContext(globalContext, false, errorReporter, checkRecursive, banUnknownProperties);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
@@ -204,7 +213,7 @@ function createApi(language) {
 			return result;
 		},
 		validateMultiple: function (data, schema, checkRecursive, banUnknownProperties) {
-			var context = new ValidatorContext(globalContext, true, languages[currentLanguage], checkRecursive, banUnknownProperties);
+			var context = new ValidatorContext(globalContext, true, errorReporter, checkRecursive, banUnknownProperties);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
@@ -277,6 +286,7 @@ function createApi(language) {
 		getDocumentUri: getDocumentUri,
 		errorCodes: ErrorCodes
 	};
+	api.language(language || 'en');
 	return api;
 }
 

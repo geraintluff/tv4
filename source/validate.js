@@ -1,4 +1,4 @@
-var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorMessages, checkRecursive, trackUnknownProperties) {
+var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorReporter, checkRecursive, trackUnknownProperties) {
 	this.missing = [];
 	this.missingMap = {};
 	this.formatValidators = parent ? Object.create(parent.formatValidators) : {};
@@ -20,7 +20,10 @@ var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorM
 		this.knownPropertyPaths = {};
 		this.unknownPropertyPaths = {};
 	}
-	this.errorMessages = errorMessages;
+	this.errorReporter = errorReporter || defaultErrorReporter('en');
+	if (typeof this.errorReporter === 'string') {
+		throw new Error('debug');
+	}
 	this.definedKeywords = {};
 	if (parent) {
 		for (var key in parent.definedKeywords) {
@@ -33,16 +36,9 @@ ValidatorContext.prototype.defineKeyword = function (keyword, keywordFunction) {
 	this.definedKeywords[keyword].push(keywordFunction);
 };
 ValidatorContext.prototype.createError = function (code, messageParams, dataPath, schemaPath, subErrors) {
-	var messageTemplate = this.errorMessages[code] || ErrorMessagesDefault[code];
-	if (typeof messageTemplate !== 'string') {
-		return new ValidationError(code, "Unknown error code " + code + ": " + JSON.stringify(messageParams), messageParams, dataPath, schemaPath, subErrors);
-	}
-	// Adapted from Crockford's supplant()
-	var message = messageTemplate.replace(/\{([^{}]*)\}/g, function (whole, varName) {
-		var subValue = messageParams[varName];
-		return typeof subValue === 'string' || typeof subValue === 'number' ? subValue : whole;
-	});
-	return new ValidationError(code, message, messageParams, dataPath, schemaPath, subErrors);
+	var error = new ValidationError(code, messageParams, dataPath, schemaPath, subErrors);
+	error.message = this.errorReporter(error);
+	return error;
 };
 ValidatorContext.prototype.returnError = function (error) {
 	return error;
