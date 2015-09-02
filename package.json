@@ -51,7 +51,8 @@
     "mocha-unfunk-reporter": "~0.2",
     "proclaim": "1.4",
     "requirejs": "~2.1.11",
-    "source-map-support": "~0.1"
+    "source-map-support": "~0.1",
+    "typescript": "^1.5.3"
   },
   "engines": {
     "node": ">= 0.8.0"
