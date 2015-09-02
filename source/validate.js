@@ -291,6 +291,7 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 		while (this.scanned.length) {
 			var item = this.scanned.pop();
 			delete item[this.validatedSchemasKey];
+			delete item[this.validationErrorsKey];
 		}
 		this.scannedFrozen = [];
 		this.scannedFrozenSchemas = [];
@@ -309,7 +310,7 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 
 	if (scannedFrozenSchemaIndex !== null) {
 		this.scannedFrozenValidationErrors[frozenIndex][scannedFrozenSchemaIndex] = this.errors.slice(startErrorCount);
-	} else if (scannedSchemasIndex !== null) {
+	} else if (scannedSchemasIndex !== null && !topLevel) {
 		data[this.validationErrorsKey][scannedSchemasIndex] = this.errors.slice(startErrorCount);
 	}
 
