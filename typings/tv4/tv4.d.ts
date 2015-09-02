@@ -54,11 +54,9 @@ interface TV4SingleResult extends TV4BaseResult {
 interface TV4MultiResult extends TV4BaseResult {
     errors:TV4Error[];
 }
-// documentation doesnt agree with code in tv4, this type agrees with code
 declare type FormatValidationFunction = (data: any, schema: JsonSchema) => string;
 // documentation doesnt agree with code in tv4, this type agrees with code
 declare type KeywordValidationFunction = (data: any, value: any, schema: JsonSchema, dataPointerPath: string) => string | TV4Error;
-// documentation doesnt agree with code in tv4, this type agrees with code
 declare type AsyncValidationCallback = (isValid: boolean, error: TV4Error) => void;
 interface TV4 {
     error: TV4ErrorVar;
