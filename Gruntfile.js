@@ -17,6 +17,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-component-io');
 	grunt.loadNpmTasks('grunt-push-release');
 	grunt.loadNpmTasks('grunt-regex-replace');
+	grunt.loadNpmTasks('grunt-exec');
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
@@ -161,6 +162,9 @@ module.exports = function (grunt) {
 				src: 'README.md',
 				dest: 'index.html'
 			}
+		},
+		exec: {
+			testTypeScriptDecls: 'tsc --noImplicitAny --noEmit ./typings/tv4/tv4-tests.ts'
 		}
 	});
 
@@ -172,7 +176,8 @@ module.exports = function (grunt) {
 	grunt.registerTask('core', ['clean', 'concat_sourcemap', 'jshint', 'products', 'copy:test_deps']);
 
 	grunt.registerTask('build', ['core', 'cleanup']);
-	grunt.registerTask('test', ['core', 'mochaTest', 'mocha', 'cleanup']);
+	grunt.registerTask('testTypeScriptDecls', ['exec:testTypeScriptDecls']);
+	grunt.registerTask('test', ['core', 'mochaTest', 'mocha', 'testTypeScriptDecls', 'cleanup']);
 	grunt.registerTask('cleanup', ['regex-replace:unmap', 'clean:maps']);
 
 	grunt.registerTask('dev', ['clean', 'concat_sourcemap', 'jshint', 'mochaTest']);
