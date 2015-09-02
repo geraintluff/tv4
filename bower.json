@@ -8,7 +8,8 @@
     "validator",
     "tv4"
   ],
-  "license:": [
+  "homepage": "https://github.com/geraintluff/tv4#tiny-validator-for-v4-json-schema",
+  "license": [
     {
       "type": "Public Domain",
       "url": "http://geraintluff.github.io/tv4/LICENSE.txt"
