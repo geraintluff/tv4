@@ -76,7 +76,7 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 				}
 				if (typeof schema.additionalProperties === "boolean") {
 					if (!schema.additionalProperties) {
-						error = this.createError(ErrorCodes.OBJECT_ADDITIONAL_PROPERTIES, {}, '', '/additionalProperties', null, data, schema);
+						error = this.createError(ErrorCodes.OBJECT_ADDITIONAL_PROPERTIES, {key: key}, '', '/additionalProperties', null, data, schema).prefixWith(key, null);
 						if (this.handleError(error)) {
 							return error;
 						}
