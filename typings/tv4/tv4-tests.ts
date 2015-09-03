@@ -5,13 +5,13 @@ var strArr:string[];
 var bool:boolean;
 var num:number;
 var obj:any;
-var tv4:TV4;
-var err:TV4Error;
-var errs:TV4Error[];
-var single:TV4SingleResult;
-var multi:TV4MultiResult;
+var validator: tv4.TV4;
+var err:tv4.ValidationError;
+var errs:tv4.ValidationError[];
+var single:tv4.SingleResult;
+var multi:tv4.MultiResult;
 
-single = tv4.validateResult(obj, obj);
+single = validator.validateResult(obj, obj);
 bool = single.valid;
 strArr = single.missing;
 err = single.error;
@@ -21,95 +21,95 @@ str = err.message;
 str = err.dataPath;
 str = err.schemaPath;
 
-multi = tv4.validateMultiple(obj, obj);
+multi = validator.validateMultiple(obj, obj);
 bool = multi.valid;
 strArr = multi.missing;
 errs = multi.errors;
 
-tv4.addSchema(str, obj);
-obj = tv4.getSchema(str);
-str = tv4.resolveUrl(str, str);
+validator.addSchema(str, obj);
+obj = validator.getSchema(str);
+str = validator.resolveUrl(str, str);
 
-tv4 = tv4.freshApi();
-tv4.dropSchemas();
-tv4.reset();
+validator = validator.freshApi();
+validator.dropSchemas();
+validator.reset();
 
-strArr = tv4.getMissingUris(/abc/);
-strArr = tv4.getSchemaUris(/abc/);
-obj = tv4.getSchemaMap()[str];
-num = tv4.errorCodes['bla'];
+strArr = validator.getMissingUris(/abc/);
+strArr = validator.getSchemaUris(/abc/);
+obj = validator.getSchemaMap()[str];
+num = validator.errorCodes['bla'];
 
-num = tv4.errorCodes['MY_NAME'];
+num = validator.errorCodes['MY_NAME'];
 
 
-// Here are all the examples from the v1.2.3 documentation at https://www.npmjs.com/package/tv4
+// Here are all the examples from the v1.2.3 documentation at https://www.npmjs.com/package/validator
 var data = '';
-var schema : JsonSchema = {type: "string"}
-var valid = tv4.validate(data, schema);
+var schema : tv4.JsonSchema = {type: "string"}
+var valid = validator.validate(data, schema);
 var url = 'http://example.com/schema';
-tv4.addSchema(url, schema);
-var singleErrorResult = tv4.validateResult(data, schema);
-var multiErrorResult = tv4.validateMultiple(data, schema);
+validator.addSchema(url, schema);
+var singleErrorResult = validator.validateResult(data, schema);
+var multiErrorResult = validator.validateMultiple(data, schema);
 // async
-tv4.validate(data, schema, function (isValid, validationError) {});
+validator.validate(data, schema, function (isValid, validationError) {});
 
 // checkRecursive
-var a : JsonSchema = {};
+var a : tv4.JsonSchema = {};
 var b = { a: a };
-a.b = b;
-var aSchema = { properties: { b: { $ref: 'bSchema' }}};
-var bSchema = { properties: { a: { $ref: 'aSchema' }}};
-tv4.addSchema('aSchema', aSchema);
-tv4.addSchema('bSchema', bSchema);
-tv4.validate(a, aSchema, true);
-tv4.validateResult(data, aSchema, true);
-tv4.validateMultiple(data, aSchema, true);
+a['b'] = b;
+var aSchema : tv4.JsonSchema = { properties: { b: { $ref: 'bSchema' }}};
+var bSchema : tv4.JsonSchema = { properties: { a: { $ref: 'aSchema' }}};
+validator.addSchema('aSchema', aSchema);
+validator.addSchema('bSchema', bSchema);
+validator.validate(a, aSchema, true);
+validator.validateResult(data, aSchema, true);
+validator.validateMultiple(data, aSchema, true);
 
 
 // banUnknownProperties
 var checkRecursive = true;
-tv4.validate(data, schema, checkRecursive, true);
-tv4.validateResult(data, schema, checkRecursive, true);
-tv4.validateMultiple(data, schema, checkRecursive, true);
+validator.validate(data, schema, checkRecursive, true);
+validator.validateResult(data, schema, checkRecursive, true);
+validator.validateMultiple(data, schema, checkRecursive, true);
 
 // API
-tv4.addSchema('http://example.com/schema', {});
-tv4.addSchema({});
-var schema = tv4.getSchema('http://example.com/schema');
-var map = tv4.getSchemaMap();
+validator.addSchema('http://example.com/schema', {});
+validator.addSchema({});
+var schema = validator.getSchema('http://example.com/schema');
+var map = validator.getSchemaMap();
 var schema = map[uri];
-var arr = tv4.getSchemaUris();
+var arr = validator.getSchemaUris();
 // optional filter using a RegExp
-arr = tv4.getSchemaUris(/^https?:\/\/example.com/);
-var arr = tv4.getMissingUris();
+arr = validator.getSchemaUris(/^https?:\/\/example.com/);
+var arr = validator.getMissingUris();
 // optional filter using a RegExp
-var arr = tv4.getMissingUris(/^https?:\/\/example.com/);
-tv4.dropSchemas();
-var otherTV4 = tv4.freshApi();
-tv4.reset();
-tv4.setErrorReporter(function (error, data, schema) {
+var arr = validator.getMissingUris(/^https?:\/\/example.com/);
+validator.dropSchemas();
+var other_tv4 = validator.freshApi();
+validator.reset();
+validator.setErrorReporter(function (error, data, schema) {
     return "Error code: " + error.code;
 });
-tv4.language('en-gb');
-tv4.addLanguage('fr', {});
-tv4.language('fr')
-tv4.addFormat('decimal-digits', function (data, schema) {
+validator.language('en-gb');
+validator.addLanguage('fr', {});
+validator.language('fr')
+validator.addFormat('decimal-digits', function (data, schema) {
     if (typeof data === 'string' && !/^[0-9]+$/.test(data)) {
         return null;
     }
     return "must be string of decimal digits";
 });
-tv4.addFormat({
+validator.addFormat({
     'my-format': function (data: any, schema: any): string {return null;},
     'other-format': function (data: any, schema: any): string {return 'oops';}
 });
 function simpleFailure() {return true;}
 function detailedFailure() {return true;}
-tv4.defineKeyword('my-custom-keyword', function (data, value, schema) {
+validator.defineKeyword('my-custom-keyword', function (data, value, schema) {
     if (simpleFailure()) {
         return "Failure";
     } else if (detailedFailure()) {
-        return {code: tv4.errorCodes['MY_CUSTOM_CODE'], message: {param1: 'a', param2: 'b'}};
+        return {code: validator.errorCodes['MY_CUSTOM_CODE'], message: {param1: 'a', param2: 'b'}};
     } else {
         return null;
     }
@@ -123,22 +123,22 @@ schema = {
     }
 };
 {
-let data1 = [true, false];
-let data2 = [true, 123];
-alert("data 1: " + tv4.validate(data1, schema)); // true
-alert("data 2: " + tv4.validate(data2, schema)); // false
-alert("data 2 error: " + JSON.stringify(tv4.error, null, 4));
+    let data1 = [true, false];
+    let data2 = [true, 123];
+    alert("data 1: " + validator.validate(data1, schema)); // true
+    alert("data 2: " + validator.validate(data2, schema)); // false
+    alert("data 2 error: " + JSON.stringify(validator.error, null, 4));
 
-schema = {
-    "type": "array",
-    "items": {"$ref": "#"}
-};
+    schema = {
+        "type": "array",
+        "items": {"$ref": "#"}
+    };
 }
 {
 let data1 : any = [[], [[]]];
 let data2 : any = [[], [true, []]];
-alert("data 1: " + tv4.validate(data1, schema)); // true
-alert("data 2: " + tv4.validate(data2, schema)); // false
+alert("data 1: " + validator.validate(data1, schema)); // true
+alert("data 2: " + validator.validate(data2, schema)); // false
 }
 
 {
@@ -147,28 +147,28 @@ alert("data 2: " + tv4.validate(data2, schema)); // false
         "items": {"$ref": "http://example.com/schema" }
     };
     let data = [1, 2, 3];
-    alert("Valid: " + tv4.validate(data, schema)); // true
-    alert("Missing schemas: " + JSON.stringify(tv4.missing));
+    alert("Valid: " + validator.validate(data, schema)); // true
+    alert("Missing schemas: " + JSON.stringify(validator.missing));
 }
 {
-    tv4.addSchema("http://example.com/schema", {
+    validator.addSchema("http://example.com/schema", {
         "definitions": {
             "arrayItem": {"type": "boolean"}
         }
     });
-    let schema = {
+    let schema : tv4.JsonSchema = {
         "type": "array",
         "items": {"$ref": "http://example.com/schema#/definitions/arrayItem" }
     };
-    let data1 = [true, false, true];
-    let data2 = [1, 2, 3];
-    alert("data 1: " + tv4.validate(data1, schema)); // true
-    alert("data 2: " + tv4.validate(data2, schema)); // false
+    let data1 : any = [true, false, true];
+    let data2 : any = [1, 2, 3];
+    alert("data 1: " + validator.validate(data1, schema)); // true
+    alert("data 2: " + validator.validate(data2, schema)); // false
 }
 
 // undocumented functions
 var uri = '';
-obj = tv4.normSchema(schema, uri);
+obj = validator.normSchema(schema, uri);
 
 
 
