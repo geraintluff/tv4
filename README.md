@@ -408,6 +408,8 @@ require('tv4', function(tv4){
 });
 ```
 
+There is a command-line tool that wraps this library: [tv4-cmd](https://www.npmjs.com/package/tv4-cmd).
+
 #### npm
 
 ````
