@@ -739,7 +739,7 @@ ValidatorContext.prototype.validateType = function validateType(data, schema) {
 		dataType = "array";
 	}
 	var allowedTypes = schema.type;
-	if (typeof allowedTypes !== "object") {
+	if (!Array.isArray(allowedTypes)) {
 		allowedTypes = [allowedTypes];
 	}
 

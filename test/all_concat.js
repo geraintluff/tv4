@@ -322,6 +322,13 @@ describe("Any types 01", function () {
 		var valid = tv4.validate(data, schema);
 		assert.isTrue(valid);
 	});
+
+	it("doesn't crash on invalid type", function () {
+		var data = null;
+		var schema = {"type": {"foo": "bar"}};
+		var valid = tv4.validate(data, schema);
+		assert.isFalse(valid);
+	});
 });
 
 describe("Any types 01", function () {
