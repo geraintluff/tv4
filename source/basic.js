@@ -1,5 +1,7 @@
 ValidatorContext.prototype.validateBasic = function validateBasic(data, schema, dataPointerPath) {
-        if (data === undefined) return null;
+        if (data === undefined) {
+        	return null;
+        }
 	var error;
 	if (error = this.validateType(data, schema, dataPointerPath)) {
 		return error.prefixWith(null, "type");
