@@ -151,7 +151,9 @@
 				} catch (e) {
 					return output("Error parsing schema JSON:\n" + e);
 				}
-				output(tv4.validateMultiple(data, schema));
+				var fresh = tv4.freshApi();
+				fresh.addSchema(schema);
+				output(fresh.validateMultiple(data, schema));
 			}
 
 			function saveToFragment() {
