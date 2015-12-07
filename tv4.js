@@ -717,6 +717,9 @@ function recursiveCompare(A, B) {
 }
 
 ValidatorContext.prototype.validateBasic = function validateBasic(data, schema, dataPointerPath) {
+        if (typeof data === "undefined") {
+                return null;
+        }
 	var error;
 	if (error = this.validateType(data, schema, dataPointerPath)) {
 		return error.prefixWith(null, "type");
@@ -732,9 +735,6 @@ ValidatorContext.prototype.validateType = function validateType(data, schema) {
 		return null;
 	}
 	var dataType = typeof data;
-	if (dataType === "undefined") {
-		return null;
-	}
 	if (data === null) {
 		dataType = "null";
 	} else if (Array.isArray(data)) {

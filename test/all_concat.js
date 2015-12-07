@@ -864,16 +864,16 @@ describe("Objects 03", function () {
 		assert.isFalse(valid);
 	});
 
-        it("undefined key success", function () {
-                var data = {undefinedKey: undefined};
-                var schema = {
-                        properties: {
-                                undefinedKey: {"type": "integer"}
-                        }
-                };
-                var valid = tv4.validate(data, schema);
-                assert.isTrue(valid);
-        });
+	it("undefined key success", function () {
+		var data = {undefinedKey: undefined};
+		var schema = {
+			properties: {
+				undefinedKey: {"type": "integer"}
+			}
+		};
+		var valid = tv4.validate(data, schema);
+		assert.isTrue(valid);
+	});
 
 });
 
