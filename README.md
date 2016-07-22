@@ -6,6 +6,45 @@ Use [json-schema](http://json-schema.org/) [draft v4](http://json-schema.org/lat
 
 There is support for `$ref` with JSON Pointer fragment paths (```other-schema.json#/properties/myKey```).
 
+<!-- BEGIN-MARKDOWN-TOC -->
+* [Usage 1: Simple validation](#usage-1-simple-validation)
+* [Usage 2: Multi-threaded validation](#usage-2-multi-threaded-validation)
+* [Usage 3: Multiple errors](#usage-3-multiple-errors)
+* [Asynchronous validation](#asynchronous-validation)
+* [Cyclical JavaScript objects](#cyclical-javascript-objects)
+* [The `banUnknownProperties` flag](#the-banunknownproperties-flag)
+* [API](#api)
+	* [addSchema(uri, schema)](#addschemauri-schema)
+	* [getSchema(uri)](#getschemauri)
+	* [getSchemaMap()](#getschemamap)
+	* [getSchemaUris(filter)](#getschemaurisfilter)
+	* [getMissingUris(filter)](#getmissingurisfilter)
+	* [dropSchemas()](#dropschemas)
+	* [freshApi()](#freshapi)
+	* [reset()](#reset)
+	* [setErrorReporter(reporter)](#seterrorreporterreporter)
+	* [language(code)](#languagecode)
+	* [addLanguage(code, map)](#addlanguagecode-map)
+	* [addFormat(format, validationFunction)](#addformatformat-validationfunction)
+	* [defineKeyword(keyword, validationFunction)](#definekeywordkeyword-validationfunction)
+	* [defineError(codeName, codeNumber, defaultMessage)](#defineerrorcodename-codenumber-defaultmessage)
+* [Demos](#demos)
+	* [Basic usage](#basic-usage)
+	* [Use of <code>$ref</code>](#use-of-ref)
+	* [Missing schema](#missing-schema)
+	* [Referencing remote schema](#referencing-remote-schema)
+* [Supported platforms](#supported-platforms)
+* [Installation](#installation)
+	* [npm](#npm)
+	* [bower](#bower)
+	* [component.io](#componentio)
+* [Build and test](#build-and-test)
+* [Contributing](#contributing)
+* [Packages using tv4](#packages-using-tv4)
+* [License](#license)
+
+<!-- END-MARKDOWN-TOC -->
+
 ## Usage 1: Simple validation
 
 ```javascript
@@ -124,7 +163,7 @@ tv4.validateMultiple(data, schema, checkRecursive, true);
 
 There are additional api commands available for more complex use-cases:
 
-##### addSchema(uri, schema)
+### addSchema(uri, schema)
 Pre-register a schema for reference by other schema and synchronous validation.
 
 ````js
@@ -140,7 +179,7 @@ Schemas that have their `id` property set can be added directly.
 tv4.addSchema({ ... });
 ````
 
-##### getSchema(uri)
+### getSchema(uri)
 
 Return a schema from the cache.
 
@@ -150,7 +189,7 @@ Return a schema from the cache.
 var schema = tv4.getSchema('http://example.com/schema');
 ````
 
-##### getSchemaMap()
+### getSchemaMap()
 
 Return a shallow copy of the schema cache, mapping schema document URIs to schema objects.
 
@@ -160,7 +199,7 @@ var map = tv4.getSchemaMap();
 var schema = map[uri];
 ````
 
-##### getSchemaUris(filter)
+### getSchemaUris(filter)
 
 Return an Array with known schema document URIs.
 
@@ -173,7 +212,7 @@ var arr = tv4.getSchemaUris();
 var arr = tv4.getSchemaUris(/^https?://example.com/);
 ````
 
-##### getMissingUris(filter)
+### getMissingUris(filter)
 
 Return an Array with schema document URIs that are used as `$ref` in known schemas but which currently have no associated schema data.
 
@@ -188,7 +227,7 @@ var arr = tv4.getMissingUris();
 var arr = tv4.getMissingUris(/^https?://example.com/);
 ````
 
-##### dropSchemas()
+### dropSchemas()
 
 Drop all known schema document URIs from the cache.
 
@@ -196,7 +235,7 @@ Drop all known schema document URIs from the cache.
 tv4.dropSchemas();
 ````
 
-##### freshApi()
+### freshApi()
 
 Return a new tv4 instance with no shared state.
 
@@ -204,7 +243,7 @@ Return a new tv4 instance with no shared state.
 var otherTV4 = tv4.freshApi();
 ````
 
-##### reset()
+### reset()
 
 Manually reset validation status from the simple `tv4.validate(data, schema)`. Although tv4 will self reset on each validation there are some implementation scenarios where this is useful.
 
@@ -212,7 +251,7 @@ Manually reset validation status from the simple `tv4.validate(data, schema)`. A
 tv4.reset();
 ````
 
-##### setErrorReporter(reporter)
+### setErrorReporter(reporter)
 
 Sets a custom error reporter.  This is a function that accepts three arguments, and returns an error message (string):
 
@@ -226,7 +265,7 @@ The `error` object already has everything aside from the `.message` property fil
 
 If nothing is returned (or the empty string), then it falls back to the default error reporter.  To remove a custom error reporter, call `tv4.setErrorReporter(null)`.
 
-##### language(code)
+### language(code)
 
 Sets the language used by the default error reporter.
 
@@ -238,7 +277,7 @@ tv4.language('en-gb');
 
 If you specify a multi-level language code (e.g. `fr-CH`), then it will fall back to the generic version (`fr`) if needed.
 
-##### addLanguage(code, map)
+### addLanguage(code, map)
 
 Add a new template-based language map for the default error reporter (used by `tv4.language(code)`)
 
@@ -254,7 +293,7 @@ tv4.language('fr')
 
 If you register a multi-level language code (e.g. `fr-FR`), then it will also be registered for plain `fr` if that does not already exist.
 
-##### addFormat(format, validationFunction)
+### addFormat(format, validationFunction)
 
 Add a custom format validator. (There are no built-in format validators. Several common ones can be found [here](https://github.com/ikr/tv4-formats) though)
 
@@ -280,7 +319,7 @@ tv4.addFormat({
 });
 ````
 
-##### defineKeyword(keyword, validationFunction)
+### defineKeyword(keyword, validationFunction)
 
 Add a custom keyword validator.
 
@@ -306,7 +345,7 @@ tv4.defineKeyword('my-custom-keyword', function (data, value, schema) {
 
 If an object is returned from the custom validator, and its `message` is a string, then that is used as the message result.  If `message` is an object, then that is used to populate the (localisable) error template.
 
-##### defineError(codeName, codeNumber, defaultMessage)
+### defineError(codeName, codeNumber, defaultMessage)
 
 Defines a custom error code.
 
@@ -410,19 +449,19 @@ require('tv4', function(tv4){
 
 There is a command-line tool that wraps this library: [tv4-cmd](https://www.npmjs.com/package/tv4-cmd).
 
-#### npm
+### npm
 
 ````
 $ npm install tv4
 ````
 
-#### bower
+### bower
 
 ````
 $ bower install tv4
 ````
 
-#### component.io
+### component.io
 
 ````
 $ component install geraintluff/tv4
