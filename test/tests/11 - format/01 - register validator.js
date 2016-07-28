@@ -58,4 +58,19 @@ describe("Registering custom validator", function () {
 		assert.isFalse(result2.valid);
 		assert.includes(result2.error.message, 'break 2');
 	});
+
+	it("Custom validator should be skipped for null values", function () {
+		tv4.addFormat('null-format', function (data) {
+			if (data !== "test") {
+				return "string does not match";
+			}
+		});
+
+		var schema = {type: ["string", "null"], format: 'null-format'};
+		var data1 = "test";
+		var data2 = null;
+
+		assert.isTrue(tv4.validate(data1, schema));
+		assert.isTrue(tv4.validate(data2, schema));
+	});
 });
