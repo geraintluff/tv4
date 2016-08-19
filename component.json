@@ -16,6 +16,7 @@
   "scripts": [
     "tv4.js",
     "lang/de.js",
+    "lang/es.js",
     "lang/fr.js",
     "lang/nb.js",
     "lang/pl-PL.js",
