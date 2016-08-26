@@ -21,7 +21,7 @@
     "type": "git",
     "url": "https://github.com/geraintluff/tv4.git"
   },
-  "license:": [
+  "license": [
     {
       "type": "Public Domain",
       "url": "http://geraintluff.github.io/tv4/LICENSE.txt"
