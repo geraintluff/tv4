@@ -458,6 +458,11 @@ ValidatorContext.prototype.searchSchemas = function (schema, url) {
 				}
 			}
 		}
+
+		if (schema['type'] === 'array' && schema['items'] && hasSameKeys(schema, schema['items'])) {
+      return;
+    }
+
 		for (var key in schema) {
 			if (key !== "enum") {
 				if (typeof schema[key] === "object") {
@@ -716,6 +721,19 @@ function recursiveCompare(A, B) {
 	return false;
 }
 
+function hasSameKeys(left, right) {
+  var leftKeys = Object.keys(left);
+  var rightKeys = Object.keys(right);
+  if (leftKeys.length !== rightKeys.length) {
+    return false;
+  }
+  for (var key in leftKeys) {
+    if (rightKeys.indexOf(key) !== -1) {
+      return false;
+    }
+  }
+  return true;
+}
 ValidatorContext.prototype.validateBasic = function validateBasic(data, schema, dataPointerPath) {
 	var error;
 	if (error = this.validateType(data, schema, dataPointerPath)) {
@@ -1339,6 +1357,11 @@ function normSchema(schema, baseUri) {
 			if (typeof schema['$ref'] === "string") {
 				schema['$ref'] = resolveUrl(baseUri, schema['$ref']);
 			}
+
+			if (schema['type'] === 'array' && schema['items'] && hasSameKeys(schema, schema['items'])){
+        return;
+      }
+
 			for (var key in schema) {
 				if (key !== "enum") {
 					normSchema(schema[key], baseUri);
@@ -1675,3 +1698,4 @@ tv4.tv4 = tv4;
 return tv4; // used by _header.js to globalise.
 
 }));
+//@ sourceMappingURL=tv4.js.map

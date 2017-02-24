@@ -138,6 +138,11 @@ ValidatorContext.prototype.searchSchemas = function (schema, url) {
 				}
 			}
 		}
+
+		if (schema['type'] === 'array' && schema['items'] && hasSameKeys(schema, schema['items'])) {
+      return;
+    }
+
 		for (var key in schema) {
 			if (key !== "enum") {
 				if (typeof schema[key] === "object") {
@@ -394,4 +399,18 @@ function recursiveCompare(A, B) {
 		return true;
 	}
 	return false;
+}
+
+function hasSameKeys(left, right) {
+  var leftKeys = Object.keys(left);
+  var rightKeys = Object.keys(right);
+  if (leftKeys.length !== rightKeys.length) {
+    return false;
+  }
+  for (var key in leftKeys) {
+    if (rightKeys.indexOf(key) !== -1) {
+      return false;
+    }
+  }
+  return true;
 }

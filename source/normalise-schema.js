@@ -14,6 +14,11 @@ function normSchema(schema, baseUri) {
 			if (typeof schema['$ref'] === "string") {
 				schema['$ref'] = resolveUrl(baseUri, schema['$ref']);
 			}
+
+			if (schema['type'] === 'array' && schema['items'] && hasSameKeys(schema, schema['items'])){
+        return;
+      }
+
 			for (var key in schema) {
 				if (key !== "enum") {
 					normSchema(schema[key], baseUri);
