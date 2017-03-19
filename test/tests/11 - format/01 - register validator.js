@@ -58,4 +58,43 @@ describe("Registering custom validator", function () {
 		assert.isFalse(result2.valid);
 		assert.includes(result2.error.message, 'break 2');
 	});
+
+	it("Custom validator should be skipped for null values", function () {
+		tv4.addFormat('null-format', function (data) {
+			if (data !== "test") {
+				return "string does not match";
+			}
+		});
+
+		var schema = {type: ["string", "null"], format: 'null-format'};
+		var data1 = "test";
+		var data2 = null;
+
+		assert.isTrue(tv4.validate(data1, schema));
+		assert.isTrue(tv4.validate(data2, schema));
+	});
+
+	it("Validator should be skipped for null (undefined) enum values", function () {
+		var schema = {
+			"type": "object",
+			"properties": {
+				"a": {
+					type: "string"
+				},
+				"b": {
+					"type": ["string", "null"],
+					"enum": ['one', 'two', 'three']
+				}
+			}
+		};
+		var data1 = {a: "something", b: "test"};
+		var data2 = {a: "something", b: "one"};
+		var data3 = {a: "something", b: null};
+		var data4 = {a: "something"};
+
+		assert.isFalse(tv4.validate(data1, schema));
+		assert.isTrue(tv4.validate(data2, schema));
+		assert.isTrue(tv4.validate(data3, schema));
+		assert.isTrue(tv4.validate(data4, schema));
+	});
 });

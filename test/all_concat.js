@@ -1906,6 +1906,45 @@ describe("Registering custom validator", function () {
 		assert.isFalse(result2.valid);
 		assert.includes(result2.error.message, 'break 2');
 	});
+
+	it("Custom validator should be skipped for null values", function () {
+		tv4.addFormat('null-format', function (data) {
+			if (data !== "test") {
+				return "string does not match";
+			}
+		});
+
+		var schema = {type: ["string", "null"], format: 'null-format'};
+		var data1 = "test";
+		var data2 = null;
+
+		assert.isTrue(tv4.validate(data1, schema));
+		assert.isTrue(tv4.validate(data2, schema));
+	});
+
+	it("Validator should be skipped for null (undefined) enum values", function () {
+		var schema = {
+			"type": "object",
+			"properties": {
+				"a": {
+					type: "string"
+				},
+				"b": {
+					"type": ["string", "null"],
+					"enum": ['one', 'two', 'three']
+				}
+			}
+		};
+		var data1 = {a: "something", b: "test"};
+		var data2 = {a: "something", b: "one"};
+		var data3 = {a: "something", b: null};
+		var data4 = {a: "something"};
+
+		assert.isFalse(tv4.validate(data1, schema));
+		assert.isTrue(tv4.validate(data2, schema));
+		assert.isTrue(tv4.validate(data3, schema));
+		assert.isTrue(tv4.validate(data4, schema));
+	});
 });
 
 describe("Ban unknown properties 01", function () {
@@ -2620,16 +2659,21 @@ describe("Enum object/null failure", function () {
 			"type": "object",
 			"required": ["value"],
 			"properties": {
+				"key": {
+					"type": "string"
+				},
 				"value": {
 					"enum": [6, "foo", [], true, {"foo": 12}]
 				}
 			}
 		};
 
-		var data = {value: null}; // Somehow this is only a problem when a *property* is null, not the root
-		
+		var data = {key: "test", value: null}; // Somehow this is only a problem when a *property* is null, not the root
 		var result = tv4.validateMultiple(data, schema);
-		
+		assert.isFalse(result.valid, 'validateMultiple() should return invalid');
+
+		data = {key: "test"}; // Undefined required property.
+		result = tv4.validateMultiple(data, schema);
 		assert.isFalse(result.valid, 'validateMultiple() should return invalid');
 	});
 });

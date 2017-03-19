@@ -35,7 +35,7 @@ ValidatorContext.prototype.validateObjectRequiredProperties = function validateO
 	if (schema.required !== undefined) {
 		for (var i = 0; i < schema.required.length; i++) {
 			var key = schema.required[i];
-			if (data[key] === undefined) {
+			if (data[key] === undefined || data[key] === null) {
 				var error = this.createError(ErrorCodes.OBJECT_REQUIRED, {key: key}, '', '/required/' + i, null, data, schema);
 				if (this.handleError(error)) {
 					return error;

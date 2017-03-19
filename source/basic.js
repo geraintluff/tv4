@@ -3,6 +3,18 @@ ValidatorContext.prototype.validateBasic = function validateBasic(data, schema, 
 	if (error = this.validateType(data, schema, dataPointerPath)) {
 		return error.prefixWith(null, "type");
 	}
+
+	var dataType = typeof data;
+	if (data === null) {
+		dataType = "null";
+	} else if (Array.isArray(data)) {
+		dataType = "array";
+	}
+
+	if (dataType === "null" || dataType === "undefined") {
+		return null;
+	}
+
 	if (error = this.validateEnum(data, schema, dataPointerPath)) {
 		return error.prefixWith(null, "type");
 	}
