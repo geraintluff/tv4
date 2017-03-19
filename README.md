@@ -80,7 +80,7 @@ Usage:
 tv4.validate(data, schema, function (isValid, validationError) { ... });
 ```
 
-`validationFailure` is simply taken from `tv4.error`.
+`validationError` is simply taken from `tv4.error`.
 
 ## Cyclical JavaScript objects
 
