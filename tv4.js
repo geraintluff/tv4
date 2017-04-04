@@ -960,6 +960,7 @@ ValidatorContext.prototype.validateObject = function validateObject(data, schema
 		|| this.validateObjectRequiredProperties(data, schema, dataPointerPath)
 		|| this.validateObjectProperties(data, schema, dataPointerPath)
 		|| this.validateObjectDependencies(data, schema, dataPointerPath)
+		|| this.validateObjectItems(data, schema, dataPointerPath)
 		|| null;
 };
 
@@ -1081,6 +1082,19 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 				}
 			}
 		}
+	}
+	return null;
+};
+
+ValidatorContext.prototype.validateObjectItems = function validateArrayItems(data, schema, dataPointerPath) {
+	if (schema.items === undefined) {
+		return null;
+	}
+	var error, k;
+	for (var k in data) {
+		if (error = this.validateAll(data[k], schema.items, [k], ["items"], dataPointerPath + "/" + k)) {
+			return error;
+		}		
 	}
 	return null;
 };
