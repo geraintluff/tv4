@@ -33,6 +33,13 @@ ValidatorContext.prototype.validateObjectMinMaxProperties = function validateObj
 
 ValidatorContext.prototype.validateObjectRequiredProperties = function validateObjectRequiredProperties(data, schema) {
 	if (schema.required !== undefined) {
+		if(!schema.required.length) {
+			var error = this.createError(ErrorCodes.REQUIRED_EMPTY);
+			if (this.handleError(error)) {
+				return error;
+			}
+		}
+
 		for (var i = 0; i < schema.required.length; i++) {
 			var key = schema.required[i];
 			if (data[key] === undefined) {
