@@ -58,5 +58,8 @@
   "scripts": {
     "test": "grunt test",
     "prepublish": "grunt prepublish"
+  },
+  "bin": {
+    "tv4": "./bin/tv4cmd.js"
   }
 }
