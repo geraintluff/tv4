@@ -1,4 +1,15 @@
-function normSchema(schema, baseUri) {
+function normSchema(schema, baseUri, stack) {
+	if (typeof stack === "undefined") {
+		stack = [schema];
+	} else {
+		if (stack.indexOf(schema) >= 0) {
+			return;
+		}
+
+		stack = stack.slice(0);
+		stack.unshift(schema);
+	}
+
 	if (schema && typeof schema === "object") {
 		if (baseUri === undefined) {
 			baseUri = schema.id;
@@ -8,7 +19,7 @@ function normSchema(schema, baseUri) {
 		}
 		if (Array.isArray(schema)) {
 			for (var i = 0; i < schema.length; i++) {
-				normSchema(schema[i], baseUri);
+				normSchema(schema[i], baseUri, stack);
 			}
 		} else {
 			if (typeof schema['$ref'] === "string") {
@@ -16,7 +27,7 @@ function normSchema(schema, baseUri) {
 			}
 			for (var key in schema) {
 				if (key !== "enum") {
-					normSchema(schema[key], baseUri);
+					normSchema(schema[key], baseUri, stack);
 				}
 			}
 		}
