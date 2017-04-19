@@ -1336,7 +1336,8 @@ function normSchema(schema, baseUri) {
 				normSchema(schema[i], baseUri);
 			}
 		} else {
-			if (typeof schema['$ref'] === "string") {
+			// If the #ref is local, don't resolve full URI
+			if (typeof schema['$ref'] === "string" && schema['$ref'].charAt(0) !== '#') {
 				schema['$ref'] = resolveUrl(baseUri, schema['$ref']);
 			}
 			for (var key in schema) {

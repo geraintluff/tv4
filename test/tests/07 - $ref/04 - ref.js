@@ -37,4 +37,37 @@ describe("$ref 04", function () {
 
 		//this.assert(tv4.missing.length == 0, "should have no missing schemas");
 	});
+
+		it("internal $ref unreachable schema uri", function () {
+		var schema = {
+			"id": "https://not-connected-to-the-internet.com/schema.json#",
+			"$schema": "https://not-connected-to-the-internet/v1/schema#",
+			"title": "This is a schema",
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"refd": {
+					"$ref": '#/definitions/refd'
+				}
+			}, "definitions": {
+				"refd": {
+					"additionalProperties": false,
+					"type": "object",
+					"required": ["value"],
+					"properties": {
+						"value": {
+							"type": "string"
+						}
+					}
+				}
+			}
+		};
+		var invalid = { refd: { value: 1 } };
+		var valid = { refd: { value: "string" } };
+
+		assert.isTrue(!tv4.validate(invalid, schema), "Should not validate");
+		assert.isTrue(tv4.validate(valid, schema), "Should valid");
+
+		assert.length(tv4.missing, 0, "should have no missing schemas");
+	});
 });
