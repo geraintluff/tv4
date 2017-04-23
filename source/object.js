@@ -35,7 +35,7 @@ ValidatorContext.prototype.validateObjectRequiredProperties = function validateO
 	if (schema.required !== undefined) {
 		for (var i = 0; i < schema.required.length; i++) {
 			var key = schema.required[i];
-			if (data[key] === undefined) {
+			if (!data[key]) {
 				var error = this.createError(ErrorCodes.OBJECT_REQUIRED, {key: key}, '', '/required/' + i, null, data, schema);
 				if (this.handleError(error)) {
 					return error;
@@ -101,10 +101,10 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 	var error;
 	if (schema.dependencies !== undefined) {
 		for (var depKey in schema.dependencies) {
-			if (data[depKey] !== undefined) {
+			if (data[depKey]) {
 				var dep = schema.dependencies[depKey];
 				if (typeof dep === "string") {
-					if (data[dep] === undefined) {
+					if (!data[dep]) {
 						error = this.createError(ErrorCodes.OBJECT_DEPENDENCY_KEY, {key: depKey, missing: dep}, '', '', null, data, schema).prefixWith(null, depKey).prefixWith(null, "dependencies");
 						if (this.handleError(error)) {
 							return error;
@@ -113,7 +113,7 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 				} else if (Array.isArray(dep)) {
 					for (var i = 0; i < dep.length; i++) {
 						var requiredKey = dep[i];
-						if (data[requiredKey] === undefined) {
+						if (!data[requiredKey]) {
 							error = this.createError(ErrorCodes.OBJECT_DEPENDENCY_KEY, {key: depKey, missing: requiredKey}, '', '/' + i, null, data, schema).prefixWith(null, depKey).prefixWith(null, "dependencies");
 							if (this.handleError(error)) {
 								return error;
