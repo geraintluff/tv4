@@ -225,7 +225,10 @@ function createApi(language) {
 				schema = {"$ref": schema};
 			}
 			context.addSchema("", schema);
+			var test = data;
+			console.log("validateAll start");
 			context.validateAll(data, schema, null, null, "");
+			console.log("validateAll end");
 			if (banUnknownProperties) {
 				context.banUnknownProperties(data, schema);
 			}

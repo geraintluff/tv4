@@ -214,13 +214,14 @@ ValidatorContext.prototype.reset = function () {
 ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, schemaPathParts, dataPointerPath) {
 	var topLevel;
 	schema = this.resolveRefs(schema);
+	console.log(schema);
 	if (!schema) {
 		return null;
 	} else if (schema instanceof ValidationError) {
 		this.errors.push(schema);
 		return schema;
 	}
-
+	console.log("end");
 	var startErrorCount = this.errors.length;
 	var frozenIndex, scannedFrozenSchemaIndex = null, scannedSchemasIndex = null;
 	if (this.checkRecursive && data && typeof data === 'object') {
