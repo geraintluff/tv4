@@ -2,6 +2,7 @@
 var tv4 = require('../tv4');
 	
 var schema = {
+"Body": {
               "$id": "http://example.com/example.json",
               "type": "object",
               "definitions": {},
@@ -85,6 +86,7 @@ var schema = {
                 }
               }
             }
+          }
 var data = {
             "checked": false,
             "id": 1,
@@ -101,6 +103,6 @@ var data = {
             
           }
 //tv4.addSchema(schema);
-var result = tv4.validateMultiple(data, schema, true, true);
+var result = tv4.validateMultiple(data, schema, "Body", true, true);
 
 console.log(result);

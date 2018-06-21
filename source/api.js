@@ -196,7 +196,7 @@ function createApi(language) {
 			var errorReporter = customErrorReporter ? function (error, data, schema) {
 				return customErrorReporter(error, data, schema) || def(error, data, schema);
 			} : def;
-			var context = new ValidatorContext(globalContext, false, errorReporter, checkRecursive, banUnknownProperties);
+			var context = new ValidatorContext(globalContext, false, errorReporter, checkRecursive, banUnknownProperties, null);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
@@ -215,19 +215,20 @@ function createApi(language) {
 			this.validate.apply(result, arguments);
 			return result;
 		},
-		validateMultiple: function (data, schema, checkRecursive, banUnknownProperties) {
+		validateMultiple: function (data, fullSchema, schemaName, checkRecursive, banUnknownProperties) {
+			var schema = fullSchema[schemaName];
 			var def = defaultErrorReporter(currentLanguage);
 			var errorReporter = customErrorReporter ? function (error, data, schema) {
 				return customErrorReporter(error, data, schema) || def(error, data, schema);
 			} : def;
-			var context = new ValidatorContext(globalContext, true, errorReporter, checkRecursive, banUnknownProperties);
+			var context = new ValidatorContext(globalContext, true, errorReporter, checkRecursive, banUnknownProperties, fullSchema);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
 			context.addSchema("", schema);
-			var test = data;
+			//var test = data;
 			console.log("validateAll start");
-			context.validateAll(data, schema, null, null, "");
+			context.validateAll(data, schema, null, null, "", fullSchema);
 			console.log("validateAll end");
 			if (banUnknownProperties) {
 				context.banUnknownProperties(data, schema);

@@ -154,29 +154,14 @@ var swaggerData = {
     }
 
 var schema = setSchemas(swaggerData);
-var data = [
-              {
-                "name": "BTC_EUR",
-                "productId": "99d40b2f-1447-4893-8bfe-b854836f8555",
-                "pair": {
-                  "from": {
-                    "asset": {
+var data =  {
                       "symbol": "BTC",
                       "type": "Token"
                     }
-                },
-                  "to": {
-                    "asset": {
-                      "symbol": "EUR",
-                      "type": "Fiat"
-                    }
-                  }
-                }
-              }
-            ]
+
 //tv4.addSchema(schema);
 
-var result = tv4.validateMultiple(data, schema, "Products", true, true);
+var result = tv4.validateMultiple(data, schema, "Asset", true, true);
 
 
-console.log(result);
+console.log(result.errors);
