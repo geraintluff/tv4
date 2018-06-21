@@ -1,13 +1,11 @@
-var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorReporter, checkRecursive, trackUnknownProperties, fullSchema) {
+var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorReporter, checkRecursive, trackUnknownProperties) {
 	this.missing = [];
 	this.missingMap = {};
 	this.formatValidators = parent ? Object.create(parent.formatValidators) : {};
 	this.schemas = parent ? Object.create(parent.schemas) : {};
 	this.collectMultiple = collectMultiple;
 	this.errors = [];
-	this.fullSchema = fullSchema;
-	console.log("hello");
-	console.log(this.fullSchema);
+
 	this.handleError = collectMultiple ? this.collectError : this.returnError;
 	if (checkRecursive) {
 		this.checkRecursive = true;
@@ -33,9 +31,6 @@ var ValidatorContext = function ValidatorContext(parent, collectMultiple, errorR
 			this.definedKeywords[key] = parent.definedKeywords[key].slice(0);
 		}
 	}
-};
-ValidatorContext.prototype.mainSchema = function () {
-	return this.fullSchema;
 };
 ValidatorContext.prototype.defineKeyword = function (keyword, keywordFunction) {
 	this.definedKeywords[keyword] = this.definedKeywords[keyword] || [];
@@ -219,16 +214,14 @@ ValidatorContext.prototype.reset = function () {
 
 ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, schemaPathParts, dataPointerPath, fullSchema) {
 	var topLevel;
-	this.fullSchema = fullSchema;
 	schema = this.resolveRefs(schema);
-	console.log(schema);
+	//console.log(schema);
 	if (!schema) {
 		return null;
 	} else if (schema instanceof ValidationError) {
 		this.errors.push(schema);
 		return schema;
 	}
-	console.log("validateAll 11");
 	var startErrorCount = this.errors.length;
 	var frozenIndex, scannedFrozenSchemaIndex = null, scannedSchemasIndex = null;
 	if (this.checkRecursive && data && typeof data === 'object') {
@@ -282,17 +275,16 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 			data[this.validationErrorsKey][scannedSchemasIndex] = [];
 		}
 	}
-	console.log("validateAll 22");
 	var errorCount = this.errors.length;
-	var error = this.validateBasic(data, schema, dataPointerPath)
-		|| this.validateNumeric(data, schema, dataPointerPath)
-		|| this.validateString(data, schema, dataPointerPath)
-		|| this.validateArray(data, schema, dataPointerPath)
+	var error = this.validateBasic(data, schema, dataPointerPath, fullSchema)
+		|| this.validateNumeric(data, schema, dataPointerPath, fullSchema)
+		|| this.validateString(data, schema, dataPointerPath, fullSchema)
+		|| this.validateArray(data, schema, dataPointerPath, fullSchema)
 		|| this.validateObject(data, schema, dataPointerPath, fullSchema)
-		|| this.validateCombinations(data, schema, dataPointerPath)
-		|| this.validateHypermedia(data, schema, dataPointerPath)
-		|| this.validateFormat(data, schema, dataPointerPath)
-		|| this.validateDefinedKeywords(data, schema, dataPointerPath)
+		|| this.validateCombinations(data, schema, dataPointerPath, fullSchema)
+		|| this.validateHypermedia(data, schema, dataPointerPath, fullSchema)
+		|| this.validateFormat(data, schema, dataPointerPath, fullSchema)
+		|| this.validateDefinedKeywords(data, schema, dataPointerPath, fullSchema)
 		|| null;
 
 	if (topLevel) {
@@ -320,7 +312,6 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 	} else if (scannedSchemasIndex !== null) {
 		data[this.validationErrorsKey][scannedSchemasIndex] = this.errors.slice(startErrorCount);
 	}
-	console.log("validateAll 99");
 	return this.handleError(error);
 };
 ValidatorContext.prototype.validateFormat = function (data, schema) {

@@ -196,12 +196,12 @@ function createApi(language) {
 			var errorReporter = customErrorReporter ? function (error, data, schema) {
 				return customErrorReporter(error, data, schema) || def(error, data, schema);
 			} : def;
-			var context = new ValidatorContext(globalContext, false, errorReporter, checkRecursive, banUnknownProperties, null);
+			var context = new ValidatorContext(globalContext, false, errorReporter, checkRecursive, banUnknownProperties);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
 			context.addSchema("", schema);
-			var error = context.validateAll(data, schema, null, null, "");
+			var error = context.validateAll(data, schema, null, null, "", null);
 			if (!error && banUnknownProperties) {
 				error = context.banUnknownProperties(data, schema);
 			}
@@ -221,15 +221,13 @@ function createApi(language) {
 			var errorReporter = customErrorReporter ? function (error, data, schema) {
 				return customErrorReporter(error, data, schema) || def(error, data, schema);
 			} : def;
-			var context = new ValidatorContext(globalContext, true, errorReporter, checkRecursive, banUnknownProperties, fullSchema);
+			var context = new ValidatorContext(globalContext, true, errorReporter, checkRecursive, banUnknownProperties);
 			if (typeof schema === "string") {
 				schema = {"$ref": schema};
 			}
 			context.addSchema("", schema);
-			//var test = data;
-			console.log("validateAll start");
+
 			context.validateAll(data, schema, null, null, "", fullSchema);
-			console.log("validateAll end");
 			if (banUnknownProperties) {
 				context.banUnknownProperties(data, schema);
 			}

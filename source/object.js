@@ -2,10 +2,10 @@ ValidatorContext.prototype.validateObject = function validateObject(data, schema
 	if (typeof data !== "object" || data === null || Array.isArray(data)) {
 		return null;
 	}
-	return this.validateObjectMinMaxProperties(data, schema, dataPointerPath)
-		|| this.validateObjectRequiredProperties(data, schema, dataPointerPath)
+	return this.validateObjectMinMaxProperties(data, schema, dataPointerPath, fullSchema)
+		|| this.validateObjectRequiredProperties(data, schema, dataPointerPath, fullSchema)
 		|| this.validateObjectProperties(data, schema, dataPointerPath, fullSchema)
-		|| this.validateObjectDependencies(data, schema, dataPointerPath)
+		|| this.validateObjectDependencies(data, schema, dataPointerPath, fullSchema)
 		|| null;
 };
 
@@ -62,23 +62,22 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 				var regexp = new RegExp(patternKey);
 				if (regexp.test(key)) {
 					foundMatch = true;
-					if (error = this.validateAll(data[key], schema.patternProperties[patternKey], [key], ["patternProperties", patternKey], keyPointerPath)) {
+					if (error = this.validateAll(data[key], schema.patternProperties[patternKey], [key], ["patternProperties", patternKey], keyPointerPath, fullSchema)) {
 						return error;
 					}
 				}
 			}
 		}
-
+		// code for discriminator logic start
 		if(schema.properties === undefined && schema.discriminator !== undefined){
 			if(key !== 'type') {
-                //var type = schema.discriminator;
 
-                if (fullSchema !== undefined) {
+                if (fullSchema !== undefined && data['type'] !== undefined && fullSchema[data['type']] !== undefined) {
 
                     var discSchema = fullSchema[data['type']];
 					var realSchema = discSchema.allOf[1];
 					//console.log(realSchema);
-					this.validateObjectProperties(data, realSchema, dataPointerPath);
+					this.validateObjectProperties(data, realSchema, dataPointerPath, fullSchema);
 					foundMatch = true;
                 }
 			}else {
@@ -86,6 +85,7 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 			}
 
 		}
+        // code for discriminator logic end
 		if (!foundMatch) {
 			if (schema.additionalProperties !== undefined) {
 				if (this.trackUnknownProperties) {
@@ -100,7 +100,7 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 						}
 					}
 				} else {
-					if (error = this.validateAll(data[key], schema.additionalProperties, [key], ["additionalProperties"], keyPointerPath)) {
+					if (error = this.validateAll(data[key], schema.additionalProperties, [key], ["additionalProperties"], keyPointerPath, fullSchema)) {
 						return error;
 					}
 				}
@@ -115,7 +115,7 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 	return null;
 };
 
-ValidatorContext.prototype.validateObjectDependencies = function validateObjectDependencies(data, schema, dataPointerPath) {
+ValidatorContext.prototype.validateObjectDependencies = function validateObjectDependencies(data, schema, dataPointerPath, fullSchema) {
 	var error;
 	if (schema.dependencies !== undefined) {
 		for (var depKey in schema.dependencies) {
@@ -139,7 +139,7 @@ ValidatorContext.prototype.validateObjectDependencies = function validateObjectD
 						}
 					}
 				} else {
-					if (error = this.validateAll(data, dep, [], ["dependencies", depKey], dataPointerPath)) {
+					if (error = this.validateAll(data, dep, [], ["dependencies", depKey], dataPointerPath, fullSchema)) {
 						return error;
 					}
 				}
