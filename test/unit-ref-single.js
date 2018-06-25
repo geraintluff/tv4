@@ -156,7 +156,7 @@ var swaggerData = {
 var schema = setSchemas(swaggerData);
 var data =  {
                       "symbol": "BTC",
-                      "type": "Token"
+                      "assetType": "Token"
                     }
 
 //tv4.addSchema(schema);

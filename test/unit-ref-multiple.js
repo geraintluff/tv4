@@ -114,16 +114,12 @@ var swaggerData = {
                   "productId": "99d40b2f-1447-4893-8bfe-b854836f8555",
                   "pair": {
                     "from": {
-                      "asset": {
                         "symbol": "BTC",
-                        "type": "TOKEN"
-                      }
+                        "assetType": "Token"
                     },
                     "to": {
-                      "asset": {
                         "symbol": "EUR",
-                        "type": "FIAT"
-                      }
+                        "assetType": "Fiat"
                     }
                   }
                 }]
@@ -161,11 +157,11 @@ var data = [
                 "pair": {
                   "from": {
                       "symbol": "BTC",
-                      "type": "Token"
+                      "assetType": "Token"
                 },
                   "to": {
                       "symbol": "EUR",
-                      "type": "Fiat"
+                      "assetType": "Fiat"
                   }
                 }
               }

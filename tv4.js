@@ -1023,11 +1023,12 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 		}
 		// code for discriminator logic start
 		if(schema.properties === undefined && schema.discriminator !== undefined){
-			if(key !== 'type') {
+			var type = schema.discriminator;
+			if(key !== type) {
 
-                if (fullSchema !== undefined && data['type'] !== undefined && fullSchema[data['type']] !== undefined) {
+                if (fullSchema !== undefined && data[type] !== undefined && fullSchema[data[type]] !== undefined) {
 
-                    var discSchema = fullSchema[data['type']];
+                    var discSchema = fullSchema[data[type]];
 					var realSchema = discSchema.allOf[1];
 					//console.log(realSchema);
 					this.validateObjectProperties(data, realSchema, dataPointerPath, fullSchema);
