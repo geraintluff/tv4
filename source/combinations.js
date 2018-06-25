@@ -6,21 +6,21 @@ ValidatorContext.prototype.validateCombinations = function validateCombinations(
 		|| null;
 };
 
-ValidatorContext.prototype.validateAllOf = function validateAllOf(data, schema, dataPointerPath) {
+ValidatorContext.prototype.validateAllOf = function validateAllOf(data, schema, dataPointerPath, fullSchema) {
 	if (schema.allOf === undefined) {
 		return null;
 	}
 	var error;
 	for (var i = 0; i < schema.allOf.length; i++) {
 		var subSchema = schema.allOf[i];
-		if (error = this.validateAll(data, subSchema, [], ["allOf", i], dataPointerPath)) {
+		if (error = this.validateAll(data, subSchema, [], ["allOf", i], dataPointerPath, fullSchema)) {
 			return error;
 		}
 	}
 	return null;
 };
 
-ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema, dataPointerPath) {
+ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema, dataPointerPath, fullSchema) {
 	if (schema.anyOf === undefined) {
 		return null;
 	}
@@ -40,7 +40,7 @@ ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema, 
 		var subSchema = schema.anyOf[i];
 
 		var errorCount = this.errors.length;
-		var error = this.validateAll(data, subSchema, [], ["anyOf", i], dataPointerPath);
+		var error = this.validateAll(data, subSchema, [], ["anyOf", i], dataPointerPath, fullSchema);
 
 		if (error === null && errorCount === this.errors.length) {
 			this.errors = this.errors.slice(0, startErrorCount);
@@ -77,7 +77,7 @@ ValidatorContext.prototype.validateAnyOf = function validateAnyOf(data, schema, 
 	}
 };
 
-ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema, dataPointerPath) {
+ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema, dataPointerPath, fullSchema) {
 	if (schema.oneOf === undefined) {
 		return null;
 	}
@@ -97,7 +97,7 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema, 
 		var subSchema = schema.oneOf[i];
 
 		var errorCount = this.errors.length;
-		var error = this.validateAll(data, subSchema, [], ["oneOf", i], dataPointerPath);
+		var error = this.validateAll(data, subSchema, [], ["oneOf", i], dataPointerPath, fullSchema);
 
 		if (error === null && errorCount === this.errors.length) {
 			if (validIndex === null) {
@@ -135,7 +135,7 @@ ValidatorContext.prototype.validateOneOf = function validateOneOf(data, schema, 
 	return null;
 };
 
-ValidatorContext.prototype.validateNot = function validateNot(data, schema, dataPointerPath) {
+ValidatorContext.prototype.validateNot = function validateNot(data, schema, dataPointerPath, fullSchema) {
 	if (schema.not === undefined) {
 		return null;
 	}
@@ -147,7 +147,7 @@ ValidatorContext.prototype.validateNot = function validateNot(data, schema, data
 		this.unknownPropertyPaths = {};
 		this.knownPropertyPaths = {};
 	}
-	var error = this.validateAll(data, schema.not, null, null, dataPointerPath);
+	var error = this.validateAll(data, schema.not, null, null, dataPointerPath, fullSchema);
 	var notErrors = this.errors.slice(oldErrorCount);
 	this.errors = this.errors.slice(0, oldErrorCount);
 	if (this.trackUnknownProperties) {

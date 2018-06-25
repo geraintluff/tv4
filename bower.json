@@ -1,6 +1,6 @@
 {
   "name": "tv4",
-  "version": "1.2.7",
+  "version": "0.1.0",
   "description": "A public domain JSON Schema validator for JavaScript",
   "keywords": [
     "json-schema",
@@ -8,15 +8,11 @@
     "validator",
     "tv4"
   ],
-  "homepage": "https://github.com/geraintluff/tv4#tiny-validator-for-v4-json-schema",
+  "homepage": "https://github.com/rajireddy95/tv4#tiny-validator-for-v4-json-schema",
   "license": [
     {
-      "type": "Public Domain",
-      "url": "http://geraintluff.github.io/tv4/LICENSE.txt"
-    },
-    {
       "type": "MIT",
-      "url": "http://jsonary.com/LICENSE.txt"
+      "url": "https://github.com/rajireddy95/tv4/LICENSE.txt"
     }
   ],
   "main": "tv4.js",

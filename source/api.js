@@ -201,7 +201,7 @@ function createApi(language) {
 				schema = {"$ref": schema};
 			}
 			context.addSchema("", schema);
-			var error = context.validateAll(data, schema, null, null, "");
+			var error = context.validateAll(data, schema, null, null, "", null);
 			if (!error && banUnknownProperties) {
 				error = context.banUnknownProperties(data, schema);
 			}
@@ -215,7 +215,8 @@ function createApi(language) {
 			this.validate.apply(result, arguments);
 			return result;
 		},
-		validateMultiple: function (data, schema, checkRecursive, banUnknownProperties) {
+		validateMultiple: function (data, fullSchema, schemaName, checkRecursive, banUnknownProperties) {
+			var schema = fullSchema[schemaName];
 			var def = defaultErrorReporter(currentLanguage);
 			var errorReporter = customErrorReporter ? function (error, data, schema) {
 				return customErrorReporter(error, data, schema) || def(error, data, schema);
@@ -225,7 +226,8 @@ function createApi(language) {
 				schema = {"$ref": schema};
 			}
 			context.addSchema("", schema);
-			context.validateAll(data, schema, null, null, "");
+
+			context.validateAll(data, schema, null, null, "", fullSchema);
 			if (banUnknownProperties) {
 				context.banUnknownProperties(data, schema);
 			}
