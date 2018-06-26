@@ -1,24 +1,3 @@
-var tv4 = require('tv4', function(tv4){
-/*
-Author: Geraint Luff and others
-Year: 2013
-
-This code is released into the "public domain" by its author(s).  Anybody may use, alter and distribute the code without restriction.  The author makes no guarantees, and takes no liability of any kind for use of this code.
-
-If you find a bug or make an improvement, it would be courteous to let the author know, but it is not compulsory.
-*/
-var tv4 = (function (global, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define([], factory);
-  } else if (typeof module !== 'undefined' && module.exports){
-    // CommonJS. Define export.
-    module.exports = factory();
-  } else {
-    // Browser globals
-    global.tv4 = factory();
-  }
-}(this, function () {
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FObject%2Fkeys
 if (!Object.keys) {
@@ -1692,9 +1671,3 @@ tv4.addLanguage('en-gb', ErrorMessagesDefault);
 
 //legacy property
 tv4.tv4 = tv4;
-
-return tv4; // used by _header.js to globalise.
-
-}))
-
-});
