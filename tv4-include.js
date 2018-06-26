@@ -1,3 +1,4 @@
+var tv4 = require('tv4', function(tv4){
 /*
 Author: Geraint Luff and others
 Year: 2013
@@ -1695,3 +1696,5 @@ tv4.tv4 = tv4;
 return tv4; // used by _header.js to globalise.
 
 }))
+
+});
