@@ -215,7 +215,7 @@ function createApi(language) {
 			this.validate.apply(result, arguments);
 			return result;
 		},
-		validateMultiple: function (data, fullSchema, schemaName, checkRecursive, banUnknownProperties) {
+		validateMultiple: function (data, fullSchema, schemaName, checkRecursive, banUnknownProperties, nonEmptyArray) {
 			var schema = fullSchema[schemaName];
 			var def = defaultErrorReporter(currentLanguage);
 			var errorReporter = customErrorReporter ? function (error, data, schema) {
@@ -227,7 +227,7 @@ function createApi(language) {
 			}
 			context.addSchema("", schema);
 
-			context.validateAll(data, schema, null, null, "", fullSchema);
+			context.validateAll(data, schema, null, null, "", fullSchema, nonEmptyArray);
 			if (banUnknownProperties) {
 				context.banUnknownProperties(data, schema);
 			}

@@ -114,16 +114,12 @@ var swaggerData = {
                   "productId": "99d40b2f-1447-4893-8bfe-b854836f8555",
                   "pair": {
                     "from": {
-                      "asset": {
                         "symbol": "BTC",
-                        "type": "TOKEN"
-                      }
+                        "assetType": "Token"
                     },
                     "to": {
-                      "asset": {
                         "symbol": "EUR",
-                        "type": "FIAT"
-                      }
+                        "assetType": "Fiat"
                     }
                   }
                 }]
@@ -154,14 +150,11 @@ var swaggerData = {
     }
 
 var schema = setSchemas(swaggerData);
-var data =  {
-                      "symbol": "BTC",
-                      "assetType": "Token"
-                    }
+var data = [
 
-//tv4.addSchema(schema);
+            ]
 
-var result = tv4.validateMultiple(data, schema, "Asset", true, true);
+var result = tv4.validateMultiple(data, schema, "Products", true, true, true);
 
 
 console.log(result);

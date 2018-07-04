@@ -212,7 +212,7 @@ ValidatorContext.prototype.reset = function () {
 	this.errors = [];
 };
 
-ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, schemaPathParts, dataPointerPath, fullSchema) {
+ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, schemaPathParts, dataPointerPath, fullSchema, nonEmptyArray) {
 	var topLevel;
 	schema = this.resolveRefs(schema);
 	//console.log(schema);
@@ -279,8 +279,8 @@ ValidatorContext.prototype.validateAll = function (data, schema, dataPathParts, 
 	var error = this.validateBasic(data, schema, dataPointerPath, fullSchema)
 		|| this.validateNumeric(data, schema, dataPointerPath, fullSchema)
 		|| this.validateString(data, schema, dataPointerPath, fullSchema)
-		|| this.validateArray(data, schema, dataPointerPath, fullSchema)
-		|| this.validateObject(data, schema, dataPointerPath, fullSchema)
+		|| this.validateArray(data, schema, dataPointerPath, fullSchema, nonEmptyArray)
+		|| this.validateObject(data, schema, dataPointerPath, fullSchema, nonEmptyArray)
 		|| this.validateCombinations(data, schema, dataPointerPath, fullSchema)
 		|| this.validateHypermedia(data, schema, dataPointerPath, fullSchema)
 		|| this.validateFormat(data, schema, dataPointerPath, fullSchema)
