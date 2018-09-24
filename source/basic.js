@@ -1,9 +1,9 @@
-ValidatorContext.prototype.validateBasic = function validateBasic(data, schema, dataPointerPath) {
+ValidatorContext.prototype.validateBasic = function validateBasic(data, schema, dataPointerPath, fullSchema) {
 	var error;
-	if (error = this.validateType(data, schema, dataPointerPath)) {
+	if (error = this.validateType(data, schema, dataPointerPath, fullSchema)) {
 		return error.prefixWith(null, "type");
 	}
-	if (error = this.validateEnum(data, schema, dataPointerPath)) {
+	if (error = this.validateEnum(data, schema, dataPointerPath, fullSchema)) {
 		return error.prefixWith(null, "type");
 	}
 	return null;

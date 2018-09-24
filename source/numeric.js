@@ -1,5 +1,5 @@
-ValidatorContext.prototype.validateNumeric = function validateNumeric(data, schema, dataPointerPath) {
-	return this.validateMultipleOf(data, schema, dataPointerPath)
+ValidatorContext.prototype.validateNumeric = function validateNumeric(data, schema, dataPointerPath, fullSchema) {
+	return this.validateMultipleOf(data, schema, dataPointerPath, fullSchema)
 		|| this.validateMinMax(data, schema, dataPointerPath)
 		|| this.validateNaN(data, schema, dataPointerPath)
 		|| null;

@@ -1,15 +1,23 @@
-ValidatorContext.prototype.validateArray = function validateArray(data, schema, dataPointerPath) {
+ValidatorContext.prototype.validateArray = function validateArray(data, schema, dataPointerPath, fullSchema, nonEmptyArray) {
 	if (!Array.isArray(data)) {
 		return null;
 	}
-	return this.validateArrayLength(data, schema, dataPointerPath)
+	return this.validateArrayLength(data, schema, dataPointerPath, nonEmptyArray)
 		|| this.validateArrayUniqueItems(data, schema, dataPointerPath)
-		|| this.validateArrayItems(data, schema, dataPointerPath)
+		|| this.validateArrayItems(data, schema, dataPointerPath, fullSchema, nonEmptyArray)
 		|| null;
 };
 
-ValidatorContext.prototype.validateArrayLength = function validateArrayLength(data, schema) {
+ValidatorContext.prototype.validateArrayLength = function validateArrayLength(data, schema, dataPointerPath, nonEmptyArray) {
 	var error;
+	if(nonEmptyArray){
+        if (data.length < 1) {
+            error = this.createError(ErrorCodes.ARRAY_LENGTH_SHORT, {length: data.length, minimum: schema.minItems}, '', '/minItems', null, data, schema);
+            if (this.handleError(error)) {
+                return error;
+            }
+        }
+	}
 	if (schema.minItems !== undefined) {
 		if (data.length < schema.minItems) {
 			error = this.createError(ErrorCodes.ARRAY_LENGTH_SHORT, {length: data.length, minimum: schema.minItems}, '', '/minItems', null, data, schema);
@@ -45,7 +53,7 @@ ValidatorContext.prototype.validateArrayUniqueItems = function validateArrayUniq
 	return null;
 };
 
-ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data, schema, dataPointerPath) {
+ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data, schema, dataPointerPath, fullSchema, nonEmptyArray) {
 	if (schema.items === undefined) {
 		return null;
 	}
@@ -53,7 +61,7 @@ ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data
 	if (Array.isArray(schema.items)) {
 		for (i = 0; i < data.length; i++) {
 			if (i < schema.items.length) {
-				if (error = this.validateAll(data[i], schema.items[i], [i], ["items", i], dataPointerPath + "/" + i)) {
+				if (error = this.validateAll(data[i], schema.items[i], [i], ["items", i], dataPointerPath + "/" + i, fullSchema, nonEmptyArray)) {
 					return error;
 				}
 			} else if (schema.additionalItems !== undefined) {
@@ -64,14 +72,14 @@ ValidatorContext.prototype.validateArrayItems = function validateArrayItems(data
 							return error;
 						}
 					}
-				} else if (error = this.validateAll(data[i], schema.additionalItems, [i], ["additionalItems"], dataPointerPath + "/" + i)) {
+				} else if (error = this.validateAll(data[i], schema.additionalItems, [i], ["additionalItems"], dataPointerPath + "/" + i, fullSchema, nonEmptyArray)) {
 					return error;
 				}
 			}
 		}
 	} else {
 		for (i = 0; i < data.length; i++) {
-			if (error = this.validateAll(data[i], schema.items, [i], ["items"], dataPointerPath + "/" + i)) {
+			if (error = this.validateAll(data[i], schema.items, [i], ["items"], dataPointerPath + "/" + i, fullSchema, nonEmptyArray)) {
 				return error;
 			}
 		}

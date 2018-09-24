@@ -1,4 +1,4 @@
-ValidatorContext.prototype.validateHypermedia = function validateCombinations(data, schema, dataPointerPath) {
+ValidatorContext.prototype.validateHypermedia = function validateCombinations(data, schema, dataPointerPath, fullSchema) {
 	if (!schema.links) {
 		return null;
 	}
@@ -17,7 +17,7 @@ ValidatorContext.prototype.validateHypermedia = function validateCombinations(da
 			if (allPresent) {
 				var schemaUrl = template.fillFromObject(data);
 				var subSchema = {"$ref": schemaUrl};
-				if (error = this.validateAll(data, subSchema, [], ["links", i], dataPointerPath)) {
+				if (error = this.validateAll(data, subSchema, [], ["links", i], dataPointerPath, fullSchema)) {
 					return error;
 				}
 			}

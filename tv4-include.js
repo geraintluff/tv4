@@ -1,23 +1,3 @@
-/*
-Author: Geraint Luff and others
-Year: 2013
-
-This code is released into the "public domain" by its author(s).  Anybody may use, alter and distribute the code without restriction.  The author makes no guarantees, and takes no liability of any kind for use of this code.
-
-If you find a bug or make an improvement, it would be courteous to let the author know, but it is not compulsory.
-*/
-(function (global, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define([], factory);
-  } else if (typeof module !== 'undefined' && module.exports){
-    // CommonJS. Define export.
-    module.exports = factory();
-  } else {
-    // Browser globals
-    global.tv4 = factory();
-  }
-}(this, function () {
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FObject%2Fkeys
 if (!Object.keys) {
@@ -848,21 +828,21 @@ ValidatorContext.prototype.validateStringPattern = function validateStringPatter
 	}
 	var regexp;
 	if (schema.pattern instanceof RegExp) {
-	  regexp = schema.pattern;
+		regexp = schema.pattern;
 	}
 	else {
-	  var body, flags = '';
-	  // Check for regular expression literals
-	  // @see http://www.ecma-international.org/ecma-262/5.1/#sec-7.8.5
-	  var literal = schema.pattern.match(/^\/(.+)\/([img]*)$/);
-	  if (literal) {
-	    body = literal[1];
-	    flags = literal[2];
-	  }
-	  else {
-	    body = schema.pattern;
-	  }
-	  regexp = new RegExp(body, flags);
+		var body, flags = '';
+		// Check for regular expression literals
+		// @see http://www.ecma-international.org/ecma-262/5.1/#sec-7.8.5
+		var literal = schema.pattern.match(/^\/(.+)\/([img]*)$/);
+		if (literal) {
+			body = literal[1];
+			flags = literal[2];
+		}
+		else {
+			body = schema.pattern;
+		}
+		regexp = new RegExp(body, flags);
 	}
 	if (!regexp.test(data)) {
 		return this.createError(ErrorCodes.STRING_PATTERN, {pattern: schema.pattern}, '', '/pattern', null, data, schema);
@@ -883,12 +863,12 @@ ValidatorContext.prototype.validateArray = function validateArray(data, schema, 
 ValidatorContext.prototype.validateArrayLength = function validateArrayLength(data, schema, dataPointerPath, nonEmptyArray) {
 	var error;
 	if(nonEmptyArray){
-        if (data.length < 1) {
-            error = this.createError(ErrorCodes.ARRAY_LENGTH_SHORT, {length: data.length, minimum: schema.minItems}, '', '/minItems', null, data, schema);
-            if (this.handleError(error)) {
-                return error;
-            }
-        }
+		if (data.length < 1) {
+			error = this.createError(ErrorCodes.ARRAY_LENGTH_SHORT, {length: data.length, minimum: schema.minItems}, '', '/minItems', null, data, schema);
+			if (this.handleError(error)) {
+				return error;
+			}
+		}
 	}
 	if (schema.minItems !== undefined) {
 		if (data.length < schema.minItems) {
@@ -1030,25 +1010,24 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 			}
 		}
 		// code for discriminator logic start
-		if(schema.discriminator !== undefined){
+		if(schema.properties === undefined && schema.discriminator !== undefined){
 			var type = schema.discriminator;
 			if(key !== type) {
 
-                if (fullSchema !== undefined && data[type] !== undefined && fullSchema[data[type]] !== undefined) {
+				if (fullSchema !== undefined && data[type] !== undefined && fullSchema[data[type]] !== undefined) {
 
-                    var discSchema = fullSchema[data[type]];
+					var discSchema = fullSchema[data[type]];
 					var realSchema = discSchema.allOf[1];
 					//console.log(realSchema);
 					this.validateObjectProperties(data, realSchema, dataPointerPath, fullSchema);
 					foundMatch = true;
-                }
+				}
 			}else {
-                foundMatch = true;
+				foundMatch = true;
 			}
 
 		}
-
-        // code for discriminator logic end
+		// code for discriminator logic end
 		if (!foundMatch) {
 			if (schema.additionalProperties !== undefined) {
 				if (this.trackUnknownProperties) {
@@ -1333,7 +1312,7 @@ function resolveUrl(base, href) {// RFC 3986
 				} else {
 					output.push(p);
 				}
-		});
+			});
 		return output.join('').replace(/^\//, input.charAt(0) === '/' ? '/' : '');
 	}
 
@@ -1700,7 +1679,3 @@ tv4.addLanguage('en-gb', ErrorMessagesDefault);
 
 //legacy property
 tv4.tv4 = tv4;
-
-return tv4; // used by _header.js to globalise.
-
-}));

@@ -1,8 +1,5 @@
-# Tiny Validator (for v4 JSON Schema)
+# Custom Tiny Validator (for v4 JSON Schema)
 
-[![Build Status](https://secure.travis-ci.org/geraintluff/tv4.svg?branch=master)](http://travis-ci.org/geraintluff/tv4) [![Dependency Status](https://gemnasium.com/geraintluff/tv4.svg)](https://gemnasium.com/geraintluff/tv4) [![NPM version](https://badge.fury.io/js/tv4.svg)](http://badge.fury.io/js/tv4)
-
-Use [json-schema](http://json-schema.org/) [draft v4](http://json-schema.org/latest/json-schema-core.html) to validate simple values and complex objects using a rich [validation vocabulary](http://json-schema.org/latest/json-schema-validation.html) ([examples](http://json-schema.org/examples.html)).
 
 There is support for `$ref` with JSON Pointer fragment paths (```other-schema.json#/properties/myKey```).
 
@@ -425,7 +422,7 @@ $ bower install tv4
 #### component.io
 
 ````
-$ component install geraintluff/tv4
+$ component install rajireddy95/tv4
 ````
 
 ## Build and test
