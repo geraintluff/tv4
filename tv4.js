@@ -1030,7 +1030,7 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 			}
 		}
 		// code for discriminator logic start
-		if(schema.properties === undefined && schema.discriminator !== undefined){
+		if(schema.discriminator !== undefined){
 			var type = schema.discriminator;
 			if(key !== type) {
 
@@ -1047,6 +1047,7 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 			}
 
 		}
+
         // code for discriminator logic end
 		if (!foundMatch) {
 			if (schema.additionalProperties !== undefined) {
