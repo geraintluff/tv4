@@ -168,7 +168,7 @@ module.exports = function (grunt) {
 	grunt.registerTask('default', ['test']);
 	grunt.registerTask('prepublish', ['cleanup']);
 
-	grunt.registerTask('products', ['uglify:tv4', 'component', 'markdown']);
+	grunt.registerTask('products', ['uglify:tv4', 'markdown']);
 	grunt.registerTask('core', ['clean', 'concat_sourcemap', 'jshint', 'products', 'copy:test_deps']);
 
 	grunt.registerTask('build', ['core', 'cleanup']);

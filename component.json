@@ -1,7 +1,7 @@
 {
   "name": "tv4",
   "repo": "rajireddy95/tv4",
-  "version": "1.2.7",
+  "version": "1.2.11",
   "description": "A public domain JSON Schema v4 validator for JavaScript",
   "keywords": [
     "json-schema",
