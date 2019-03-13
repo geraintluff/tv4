@@ -10,7 +10,7 @@
 		NUMBER_MULTIPLE_OF: "数值 {value} 不是 {multipleOf} 的倍数",
 		NUMBER_MINIMUM: "数值 {value} 小于最小值 {minimum}",
 		NUMBER_MINIMUM_EXCLUSIVE: "数值 {value} 等于排除的最小值 {minimum}",
-		NUMBER_MAXIMUM: "数值 {value} is greater 大于最大值 {maximum}",
+		NUMBER_MAXIMUM: "数值 {value} 大于最大值 {maximum}",
 		NUMBER_MAXIMUM_EXCLUSIVE: "数值 {value} 等于排除的最大值 {maximum}",
 		NUMBER_NOT_A_NUMBER: "数值 {value} 不是有效的数字",
 		// String errors
