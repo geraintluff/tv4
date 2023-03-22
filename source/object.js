@@ -51,6 +51,9 @@ ValidatorContext.prototype.validateObjectProperties = function validateObjectPro
 	for (var key in data) {
 		var keyPointerPath = dataPointerPath + "/" + key.replace(/~/g, '~0').replace(/\//g, '~1');
 		var foundMatch = false;
+		if (data[key] === undefined && (!schema.required || schema.required.indexOf(key) < 0)) {
+			continue;
+		}
 		if (schema.properties !== undefined && schema.properties[key] !== undefined) {
 			foundMatch = true;
 			if (error = this.validateAll(data[key], schema.properties[key], [key], ["properties", key], keyPointerPath)) {
