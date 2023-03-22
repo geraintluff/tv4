@@ -262,7 +262,7 @@ function uriTemplateSubstitution(spec) {
 						result += "=";
 					}
 				}
-				if (varSpec.truncate != null) {
+				if (varSpec.truncate !== null) {
 					value = value.substring(0, varSpec.truncate);
 				}
 				result += shouldEscape ? encodeURIComponent(value).replace(/!/g, "%21"): notReallyPercentEncode(value);
@@ -761,7 +761,7 @@ ValidatorContext.prototype.validateEnum = function validateEnum(data, schema) {
 			return null;
 		}
 	}
-	return this.createError(ErrorCodes.ENUM_MISMATCH, {value: (typeof JSON !== 'undefined') ? JSON.stringify(data) : data}, '', '', null, data, schema);
+	return this.createError(ErrorCodes.ENUM_MISMATCH, {value: data}, '', '', null, data, schema);
 };
 
 ValidatorContext.prototype.validateNumeric = function validateNumeric(data, schema, dataPointerPath) {
